@@ -6,6 +6,6 @@ const router = express.Router();
 router.get("/get-users", getUsers);
 
 // Route thêm user mới
-router.post("/create-users", createUser);
+router.post("/create-user", createUser);
 
 module.exports = router;

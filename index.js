@@ -2,6 +2,8 @@ const express = require("express");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
 const { initDBConnection } = require("./src/config/database.js");
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
 const userRoutes = require("./src/routes/userRoutes.js");
 const PORT = process.env.PORT || 3000; // Khai báo biến PORT
 
@@ -20,7 +22,10 @@ app.use(morgan("dev"));
 		await initDBConnection(); // Kết nối một lần
 		console.log("Database connection initialized");
 
-		// Routes
+		// Swagger Documentation
+		const swaggerDocument = YAML.load("./swagger.yaml");
+		app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 		// Routes
 		app.get("/", (req, res) => {
 			res.send("Welcome to Fashion Store Management!");
