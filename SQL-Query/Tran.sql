@@ -1,0 +1,79 @@
+CREATE TABLE [ORDER](
+    Order_ID INT IDENTITY(1,1) PRIMARY KEY,
+    Order_Date DATE DEFAULT GETDATE(),
+    Discount INT DEFAULT 0,
+    Payment_Method VARCHAR(10) DEFAULT 'Cash',
+    Shipping_Fee INT DEFAULT 0,
+    Order_Status VARCHAR(10) DEFAULT 'Preparing',
+    Total_Item_Amount INT DEFAULT 0,
+    Customer_Notes VARCHAR(255)
+);
+
+GO
+
+CREATE TABLE VOUCHER(
+    Voucher_ID INT IDENTITY(1,1) PRIMARY KEY,
+    Voucher_Code CHAR(5) UNIQUE,
+    Voucher_Name VARCHAR(50) DEFAULT 'Voucher',
+    Voucher_Status VARCHAR(10) DEFAULT 'Not activated',
+    Discount_Percentage INT DEFAULT 0,
+    Max_Discount_Amount INT DEFAULT 0
+);
+
+GO
+
+CREATE TABLE DELIVERY_INFO(
+    Shipping_Code INT IDENTITY(1,1) PRIMARY KEY,
+    Shipping_Provider VARCHAR(50) DEFAULT '',
+    Pick_up_Date DATE DEFAULT GETDATE(),
+    Expected_Delivery_Date DATE DEFAULT DATEADD(DAY, 10, GETDATE()),
+    Order_ID INT,
+)
+GO
+
+ALTER TABLE DELIVERY_INFO
+ADD CONSTRAINT fk_delivery_info_vs_order FOREIGN KEY (Order_ID) REFERENCES [ORDER](Order_ID)
+
+GO
+
+CREATE TABLE RETURN_ORDER(
+    Return_Order_ID INT IDENTITY(1,1) PRIMARY KEY,
+    Reason VARCHAR(255) DEFAULT 'ERROR',
+    Return_Description VARCHAR(255) DEFAULT '',
+    Return_Status VARCHAR(50) DEFAULT 'Under consideration',
+    Order_ID INT
+)
+
+GO
+
+ALTER TABLE RETURN_ORDER
+ADD CONSTRAINT fk_return_order_vs_order FOREIGN KEY (Order_ID) REFERENCES [ORDER](Order_ID)
+
+GO
+
+CREATE TABLE APPLY_VOUCHER(
+    Voucher_ID INT PRIMARY KEY,
+    Order_ID INT
+)
+
+ALTER TABLE APPLY_VOUCHER 
+ADD CONSTRAINT fk_apply_voucher_vs_voucher FOREIGN KEY (Voucher_ID) REFERENCES VOUCHER(Voucher_ID)
+
+ALTER TABLE APPLY_VOUCHER 
+ADD CONSTRAINT fk_apply_voucher_vs_order FOREIGN KEY (Order_ID) REFERENCES [ORDER](Order_ID)
+
+GO
+-- delete --
+ALTER TABLE APPLY_VOUCHER DROP CONSTRAINT fk_apply_voucher_vs_voucher
+ALTER TABLE APPLY_VOUCHER DROP CONSTRAINT fk_apply_voucher_vs_order
+DROP TABLE APPLY_VOUCHER
+
+ALTER TABLE RETURN_ORDER DROP CONSTRAINT fk_return_order_vs_order
+DROP TABLE RETURN_ORDER
+
+ALTER TABLE DELIVERY_INFO DROP CONSTRAINT fk_delivery_info_vs_order
+DROP TABLE DELIVERY_INFO
+
+DROP TABLE VOUCHER
+
+DROP TABLE [ORDER]
