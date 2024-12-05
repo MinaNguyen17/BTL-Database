@@ -613,7 +613,13 @@ END;
 
 GO
 
-----------------------------------------PROCEDURE-----------------------------------------------
+----------------------------------------PROCEDURE & FUNCTION------------------------------------
+CREATE FUNCTION GenerateVoucherCode()
+RETURNS CHAR(5)
+AS
+BEGIN
+    RETURN 'V' + RIGHT(CAST((ABS(CHECKSUM(NEWID())) % 10000) AS VARCHAR(4)), 4);
+END;
 
 GO
 ----------------------------------------INSERT VALUE--------------------------------------------
@@ -999,10 +1005,89 @@ SELECT * FROM Of_Group;
 -- -- Kiểm tra dữ liệu bảng Contain
 -- SELECT * FROM Contain;
 
+-- Dữ liệu cho phần ORDER
+INSERT INTO [ORDER] (Discount, Payment_Method, Shipping_Fee, Order_Status, Total_Item_Amount, Customer_Notes)
+VALUES 
+(10, 'Cash', 20, 'Shipped', 3, 'Please deliver in the morning'),
+(15, 'Card', 25, 'Preparing', 5, 'Fragile item, handle with care'),
+(5, 'Online', 15, 'Completed', 2, NULL),
+(20, 'Cash', 10, 'Cancelled', 0, 'Out of stock'),
+(0, 'Online', 5, 'Preparing', 1, NULL),
+(30, 'Card', 35, 'Shipped', 6, 'Gift wrap required'),
+(0, 'Online', 0, 'Completed', 4, 'Deliver to reception'),
+(25, 'Cash', 20, 'Shipped', 7, 'Urgent delivery needed'),
+(10, 'Online', 10, 'Completed', 5, NULL),
+(15, 'Card', 30, 'Cancelled', 0, 'Address not found');
+
+
+INSERT INTO VOUCHER (Voucher_Code, Voucher_Name, Voucher_Status, Discount_Percentage, Max_Discount_Amount)
+VALUES 
+(dbo.GenerateVoucherCode(), 'Special Offer', 'Activated', 20, 300),
+(dbo.GenerateVoucherCode(), 'Holiday Deal', 'Not activated', 15, 150),
+(dbo.GenerateVoucherCode(), 'Flash Sale', 'Expired', 25, 250),
+(dbo.GenerateVoucherCode(), 'Black Friday', 'Activated', 30, 500),
+(dbo.GenerateVoucherCode(), 'New Year Gift', 'Not activated', 10, 100),
+(dbo.GenerateVoucherCode(), 'Birthday Bonus', 'Activated', 20, 200),
+(dbo.GenerateVoucherCode(), 'Loyalty Reward', 'Activated', 25, 300),
+(dbo.GenerateVoucherCode(), 'Referral Code', 'Activated', 15, 150),
+(dbo.GenerateVoucherCode(), 'Summer Sale', 'Expired', 40, 400),
+(dbo.GenerateVoucherCode(), 'Clearance Offer', 'Not activated', 50, 500);
+
+INSERT INTO DELIVERY_INFO (Shipping_Provider, Pick_up_Date, Expected_Delivery_Date, Order_ID)
+VALUES
+('FedEx', GETDATE(), DATEADD(DAY, 7, GETDATE()), 1),
+('DHL', GETDATE(), DATEADD(DAY, 10, GETDATE()), 2),
+('UPS', GETDATE(), DATEADD(DAY, 5, GETDATE()), 3),
+('USPS', GETDATE(), DATEADD(DAY, 8, GETDATE()), 4),
+('Aramex', GETDATE(), DATEADD(DAY, 10, GETDATE()), 5),
+('BlueDart', GETDATE(), DATEADD(DAY, 12, GETDATE()), 6),
+('TNT', GETDATE(), DATEADD(DAY, 6, GETDATE()), 7),
+('FedEx', GETDATE(), DATEADD(DAY, 10, GETDATE()), 8),
+('DHL', GETDATE(), DATEADD(DAY, 9, GETDATE()), 9),
+('UPS', GETDATE(), DATEADD(DAY, 7, GETDATE()), 10);
+
+INSERT INTO RETURN_ORDER (Reason, Return_Description, Return_Status, Order_ID)
+VALUES
+('Damaged item', 'Item arrived broken', 'Approved', 1),
+('Wrong item', 'Received a different product', 'Under consideration', 2),
+('Change of mind', '', 'Rejected', 3),
+('Late delivery', '', 'Approved', 4);
+
+INSERT INTO VOUCHER_VALID_PERIOD (Voucher_ID, Voucher_Start_Date, Voucher_End_Date)
+VALUES
+(1, '2024-01-01', '2024-01-31'),
+(2, '2024-02-01', '2024-02-28'),
+(3, '2024-03-01', '2024-03-31'),
+(4, '2024-04-01', '2024-04-30'),
+(5, '2024-05-01', '2024-05-31'),
+(6, '2024-06-01', '2024-06-30'),
+(7, '2024-07-01', '2024-07-31'),
+(8, '2024-08-01', '2024-08-31'),
+(9, '2024-09-01', '2024-09-30'),
+(10, '2024-10-01', '2024-10-31');
+
+INSERT INTO APPLY_VOUCHER (Voucher_ID, Order_ID)
+VALUES 
+(1, 2), -- Voucher ID 1 được áp dụng cho Order ID 2
+(3, 4), -- Voucher ID 3 được áp dụng cho Order ID 4
+(5, 6), -- Voucher ID 5 được áp dụng cho Order ID 6
+(7, 8), -- Voucher ID 7 được áp dụng cho Order ID 8
+(9, 10); -- Voucher ID 9 được áp dụng cho Order ID 10
+
+-- Giả định ITEM và ORDER đã có dữ liệu.
+INSERT INTO INCLUDE_ITEM (Order_ID, Item_ID, Count)
+VALUES
+(1, 101, 2), -- Order 1 bao gồm 2 Item có ID 101
+(1, 102, 1), -- Order 1 bao gồm 1 Item có ID 102
+(2, 103, 5), -- Order 2 bao gồm 5 Item có ID 103
+(3, 101, 3), -- Order 3 bao gồm 3 Item có ID 101
+(4, 104, 4); -- Order 4 bao gồm 4 Item có ID 104
+
+
+
 
 
 ----------------------------------------DELETE--------------------------------------------
-<<<<<<< HEAD
 -- Drop các bảng chứa các ràng buộc khóa ngoại trước
 ALTER TABLE HANDLE DROP CONSTRAINT fk_handle_vs_customer_service_employee;
 ALTER TABLE HANDLE DROP CONSTRAINT fk_handle_vs_order;
@@ -1044,25 +1129,6 @@ ALTER TABLE CUSTOMER DROP CONSTRAINT fk_customer_vs_customer_group;
 ALTER TABLE RECEIVER_INFO DROP CONSTRAINT fk_receiver_info_vs_customer;
 ALTER TABLE RECEIVER_INFO DROP CONSTRAINT fk_receiver_info_vs_customer_group;
 ALTER TABLE CUSTOMER_GROUP DROP CONSTRAINT fk_customer_group_vs_customer;
-=======
-DROP SEQUENCE EmpID_Sequence
-DROP TABLE GET_FEEDBACK
-DROP TABLE HANDLE
-DROP TABLE INCLUDE_ITEM
-DROP TABLE PERSON
-DROP TABLE INCHARGE_OF
-DROP TABLE PREPARE
-DROP TABLE VOUCHER_VALID_PERIOD
-DROP TABLE Expense_Receipt;
-DROP TABLE Income_Receipt;
-DROP TABLE Expense_Type;
-DROP TABLE Income_Type;
--- Xóa các bảng con trước
-DROP TABLE IF EXISTS RECONCILE;
-DROP TABLE IF EXISTS IMPORT;
-DROP TABLE IF EXISTS RETURN_ITEM;
-DROP TABLE IF EXISTS COMBINE;
->>>>>>> b6d3887e6079c26f661126fac8c2a28521b38056
 
 -- Drop tất cả các bảng
 DROP TABLE IF EXISTS HANDLE;
