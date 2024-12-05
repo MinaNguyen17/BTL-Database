@@ -83,7 +83,7 @@ CREATE TABLE PERSON (
 CREATE TABLE ACCOUNT (
     Account_ID INT IDENTITY(1,1) PRIMARY KEY,        -- Khóa chính, tự động tăng từ 1
     ID_Card_Num CHAR(12) UNIQUE NOT NULL, 
-    Email VARCHAR(100) NOT NULL UNIQUE,            -- Email, không được trùng lặp
+    Username VARCHAR(100) NOT NULL UNIQUE,            -- Email, không được trùng lặp
     [Password] VARCHAR(255) NOT NULL,                -- Mật khẩu
     [Role] CHAR(20) NOT NULL,                     -- Vai trò
     [Status] NVARCHAR(20) NOT NULL DEFAULT 'Active',  -- Trạng thái, mặc định là Active
@@ -117,6 +117,7 @@ CREATE TABLE SHIFT (
     Shift_ID INT IDENTITY(1,1) PRIMARY KEY,
     Shift_Type CHAR(1) NOT NULL,
     [Date] DATE NOT NULL,
+    E_Num INT NOT NULL,
     Rate DECIMAL(5, 2) DEFAULT 1.00,
     CONSTRAINT CK_Shift_Type CHECK (Shift_Type IN ('1', '2', '3'))
 );
@@ -534,6 +535,7 @@ ADD CONSTRAINT fk_handle_vs_customer_service_employee FOREIGN KEY (Item_ID) REFE
 
 GO
 -----------------------------------------TRIGGER------------------------------------------------
+GO
 CREATE TRIGGER add_CreateEmpID
 ON Employee
 INSTEAD OF INSERT
@@ -548,12 +550,81 @@ BEGIN
     FROM INSERTED i;
 END;
 
+-- DROP TRIGGER add_Work_on
 GO
+CREATE TRIGGER add_Work_on
+ON WORK_ON
+INSTEAD OF INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Bắt đầu giao dịch
+    BEGIN TRANSACTION;
+
+    BEGIN TRY
+        -- Kiểm tra tổng số bản ghi trong inserted
+        IF (SELECT COUNT(*) FROM inserted) > 1
+        BEGIN
+            ROLLBACK TRANSACTION;
+            RAISERROR ('Không thể chèn nhiều bản ghi vào WORK_ON cùng lúc. Vui lòng chèn từng bản ghi một.', 16, 1);
+            RETURN;
+        END
+
+        -- Biến để lưu thông tin kiểm tra
+        DECLARE @ShiftID INT;
+        DECLARE @ID_Card_Num CHAR(12);
+        DECLARE @MaxPeople INT;
+        DECLARE @CurrentPeople INT;
+
+        -- Lấy giá trị từ bảng inserted (bản ghi muốn chèn)
+        SELECT @ShiftID = Shift_ID, @ID_Card_Num = ID_Card_Num
+        FROM inserted;
+
+        -- Khóa dữ liệu của ca đang xét để tránh giao dịch đồng thời
+        SELECT @MaxPeople = E_Num
+        FROM SHIFT WITH (UPDLOCK, HOLDLOCK)
+        WHERE Shift_ID = @ShiftID;
+
+        -- Lấy số lượng người hiện tại trong ca
+        SELECT @CurrentPeople = COUNT(*)
+        FROM WORK_ON WITH (UPDLOCK, HOLDLOCK)
+        WHERE Shift_ID = @ShiftID;
+
+        -- Kiểm tra nếu số lượng đã đủ
+        IF @CurrentPeople >= @MaxPeople
+        BEGIN
+            RAISERROR ('Nhân viên %s không thể đăng ký. Số người trong ca đã đạt giới hạn.', 16, 1, @ID_Card_Num);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
+        -- Nếu chưa đủ người, thực hiện chèn
+        INSERT INTO WORK_ON (Shift_ID, ID_Card_Num)
+        SELECT Shift_ID, ID_Card_Num
+        FROM inserted;
+
+        -- Kết thúc giao dịch
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Xử lý lỗi và hủy giao dịch
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH;
+END;
+
+GO
+
+
 
 ----------------------------------------PROCEDURE-----------------------------------------------
 
 GO
 ----------------------------------------INSERT VALUE--------------------------------------------
+
+-- 24 EMPLOYEE
 INSERT INTO Person (ID_Card_Num, Fname, Lname, DOB)
 VALUES
 ('123456789012', 'Nguyen Minh', 'Hoa', '1990-05-10'),
@@ -580,52 +651,120 @@ VALUES
 ('140055667788', 'Tran Minh', 'Quang', '1985-11-02'),
 ('150066778899', 'Le Thi', 'Kim', '1993-09-13'),
 ('160077889900', 'Pham Van', 'Cuong', '1994-02-24');
-
-
 SELECT * FROM Person;
 
-INSERT INTO Account (ID_Card_Num, Email, Password, Role, Status)
-VALUES 
-('123456789012','employee1@example.com', 'hashed_password1', 'Employee', 'Active'),
-('987654321098','admin@example.com', 'hashed_password2', 'Admin', 'Active');
-
-INSERT INTO Employee (ID_Card_Num, Position, Wage)
+INSERT INTO Account (ID_Card_Num, Username, Password, Role, Status)
 VALUES
-('123456789012', 'Sale', 25000),
-('987654321098', 'Manager', 50000),
-('222222221111', 'Tele', 25000),
-('332211445577', 'Package', 50000);
+('123456789012', 'NguyenMinhHoa012', 'hashed_password1', 'Admin', 'Active'),
+('987654321098', 'TranVanBinh098', 'hashed_password2', 'Admin', 'Active'),
+('222222221111', 'NguyenVanMinh111', 'hashed_password3', 'Admin', 'Active'),
+('332211445577', 'TranThiSau577', 'hashed_password4', 'Employee', 'Active'),
+('555555555555', 'LeThiHanh555', 'hashed_password5', 'Employee', 'Active'),
+('666666666666', 'PhamVanPhuc666', 'hashed_password6', 'Employee', 'Active'),
+('777777777777', 'NguyenThiDao777', 'hashed_password7', 'Employee', 'Active'),
+('888888888888', 'DoHoangAnh888', 'hashed_password8', 'Employee', 'Active'),
+('999999999999', 'TranThiHong999', 'hashed_password9', 'Employee', 'Active'),
+('112233445566', 'NguyenVanTam566', 'hashed_password10', 'Employee', 'Active'),
+('223344556677', 'PhamMinhLong677', 'hashed_password11', 'Employee', 'Active'),
+('334455667788', 'LeHoangLinh788', 'hashed_password12', 'Employee', 'Active'),
+('445566778899', 'NguyenThiTrang899', 'hashed_password13', 'Employee', 'Active'),
+('556677889900', 'TranVanHoa900', 'hashed_password14', 'Employee', 'Active'),
+('667788990011', 'PhamThiMy011', 'hashed_password15', 'Employee', 'Active'),
+('778899001122', 'DoVanHung122', 'hashed_password16', 'Employee', 'Active'),
+('889900112233', 'NguyenThiLan233', 'hashed_password17', 'Employee', 'Active'),
+('990011223344', 'LeVanDung344', 'hashed_password18', 'Employee', 'Active'),
+('110022334455', 'TranHoangNam455', 'hashed_password19', 'Employee', 'Active'),
+('120033445566', 'PhamThiHue566', 'hashed_password20', 'Employee', 'Active'),
+('130044556677', 'NguyenVanHieu677', 'hashed_password21', 'Employee', 'Active'),
+('140055667788', 'TranMinhQuang788', 'hashed_password22', 'Employee', 'Active'),
+('150066778899', 'LeThiKim899', 'hashed_password23', 'Employee', 'Active'),
+('160077889900', 'PhamVanCuong900', 'hashed_password24', 'Employee', 'Active');
+SELECT p.ID_Card_Num, p.Fname, p.Lname, a.Username, a.Password
+FROM Person p
+JOIN Account a ON p.ID_Card_Num = a.ID_Card_Num;
+
+INSERT INTO EMPLOYEE (ID_Card_Num, Position, Wage)
+VALUES
+('123456789012', 'Senior', 35000),  -- Admin -> Senior
+('987654321098', 'Senior', 30000),  -- Admin -> Senior
+('222222221111', 'Senior', 35000),  -- Admin -> Senior
+('332211445577', 'Senior', 30000), 
+('555555555555', 'Junior', 25000), 
+('666666666666', 'Junior', 25000),
+('777777777777', 'Junior', 25000), 
+('888888888888', 'Senior', 35000), 
+('999999999999', 'Junior', 25000), 
+('112233445566', 'Senior', 30000), 
+('223344556677', 'Junior', 25000), 
+('334455667788', 'Junior', 25000), 
+('445566778899', 'Senior', 35000), 
+('556677889900', 'Junior', 25000), 
+('667788990011', 'Senior', 30000), 
+('778899001122', 'Junior', 25000), 
+('889900112233', 'Junior', 25000), 
+('990011223344', 'Senior', 30000), 
+('110022334455', 'Senior', 35000), 
+('120033445566', 'Junior', 25000), 
+('130044556677', 'Junior', 25000), 
+('140055667788', 'Senior', 30000), 
+('150066778899', 'Junior', 25000), 
+('160077889900', 'Senior', 35000);
 
 SELECT * FROM Employee;
 
 INSERT INTO Working_Period (ID_Card_Num, Start_Date, End_Date)
 VALUES 
-('123456789012', '2024-01-01', '2024-06-30'), -- Sale
-('987654321098', '2024-01-01', '2024-12-31'), -- Manager
-('222222221111', '2024-02-01', '2024-08-31'), -- Tele
-('332211445577', '2024-03-01', '2024-09-30'), -- Package
-('123456789012', '2022-01-01', '2023-06-30'), -- Sale
-('332211445577', '2020-03-01', '2021-12-30'); -- Package
+('123456789012', '2024-01-01', '2024-06-30'), 
+('987654321098', '2024-01-01', '2024-12-31'), 
+('222222221111', '2024-02-01', '2024-08-31'), 
+('332211445577', '2024-03-01', '2024-09-30'),
+('123456789012', '2022-01-01', '2023-06-30'), 
+('332211445577', '2020-03-01', '2021-12-30');
 
 SELECT * FROM Working_Period;
 
-INSERT INTO Shift (Shift_Type, [Date], Rate)
+INSERT INTO Shift (Shift_Type, [Date], Rate, E_Num)
 VALUES 
-('1', '2024-12-05', 1),
-('2', '2024-12-05', 1),
-('3', '2024-12-05', 1.25),
-('1', '2024-12-06', 1),
-('2', '2024-12-06', 1),
-('3', '2024-12-06', 1.25),
-('1', '2024-12-07', 1.25),
-('2', '2024-12-07', 1.25),
-('3', '2024-12-07', 1.5);
+('1', '2024-12-05', 1, 2),
+('2', '2024-12-05', 1, 2),
+('3', '2024-12-05', 1.25, 4),
+('1', '2024-12-06', 1, 2),
+('2', '2024-12-06', 1, 2),
+('3', '2024-12-06', 1.25, 3),
+('1', '2024-12-07', 1.25, 2),
+('2', '2024-12-07', 1.25, 2),
+('3', '2024-12-07', 1.5, 4);
 
 SELECT * FROM Shift;
 
+DELETE FROM WORK_ON;
+
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (1, '123456789012'); 
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (1, '987654321098'); 
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (2, '222222221111');
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (2, '332211445577'); 
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (3, '555555555555');
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (3, '666666666666');
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (3, '777777777777'); 
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (4, '999999999999');
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (4, '112233445566'); 
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (5, '223344556677');
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (5, '334455667788'); 
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (6, '445566778899'); 
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (7, '889900112233'); 
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (8, '130044556677'); 
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (9, '150066778899');
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (9, '160077889900');
+
+
+-- KHONG CHEN CUNG LUC DUOC
+INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES 
+(5, '223344556677'),
+(5, '332211445577'),
+(5, '555555555555'); 
+
+SELECT * FROM WORK_ON;
 GO
-
-
 
 -- Dữ liệu cho bảng CUSTOMER_GROUP
 INSERT INTO CUSTOMER_GROUP (Group_Name, Requirement, Group_Note)
@@ -738,6 +877,7 @@ SELECT * FROM Of_Group;
 
 
 ----------------------------------------DELETE--------------------------------------------
+DROP SEQUENCE EmpID_Sequence
 DROP TABLE GET_FEEDBACK
 DROP TABLE HANDLE
 DROP TABLE INCLUDE_ITEM
