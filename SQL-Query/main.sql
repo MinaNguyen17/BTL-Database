@@ -174,7 +174,7 @@ CREATE TABLE EXPENSE_TYPE (
 -- CREATE EXPENSE_RECEIPT
 CREATE TABLE EXPENSE_RECEIPT (
     Expense_ID INT IDENTITY(1,1) PRIMARY KEY,
-    [Name] VARCHAR(40) NOT NULL UNIQUE,
+    [Name] VARCHAR(40) NOT NULL,
     [Date] DATE NOT NULL,
     Amount INT NOT NULL,
     Payee_Name VARCHAR(40) NOT NULL,
@@ -190,7 +190,7 @@ CREATE TABLE INCOME_TYPE (
 -- CREATE INCOME_RECEIPT
 CREATE TABLE INCOME_RECEIPT (
     Income_ID INT IDENTITY(1,1) PRIMARY KEY,
-    [Name] VARCHAR(40) NOT NULL UNIQUE,
+    [Name] VARCHAR(40) NOT NULL,
     [Date] DATE NOT NULL,
     Amount INT NOT NULL,
     Payer_Name VARCHAR(40) NOT NULL,
@@ -372,12 +372,6 @@ CREATE TABLE Contain (
     CONSTRAINT FK_Contain_Inventory_Report FOREIGN KEY (Inventory_Report_ID) REFERENCES INVENTORY_REPORT(Inventory_Report_ID),
     CONSTRAINT FK_Contain_Item FOREIGN KEY (Item_ID) REFERENCES ITEM(Item_ID)
 );
-
-
-
-
-
-
 
 -- Bảng IMPORT_BILL
 CREATE TABLE IMPORT_BILL (
@@ -618,8 +612,6 @@ END;
 
 GO
 
-
-
 ----------------------------------------PROCEDURE-----------------------------------------------
 
 GO
@@ -652,7 +644,7 @@ VALUES
 ('140055667788', 'Tran Minh', 'Quang', '1985-11-02'),
 ('150066778899', 'Le Thi', 'Kim', '1993-09-13'),
 ('160077889900', 'Pham Van', 'Cuong', '1994-02-24');
-SELECT * FROM Person;
+-- SELECT * FROM Person;
 
 INSERT INTO Account (ID_Card_Num, Username, Password, Role, Status)
 VALUES
@@ -680,9 +672,9 @@ VALUES
 ('140055667788', 'TranMinhQuang788', 'hashed_password22', 'Employee', 'Active'),
 ('150066778899', 'LeThiKim899', 'hashed_password23', 'Employee', 'Active'),
 ('160077889900', 'PhamVanCuong900', 'hashed_password24', 'Employee', 'Active');
-SELECT p.ID_Card_Num, p.Fname, p.Lname, a.Username, a.Password
-FROM Person p
-JOIN Account a ON p.ID_Card_Num = a.ID_Card_Num;
+-- SELECT p.ID_Card_Num, p.Fname, p.Lname, a.Username, a.Password
+-- FROM Person p
+-- JOIN Account a ON p.ID_Card_Num = a.ID_Card_Num;
 
 INSERT INTO EMPLOYEE (ID_Card_Num, Position, Wage)
 VALUES
@@ -711,7 +703,7 @@ VALUES
 ('150066778899', 'Junior', 25000), 
 ('160077889900', 'Senior', 35000);
 
-SELECT * FROM Employee;
+-- SELECT * FROM Employee;
 
 INSERT INTO Working_Period (ID_Card_Num, Start_Date, End_Date)
 VALUES 
@@ -722,7 +714,7 @@ VALUES
 ('123456789012', '2022-01-01', '2023-06-30'), 
 ('332211445577', '2020-03-01', '2021-12-30');
 
-SELECT * FROM Working_Period;
+-- SELECT * FROM Working_Period;
 
 INSERT INTO Shift (Shift_Type, [Date], Rate, E_Num)
 VALUES 
@@ -736,7 +728,7 @@ VALUES
 ('2', '2024-12-07', 1.25, 2),
 ('3', '2024-12-07', 1.5, 4);
 
-SELECT * FROM Shift;
+-- SELECT * FROM Shift;
 
 -- DELETE FROM WORK_ON;
 
@@ -757,14 +749,13 @@ INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (8, '130044556677');
 INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (9, '150066778899');
 INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES (9, '160077889900');
 
-
 -- KHONG CHEN CUNG LUC DUOC
 -- INSERT INTO WORK_ON (Shift_ID, ID_Card_Num) VALUES 
 -- (5, '223344556677'),
 -- (5, '332211445577'),
 -- (5, '555555555555'); 
 
-SELECT * FROM WORK_ON;
+-- SELECT * FROM WORK_ON;
 GO
 
 -- Insert 5 employees into SALES_EMPLOYEE
@@ -776,7 +767,14 @@ VALUES
 ('332211445577'),
 ('555555555555');
 
-SELECT * FROM SALES_EMPLOYEE;
+-- SELECT * FROM SALES_EMPLOYEE S JOIN EMPLOYEE E ON S.ID_Card_Num = E.ID_Card_Num;
+
+INSERT INTO SUPERVISE (Supervisor_ID, Supervisee_ID)
+VALUES
+('123456789012', '222222221111'),
+('123456789012', '987654321098'),
+('123456789012', '332211445577'),
+('222222221111', '555555555555');
 
 -- Insert 5 employees into PACKAGING_EMPLOYEE
 INSERT INTO PACKAGING_EMPLOYEE (ID_Card_Num)
@@ -820,6 +818,37 @@ VALUES
 ('160077889900');
 
 SELECT * FROM WAREHOUSE_EMPLOYEE;
+
+INSERT INTO EXPENSE_TYPE ([Name]) VALUES
+('Inventory Purchase'),
+('Rent'),
+('Salaries'),
+('Utilities'),
+('Marketing');
+
+INSERT INTO EXPENSE_RECEIPT ([Name], [Date], Amount, Payee_Name, Expense_Type_ID) VALUES
+('Purchase of Winter Collection', '2024-12-01', 10000000, 'Fashion Supplier', 1),
+('Store Rent for December', '2024-12-01', 25000000, 'Landlord', 2),
+('Salary Payment for December', '2024-12-01', 20000000, 'Employee', 3),
+('Electricity Bill', '2024-12-02', 1000000, 'Electricity Provider', 4),
+('Facebook Ads Campaign', '2024-12-02', 5000000, 'Ad Agency', 5);
+
+SELECT * FROM EXPENSE_RECEIPT R JOIN EXPENSE_TYPE T ON R.Expense_Type_ID = T.Expense_Type_ID
+
+INSERT INTO INCOME_TYPE ([Name]) VALUES
+('Sales Revenue'),
+('Inventory Returns');
+
+-- Insert 5 sample records into INCOME_RECEIPT (Income related to the fashion store)
+INSERT INTO INCOME_RECEIPT ([Name], [Date], Amount, Payer_Name, Income_Type_ID) VALUES
+('Sale of Order', '2024-12-01', 2000000, 'Customer A', 1),
+('Return of Faulty Shoes', '2024-12-02', 1000000, 'Supplier B', 2),
+('Return of Faulty Dresses', '2024-12-02', 10000000, 'Supplier G', 2),
+('Sale of Order', '2024-11-11', 5000000, 'Customer X', 1);
+
+
+
+-------
 
 -- Dữ liệu cho bảng CUSTOMER_GROUP
 INSERT INTO CUSTOMER_GROUP (Group_Name, Requirement, Group_Note)
