@@ -384,16 +384,18 @@ SELECT * FROM Of_Group;
 -- Dữ liệu cho phần ORDER
 INSERT INTO [ORDER] (Discount, Payment_Method, Shipping_Fee, Order_Status, Total_Item_Amount, Customer_Notes)
 VALUES 
-(10, 'Cash', 20, 'Shipped', 3, 'Please deliver in the morning'),
-(15, 'Card', 25, 'Preparing', 5, 'Fragile item, handle with care'),
-(5, 'Online', 15, 'Completed', 2, NULL),
-(20, 'Cash', 10, 'Cancelled', 0, 'Out of stock'),
-(0, 'Online', 5, 'Preparing', 1, NULL),
-(30, 'Card', 35, 'Shipped', 6, 'Gift wrap required'),
-(0, 'Online', 0, 'Completed', 4, 'Deliver to reception'),
-(25, 'Cash', 20, 'Shipped', 7, 'Urgent delivery needed'),
-(10, 'Online', 10, 'Completed', 5, NULL),
-(15, 'Card', 30, 'Cancelled', 0, 'Address not found');
+(10, 'Cash', 20, 'Shipped', 300, 'Please deliver in the morning'),
+(15, 'Card', 25, 'Preparing', 500, 'Fragile item, handle with care'),
+(5, 'Online', 15, 'Completed', 200, 'No special instructions'),
+(20, 'Cash', 10, 'Canceled', 0, 'Out of stock, please refund'),
+(0, 'Online', 5, 'Preparing', 100, 'No special instructions'),
+(30, 'Card', 35, 'Shipped', 600, 'Gift wrap required, please include a note'),
+(0, 'Online', 0, 'Completed', 400, 'Deliver to reception desk'),
+(25, 'Cash', 20, 'Shipped', 700, 'Urgent delivery needed, please prioritize'),
+(10, 'Online', 10, 'Completed', 500, 'No special instructions'),
+(15, 'Card', 30, 'Canceled', 0, 'Address not found, please check details');
+
+
 
 
 INSERT INTO VOUCHER (Voucher_Code, Voucher_Name, Voucher_Status, Discount_Percentage, Max_Discount_Amount)
@@ -445,16 +447,40 @@ VALUES
 INSERT INTO APPLY_VOUCHER (Voucher_ID, Order_ID)
 VALUES 
 (1, 2), -- Voucher ID 1 được áp dụng cho Order ID 2
-(3, 4), -- Voucher ID 3 được áp dụng cho Order ID 4
-(5, 6), -- Voucher ID 5 được áp dụng cho Order ID 6
-(7, 8), -- Voucher ID 7 được áp dụng cho Order ID 8
-(9, 10); -- Voucher ID 9 được áp dụng cho Order ID 10
+(3, 4),
+(5, 6),
+(7, 8),
+(9, 10);
 
--- Giả định ITEM và ORDER đã có dữ liệu.
-INSERT INTO INCLUDE_ITEM (Order_ID, Item_ID, Count)
+-- INSERT INTO INCLUDE_ITEM (Order_ID, Item_ID, Count)
+-- VALUES
+-- (1, 101, 2), -- Order 1 bao gồm 2 Item có ID 101
+-- (1, 102, 1),
+-- (2, 103, 5),
+-- (3, 101, 3),
+-- (4, 104, 4);
+
+INSERT INTO INCHARGE_OF (Order_ID, ID_Card_Num)
 VALUES
-(1, 101, 2), -- Order 1 bao gồm 2 Item có ID 101
-(1, 102, 1), -- Order 1 bao gồm 1 Item có ID 102
-(2, 103, 5), -- Order 2 bao gồm 5 Item có ID 103
-(3, 101, 3), -- Order 3 bao gồm 3 Item có ID 101
-(4, 104, 4); -- Order 4 bao gồm 4 Item có ID 104
+(1, '123456789012'), -- Sales Employee với ID Card phụ trách Order 1
+(2, '987654321098'),
+(3, '222222221111'),
+(4, '332211445577'),
+(5, '555555555555'); 
+
+INSERT INTO PREPARE (Order_ID, ID_Card_Num)
+VALUES
+(1, '666666666666'), -- Packaging Employee với ID Card chuẩn bị Order 1
+(2, '777777777777'),
+(3, '888888888888'),
+(4, '999999999999'),
+(5, '112233445566');
+
+
+INSERT INTO GET_FEEDBACK (Order_ID, ID_Card_Num)
+VALUES
+(1, '223344556677'), -- Customer Service Employee với ID Card nhận phản hồi cho Order 1
+(2, '334455667788'),
+(3, '445566778899'),
+(4, '556677889900'), 
+(5, '667788990011'); 
