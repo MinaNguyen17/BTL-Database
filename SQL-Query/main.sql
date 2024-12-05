@@ -297,7 +297,8 @@ CREATE TABLE RECEIVER_INFO (
     District NVARCHAR(100),
     City NVARCHAR(100),
     
-    [Name] NVARCHAR(100),
+    Fname NVARCHAR(20) NOT NULL,
+    Lname NVARCHAR(40) NOT NULL,
     Phone NVARCHAR(15) CHECK (LEN(Phone) <= 10),
 
     PRIMARY KEY (ID_Card_Num, Customer_ID, Housenum, Street, District, City),
@@ -307,9 +308,9 @@ CREATE TABLE RECEIVER_INFO (
 -- Bảng OF_GROUP
 CREATE TABLE OF_GROUP (
     Voucher_ID INT NOT NULL UNIQUE,
-    Group_Name NVARCHAR(50) NOT NULL UNIQUE,
+    Group_Name NVARCHAR(50) NOT NULL,
     PRIMARY KEY (Voucher_ID, Group_Name),
-    CONSTRAINT FK_Of_Group_Voucher FOREIGN KEY (Voucher_ID) REFERENCES Voucher(Voucher_ID),
+    CONSTRAINT FK_Of_Group_Voucher FOREIGN KEY (Voucher_ID) REFERENCES VOUCHER(Voucher_ID),
     CONSTRAINT FK_Of_Group_Customer_Group FOREIGN KEY (Group_Name) REFERENCES CUSTOMER_GROUP(Group_Name)
 );
 
@@ -839,8 +840,13 @@ VALUES
 ('123456789012', 'Member'),
 ('987654321098', 'Silver'),
 ('112233445566', 'Gold'),
-('998877665544', 'Platinum'),
-('556677889900', 'Diamond');
+('223344556677', 'Platinum'),
+('334455667788', 'Diamond'),
+('445566778899', 'Silver'),
+('556677889900', 'Gold'),
+('667788990011', 'Platinum'),
+('778899001122', 'Diamond'),
+('889900112233', 'Member');
 
 -- Kiểm tra dữ liệu bảng CUSTOMER
 SELECT * FROM CUSTOMER;
@@ -848,11 +854,16 @@ SELECT * FROM CUSTOMER;
 -- Dữ liệu cho bảng REVENUE_REPORT_BY_ITEM
 INSERT INTO REVENUE_REPORT_BY_ITEM (Report_Type, Total_Revenue, [Day], [Month], [Year])
 VALUES 
-('Daily', 150000.50, 1, 12, 2024),
-('Daily', 1050000.75, 7, 12, 2024),
-('Monthly', 5000000.00, NULL, 12, 2024),
-('Monthly', 15000000.25, NULL, 6, 2024),
-('Yearly', 75000000.00, NULL, NULL, 2023);
+('Daily', 15000.50, 1, 12, 2024),
+('Daily', 10500.75, 7, 12, 2024),
+('Daily', 20000.00, 15, 12, 2024),
+('Monthly', 500000.00, NULL, 12, 2024),
+('Monthly', 150000.25, NULL, 6, 2024),
+('Monthly', 10000000.50, NULL, 10, 2024),
+('Yearly', 750000000.00, NULL, NULL, 2023),
+('Yearly', 100000000.00, NULL, NULL, 2024),
+('Yearly', 500000000.00, NULL, NULL, 2022),
+('Monthly', 120000.75, NULL, 8, 2024);
 
 -- Kiểm tra dữ liệu bảng REVENUE_REPORT_BY_ITEM
 SELECT * FROM REVENUE_REPORT_BY_ITEM;
@@ -860,23 +871,33 @@ SELECT * FROM REVENUE_REPORT_BY_ITEM;
 -- Dữ liệu cho bảng INVENTORY_REPORT
 INSERT INTO INVENTORY_REPORT (Report_Type, Inventory_Value, [Day], [Month], [Year])
 VALUES 
-('Daily', 250000.00, 1, 12, 2024),
-('Daily', 1750000.75, 7, 12, 2024),
-('Daily', 7500000.00, 15, 12, 2024),
-('Monthly', 30000000.25, NULL, 3, 2024),
-('Yearly', 100000000.00, NULL, NULL, 2022);
+('Daily', 250, 1, 12, 2024),
+('Daily', 175, 7, 12, 2024),
+('Daily', 75, 15, 12, 2024),
+('Monthly', 3000, NULL, 3, 2024),
+('Monthly', 5000, NULL, 5, 2024),
+('Monthly', 2600, NULL, 7, 2024),
+('Yearly', 12400, NULL, NULL, 2022),
+('Yearly', 12000, NULL, NULL, 2023),
+('Yearly', 19700, NULL, NULL, 2024),
+('Monthly', 1500, NULL, 11, 2024);
 
 -- Kiểm tra dữ liệu bảng INVENTORY_REPORT
 SELECT * FROM INVENTORY_REPORT;
 
 -- Dữ liệu cho bảng RECEIVER_INFO
-INSERT INTO RECEIVER_INFO (ID_Card_Num, Customer_ID, Housenum, Street, District, City, [Name], Phone)
+INSERT INTO RECEIVER_INFO (ID_Card_Num, Customer_ID, Housenum, Street, District, City, Lname, Fname, Phone)
 VALUES
-('123456789012', 1, '12A', 'Nguyen Trai', 'Thanh Xuan', 'Ha Noi', 'Nguyen Van A', '0123456789'),
-('987654321098', 2, '45B', 'Le Duan', 'Dong Da', 'Ha Noi', 'Le Thi B', '0987654321'),
-('112233445566', 3, '78C', 'Tran Phu', 'Ha Dong', 'Ha Noi', 'Pham Van C', '0912345678'),
-('998877665544', 4, '32D', 'Pham Van Dong', 'Cau Giay', 'Ha Noi', 'Tran Thi D', '0945678912'),
-('556677889900', 5, '89E', 'Hoang Hoa Tham', 'Ba Dinh', 'Ha Noi', 'Vu Van E', '0934567890');
+('123456789012', 1, '12B', 'Nguyen Trai', 'Thanh Xuan', 'Ha Noi', 'Nguyen Van', 'Hoa', '0123456789'),
+('987654321098', 2, '45C', 'Le Duan', 'Dong Da', 'Ha Noi', 'Tran Van', 'Binh', '0987654321'),
+('112233445566', 3, '78A', 'Tran Phu', 'Ha Dong', 'Ha Noi', 'Nguyen Van', 'Tam', '0912345678'),
+('223344556677', 4, '32D', 'Pham Van Dong', 'Cau Giay', 'Ha Noi', 'Pham Minh', 'Long', '0945678912'),
+('334455667788', 5, '89E', 'Hoang Hoa Tham', 'Ba Dinh', 'Ha Noi', 'Le Hoang', 'Linh', '0934567890'),
+('445566778899', 6, '123A', 'Kim Ma', 'Ba Dinh', 'Ha Noi', 'Nguyen Thi', 'Trang', '0923456781'),
+('556677889900', 7, '456B', 'Ho Tung Mau', 'Nam Tu Liem', 'Ha Noi', 'Tran Van', 'Hoa', '0912345679'),
+('667788990011', 8, '789C', 'Trung Kinh', 'Cau Giay', 'Ha Noi', 'Pham Thi', 'My', '0901234567'),
+('778899001122', 9, '321D', 'Le Hong Phong', 'Ha Dong', 'Ha Noi', 'Do Van', 'Hung', '0987654322'),
+('889900112233', 10, '654E', 'Giai Phong', 'Hoang Mai', 'Ha Noi', 'Nguyen Thi', 'Lan', '0945678923');
 
 -- Kiểm tra dữ liệu bảng RECEIVER_INFO
 SELECT * FROM RECEIVER_INFO;
@@ -886,9 +907,14 @@ INSERT INTO Of_Group (Voucher_ID, Group_Name)
 VALUES 
 (1, 'Member'),
 (2, 'Silver'),
-(3, 'Gold'),
+(3, 'Member'),
 (4, 'Platinum'),
-(5, 'Diamond');
+(5, 'Diamond'),
+(6, 'Member'),
+(7, 'Silver'),
+(8, 'Silver'),
+(9, 'Platinum'),
+(10, 'Diamond');
 
 -- Kiểm tra dữ liệu bảng Of_Group
 SELECT * FROM Of_Group;
@@ -896,11 +922,16 @@ SELECT * FROM Of_Group;
 -- -- Dữ liệu cho bảng Place
 -- INSERT INTO Place (Order_ID, ID_Card_Num, Customer_ID, HouseNum, Street, District, City)
 -- VALUES 
--- (101, '123456789012', 1, '12A', 'Nguyen Trai', 'Thanh Xuan', 'Hanoi'),
--- (102, '987654321098', 2, '45B', 'Le Duan', 'Dong Da', 'Hanoi'),
--- (103, '112233445566', 3, '78C', 'Tran Phu', 'Ha Dong', 'Hanoi'),
--- (104, '998877665544', 4, '32D', 'Pham Van Dong', 'Cau Giay', 'Hanoi'),
--- (105, '556677889900', 5, '89E', 'Hoang Hoa Tham', 'Ba Dinh', 'Hanoi');
+-- (101, '123456789012', 1, '12A', 'Nguyen Trai', 'Thanh Xuan', 'Ha Noi'),
+-- (102, '987654321098', 2, '45B', 'Le Duan', 'Dong Da', 'Ha Noi'),
+-- (103, '112233445566', 3, '78C', 'Tran Phu', 'Ha Dong', 'Ha Noi'),
+-- (104, '223344556677', 4, '32D', 'Pham Van Dong', 'Cau Giay', 'Ha Noi'),
+-- (105, '334455667788', 5, '89E', 'Hoang Hoa Tham', 'Ba Dinh', 'Ha Noi'),
+-- (106, '445566778899', 6, '123A', 'Kim Ma', 'Ba Dinh', 'Ha Noi'),
+-- (107, '556677889900', 7, '456B', 'Ho Tung Mau', 'Nam Tu Liem', 'Ha Noi'),
+-- (108, '667788990011', 8, '789C', 'Trung Kinh', 'Cau Giay', 'Ha Noi'),
+-- (109, '778899001122', 9, '321D', 'Le Hong Phong', 'Ha Dong', 'Ha Noi'),
+-- (110, '889900112233', 10, '654E', 'Giai Phong', 'Hoang Mai', 'Ha Noi');
 
 -- -- Kiểm tra dữ liệu bảng Place
 -- SELECT * FROM Place;
@@ -912,7 +943,12 @@ SELECT * FROM Of_Group;
 -- (2, 102, 10),
 -- (3, 103, 15),
 -- (4, 104, 20),
--- (5, 105, 25);
+-- (5, 105, 25),
+-- (6, 106, 30),
+-- (7, 107, 35),
+-- (8, 108, 40),
+-- (9, 109, 45),
+-- (10, 110, 50);
 
 -- -- Kiểm tra dữ liệu bảng Summarize
 -- SELECT * FROM Summarize;
@@ -924,7 +960,12 @@ SELECT * FROM Of_Group;
 -- (2, 1002, 100),
 -- (3, 1003, 150),
 -- (4, 1004, 200),
--- (5, 1005, 250);
+-- (5, 1005, 250),
+-- (6, 1006, 300),
+-- (7, 1007, 350),
+-- (8, 1008, 400),
+-- (9, 1009, 450),
+-- (10, 1010, 500);
 
 -- -- Kiểm tra dữ liệu bảng Contain
 -- SELECT * FROM Contain;
