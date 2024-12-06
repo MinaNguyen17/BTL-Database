@@ -78,4 +78,124 @@ BEGIN
     END CATCH;
 END;
 
+--- Cập nhật Stock của  Item sau khi Cân bằng
 GO
+CREATE TRIGGER trg_UpdateStockOnReconciliation
+ON RECONCILE
+AFTER INSERT
+AS
+BEGIN
+    UPDATE ITEM
+    SET STOCK = r.ACTUAL_QUANTITY
+    FROM ITEM i
+    INNER JOIN INSERTED r ON i.ITEM_ID = r.ITEM_ID;
+
+    PRINT 'Cập nhật Stock sau khi Cân bằng';
+END;
+
+
+-- Cập nhật Stock cho Item sau khi nhập kho hoàn tất
+GO
+CREATE TRIGGER trg_UpdateStockOnImportConfirm
+ON IMPORT_BILL
+AFTER UPDATE
+AS
+BEGIN
+    -- Bắt đầu Transaction
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Cập nhật Stock của Item
+        UPDATE ITEM
+        SET STOCK = STOCK + imp.IMPORT_QUANTITY
+        FROM ITEM i
+        JOIN IMPORT imp ON i.ITEM_ID = imp.ITEM_ID
+        JOIN INSERTED ins ON imp.IMPORT_ID = ins.IMPORT_ID
+        WHERE ins.IMPORT_STATE = 'Confirmed' 
+          AND NOT EXISTS (
+              SELECT 1 FROM DELETED d WHERE d.IMPORT_ID = ins.IMPORT_ID AND d.IMPORT_STATE = 'Confirmed'
+          );
+
+        PRINT 'Cập nhật Stock sau khi Hoàn thành Nhập Kho'
+
+        -- Commit transaction nếu không có lỗi
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Rollback transaction nếu có lỗi
+        ROLLBACK TRANSACTION;
+
+        -- Hiển thị lỗi
+        THROW;
+    END CATCH;
+END;
+
+
+-- Cập nhật Stock cho Order
+GO
+CREATE TRIGGER trg_UpdateStockOnOrder
+ON INCLUDE_ITEM
+AFTER INSERT
+AS
+BEGIN
+    -- Kiểm tra nếu Count vượt quá Stock
+    IF EXISTS (
+        SELECT 1
+        FROM ITEM i
+        INNER JOIN INSERTED oi ON i.ITEM_ID = oi.ITEM_ID
+        WHERE oi.Count > i.STOCK
+    )
+    BEGIN
+        PRINT 'Không đủ số lượng trong kho';
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+
+    -- Cập nhật Stock
+    UPDATE ITEM
+    SET STOCK = STOCK - oi.Count
+    FROM ITEM i
+    INNER JOIN INSERTED oi ON i.ITEM_ID = oi.ITEM_ID;
+
+    PRINT 'Cập nhật Stock khi có đơn hàng';
+END;
+
+-- Cập nhật Stock sau khi nhập kho rồi trả hàng
+GO
+CREATE TRIGGER trg_UpdateStockOnReturn
+ON RETURN_ITEM
+AFTER INSERT
+AS
+BEGIN
+    -- Kiểm tra nếu Return_Quantity lớn hơn Stock
+    IF EXISTS (
+        SELECT 1
+        FROM ITEM i
+        INNER JOIN INSERTED ri ON i.ITEM_ID = ri.ITEM_ID
+        WHERE ri.RETURN_QUANTITY > i.STOCK
+    )
+    BEGIN
+        PRINT 'Return quantity vượt quá stock';
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+
+    -- Cập nhật Stock
+    UPDATE ITEM
+    SET STOCK = STOCK - ri.RETURN_QUANTITY
+    FROM ITEM i
+    INNER JOIN INSERTED ri ON i.ITEM_ID = ri.ITEM_ID;
+
+    PRINT 'Cập nhật Stock sau khi trả hàng cho nhà cung cấp';
+END;
+
+-- Xóa trigger trg_UpdateStockOnReconciliation
+DROP TRIGGER trg_UpdateStockOnReconciliation;
+
+-- Xóa trigger trg_UpdateStockOnImportConfirm
+DROP TRIGGER trg_UpdateStockOnImportConfirm;
+
+-- Xóa trigger trg_UpdateStockOnOrder
+DROP TRIGGER trg_UpdateStockOnOrder;
+
+-- Xóa trigger trg_UpdateStockOnReturn
+DROP TRIGGER trg_UpdateStockOnReturn;
