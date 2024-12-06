@@ -125,7 +125,8 @@ CREATE TABLE SHIFT (
 CREATE TABLE WORK_ON (
     Shift_ID INT FOREIGN KEY REFERENCES Shift(Shift_ID),
     ID_Card_Num CHAR(12) FOREIGN KEY REFERENCES Employee(ID_Card_Num),
-    PRIMARY KEY (Shift_ID, ID_Card_Num)
+    PRIMARY KEY (Shift_ID, ID_Card_Num),
+    [Check] BIT DEFAULT 0
 );
 
 -- CREATE SALARY

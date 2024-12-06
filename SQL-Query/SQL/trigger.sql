@@ -1,3 +1,4 @@
+-- ADD EMPLOYEE ID
 GO
 CREATE TRIGGER add_CreateEmpID
 ON Employee
