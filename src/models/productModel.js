@@ -1,27 +1,51 @@
 const { getDBConnection } = require("../config/database.js");
 const sql = require("mssql");
 
-async function addProduct(name, email) {
+async function addProduct(
+	name,
+	brand,
+	style_tag,
+	season,
+	category,
+	description
+) {
 	const pool = await getDBConnection();
 	await pool
 		.request()
-		.input("name", sql.NVarChar, name)
-		.input("email", sql.NVarChar, email)
+		.input("PRODUCT_NAME", sql.NVarChar, name)
+		.input("BRAND", sql.NVarChar, brand)
+		.input("STYLE_TAG", sql.NVarChar, style_tag)
+		.input("SEASON", sql.NVarChar, season)
+		.input("CATEGORY", sql.NVarChar, category)
+		.input("DESCRIPTION", sql.NVarChar, descriptiondescription)
 		.execute("dbo.AddProduct"); // Gọi stored procedure để thêm Product
 }
 
 async function deleteProduct(id) {
-	const pool = await getDBConnection();
-	await pool.request().input("id", sql.Int, id).execute("dbo.DeleteProduct"); // Gọi stored procedure để xóa Product
+	// const pool = await getDBConnection();
+	// await pool.request().input("id", sql.Int, id).execute("dbo.DeleteProduct"); // Gọi stored procedure để xóa Product
+	console.log("NOT IMPLEMENT");
 }
 
-async function updateProduct(id, name, email) {
+async function updateProduct(
+	id,
+	name,
+	brand,
+	style_tag,
+	season,
+	category,
+	description
+) {
 	const pool = await getDBConnection();
 	await pool
 		.request()
-		.input("id", sql.Int, id)
-		.input("name", sql.NVarChar, name)
-		.input("email", sql.NVarChar, email)
+		.input("PRODUCT_ID", sql.Int, id)
+		.input("PRODUCT_NAME", sql.NVarChar, name)
+		.input("BRAND", sql.NVarChar, brand)
+		.input("STYLE_TAG", sql.NVarChar, style_tag)
+		.input("SEASON", sql.NVarChar, season)
+		.input("CATEGORY", sql.NVarChar, category)
+		.input("DESCRIPTION", sql.NVarChar, descriptiondescription)
 		.execute("dbo.UpdateProduct"); // Gọi stored procedure để sửa Product
 }
 
@@ -35,7 +59,7 @@ async function getProductById(id) {
 	const pool = await getDBConnection();
 	const result = await pool
 		.request()
-		.input("id", sql.Int, id)
+		.input("ProductID", sql.Int, id)
 		.execute("dbo.GetProductById"); // Gọi stored procedure để lấy một Product theo Id
 	return result.recordset[0]; // Trả về Product đầu tiên (nếu có)
 }

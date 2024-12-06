@@ -28,9 +28,16 @@ async function getProductById(req, res) {
 }
 
 async function addProduct(req, res) {
-	const { name, email } = req.body;
+	const { name, brand, style_tag, season, category, description } = req.body;
 	try {
-		await ProductService.addProduct(name, email);
+		await ProductService.addProduct(
+			name,
+			brand,
+			style_tag,
+			season,
+			category,
+			description
+		);
 		res.status(201).json({ message: "Product đã được thêm thành công." });
 	} catch (error) {
 		res.status(500).json({ message: "Lỗi khi thêm Product.", error });
@@ -39,9 +46,17 @@ async function addProduct(req, res) {
 
 async function updateProduct(req, res) {
 	const { id } = req.params;
-	const { name, email } = req.body;
+	const { name, brand, style_tag, season, category, description } = req.body;
 	try {
-		await ProductService.updateProduct(id, name, email);
+		await ProductService.updateProduct(
+			id,
+			name,
+			brand,
+			style_tag,
+			season,
+			category,
+			description
+		);
 		res.status(200).json({
 			message: "Product đã được cập nhật thành công.",
 		});
@@ -51,13 +66,14 @@ async function updateProduct(req, res) {
 }
 
 async function deleteProduct(req, res) {
-	const { id } = req.params;
-	try {
-		await ProductService.deleteProduct(id);
-		res.status(200).json({ message: "Product đã được xóa thành công." });
-	} catch (error) {
-		res.status(500).json({ message: "Lỗi khi xóa Product.", error });
-	}
+	// const { id } = req.params;
+	// try {
+	// 	await ProductService.deleteProduct(id);
+	// 	res.status(200).json({ message: "Product đã được xóa thành công." });
+	// } catch (error) {
+	// 	res.status(500).json({ message: "Lỗi khi xóa Product.", error });
+	// }
+	console.log("NOT IMPLEMENT");
 }
 
 module.exports = {
