@@ -1,11 +1,11 @@
 -- ADD EMPLOYEE ID
 GO
 CREATE TRIGGER add_CreateEmpID
-ON Employee
+ON EMPLOYEE
 INSTEAD OF INSERT
 AS
 BEGIN
-    INSERT INTO Employee (ID_Card_Num, Employee_ID, Position, Wage)
+    INSERT INTO EMPLOYEE (ID_Card_Num, Employee_ID, Position, Wage)
     SELECT 
         i.ID_Card_Num,
         'EMP' + RIGHT('00000' + CAST(NEXT VALUE FOR EmpID_Sequence AS NVARCHAR), 5),

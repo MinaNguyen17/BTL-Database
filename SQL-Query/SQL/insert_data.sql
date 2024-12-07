@@ -252,26 +252,65 @@ INSERT INTO EXPENSE_TYPE ([Name]) VALUES
 ('Utilities'),
 ('Marketing');
 
+-- delete from EXPENSE_RECEIPT
 INSERT INTO EXPENSE_RECEIPT ([Name], [Date], Amount, Payee_Name, Expense_Type_ID) VALUES
-('Purchase of Winter Collection', '2024-12-01', 10000000, 'Fashion Supplier', 1),
 ('Store Rent for December', '2024-12-01', 25000000, 'Landlord', 2),
-('Salary Payment for December', '2024-12-01', 20000000, 'Employee', 3),
 ('Electricity Bill', '2024-12-02', 1000000, 'Electricity Provider', 4),
+('Wifi Bill', '2024-12-03', 350000, 'FPT', 4),
 ('Facebook Ads Campaign', '2024-12-02', 5000000, 'Ad Agency', 5);
 
 SELECT * FROM EXPENSE_RECEIPT R JOIN EXPENSE_TYPE T ON R.Expense_Type_ID = T.Expense_Type_ID
 
 INSERT INTO INCOME_TYPE ([Name]) VALUES
 ('Sales Revenue'),
-('Inventory Returns');
+('Inventory Returns'),
+('Additional Services Revenue'),
+('Compensation');
 
 -- Insert 5 sample records into INCOME_RECEIPT (Income related to the fashion store)
+-- DELETE FROM INCOME_RECEIPT
 INSERT INTO INCOME_RECEIPT ([Name], [Date], Amount, Payer_Name, Income_Type_ID) VALUES
-('Sale of Order', '2024-12-01', 2000000, 'Customer A', 1),
-('Return of Faulty Shoes', '2024-12-02', 1000000, 'Supplier B', 2),
-('Return of Faulty Dresses', '2024-12-02', 10000000, 'Supplier G', 2),
-('Sale of Order', '2024-11-11', 5000000, 'Customer X', 1);
+('Lateness penalty', '2024-12-01', 100000, 'Tran Van Binh', 4),
+('Damage compensation', '2024-12-06', 500000, 'Pham Thi My', 4),
+('Express shipping fee', '2024-12-02', 80000, 'Ho Ba Kien', 3),
+('Tips', '2024-11-07', 150000, 'Pham Thanh An', 3);
 
+-- TÍNH LƯƠNG THÁNG
+EXEC InsertTotalSalaryReceipt @Month = 12, @Year = 2024;
+SELECT * FROM EXPENSE_RECEIPT
+
+-- DỮ LIỆU ADD EXPENSE/ INCOME
+SELECT * FROM Accounting_Employee
+SELECT * FROM INCOME_RECEIPT
+SELECT * FROM EXPENSE_RECEIPT
+
+INSERT INTO ADD_EXPENSE (Expense_ID, ID_Card_Num) VALUES
+('6','031202765489'),
+('7','083303246897'),
+('8','082201874356'),
+('9','073203567890'),
+('12','043201098765');
+
+INSERT INTO ADD_INCOME (Income_ID, ID_Card_Num) VALUES
+('5','031202765489'),
+('6','083303246897'),
+('7','082201874356'),
+('8','073203567890');
+
+-- SELECT E.ID_Card_Num, I.NAME, T.NAME
+-- FROM EMPLOYEE E, ADD_INCOME, INCOME_RECEIPT I, INCOME_TYPE T
+-- WHERE E.ID_CARD_NUM = ADD_INCOME.ID_CARD_NUM AND ADD_INCOME.Income_ID = I.Income_ID
+-- AND I.INCOME_TYPE_ID = T.INCOME_TYPE_ID;
+
+EXEC CreateDailyProfitAndLossReport @Day = 01, @Month = 12, @Year = 2024
+EXEC CreateDailyProfitAndLossReport @Day = 02, @Month = 12, @Year = 2024
+EXEC CreateDailyProfitAndLossReport @Day = 03, @Month = 12, @Year = 2024
+EXEC CreateDailyProfitAndLossReport @Day = 04, @Month = 12, @Year = 2024
+
+EXEC CreateMonthlyProfitAndLossReport @Month = 12, @Year = 2024
+EXEC CreateYearlyProfitAndLossReport @Year = 2024
+
+SELECT * FROM PROFIT_AND_LOSS_STATEMENT
 -------
 
 -- Dữ liệu cho bảng CUSTOMER_GROUP

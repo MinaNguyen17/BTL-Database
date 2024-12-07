@@ -146,7 +146,7 @@ BEGIN
 END;
 
 -- ĐĂNG KÝ CA
-drop procedure RegisterShift
+-- drop procedure RegisterShift
 GO
 CREATE PROCEDURE RegisterShift
     @Shift_ID INT,
@@ -207,4 +207,189 @@ BEGIN
 
     -- Kết thúc giao dịch
     COMMIT TRANSACTION;
+END;
+
+-- TÍNH TỔNG LƯƠNG VÀ TẠO PHIẾU CHI
+-- DROP PROCEDURE dbo.InsertTotalSalaryReceipt
+GO
+
+CREATE PROCEDURE InsertTotalSalaryReceipt
+    @Month INT,
+    @Year INT
+AS
+BEGIN
+    DECLARE @TotalSalary INT;
+    DECLARE @ExpenseName NVARCHAR(40) = CONCAT('Total Salary for ', @Month, '/', @Year);
+
+    -- Kiểm tra dữ liệu đã tồn tại chưa
+    IF NOT EXISTS (
+        SELECT 1
+        FROM EXPENSE_RECEIPT
+        WHERE Expense_Type_ID = 3 -- Loại chi phí là lương
+          AND FORMAT([Date], 'MM/yyyy') = FORMAT(DATEFROMPARTS(@Year, @Month, 1), 'MM/yyyy')
+    )
+    BEGIN
+        -- Tính tổng lương trực tiếp từ bảng SALARY
+        SELECT @TotalSalary = SUM(Amount)
+        FROM SALARY
+        WHERE [Month] = @Month AND [Year] = @Year;
+
+        -- Chèn dữ liệu nếu tổng lương > 0
+        IF @TotalSalary > 0
+        BEGIN
+            INSERT INTO EXPENSE_RECEIPT ([Name], [Date], Amount, Payee_Name, Expense_Type_ID)
+            VALUES (@ExpenseName, GETDATE(), @TotalSalary, 'All Employees', 3);
+
+            PRINT 'Expense receipt created successfully.';
+        END
+        ELSE
+        BEGIN
+            PRINT 'No salaries found for the specified month and year.';
+        END;
+    END
+    ELSE
+    BEGIN
+        PRINT 'An expense receipt for this month and year already exists.';
+    END;
+END;
+
+-- TẠO BÁO CÁO LÃI LỖ THEO NGÀY
+-- DROP PROCEDURE CreateDailyProfitAndLossReport
+GO
+CREATE PROCEDURE CreateDailyProfitAndLossReport
+    @Day INT,
+    @Month INT,
+    @Year INT
+AS
+BEGIN
+    DECLARE @Expense INT;
+    DECLARE @Revenue INT;
+    DECLARE @Gross_Profit INT;
+    DECLARE @Profit_And_Loss_ID INT;
+
+    -- Tính tổng chi phí từ EXPENSE_RECEIPT
+    SELECT @Expense = SUM(Amount)
+    FROM EXPENSE_RECEIPT
+    WHERE DAY([Date]) = @Day AND MONTH([Date]) = @Month AND YEAR([Date]) = @Year;
+
+    IF @Expense IS NULL 
+    BEGIN
+    SET @Expense = 0
+    END
+
+    -- Tính tổng doanh thu từ INCOME_RECEIPT
+    SELECT @Revenue = SUM(Amount)
+    FROM INCOME_RECEIPT
+    WHERE DAY([Date]) = @Day AND MONTH([Date]) = @Month AND YEAR([Date]) = @Year;
+
+    IF @Revenue IS NULL 
+    BEGIN
+    SET @Revenue = 0
+    END
+    -- Tính lãi gộp (Gross Profit)
+    SET @Gross_Profit = @Revenue - @Expense;
+
+    -- Tạo báo cáo lãi lỗ cho ngày
+    INSERT INTO PROFIT_AND_LOSS_STATEMENT (Report_Type, Expense, Revenue, Gross_Profit, [Day], [Month], [Year])
+    VALUES ('Day', @Expense, @Revenue, @Gross_Profit, @Day, @Month, @Year);
+
+    -- Lấy ID báo cáo vừa tạo
+    SET @Profit_And_Loss_ID = SCOPE_IDENTITY();
+
+    -- Thêm mối quan hệ với chi phí (EXPENSE)
+    INSERT INTO MANAGE_EXPENSE (Expense_ID, Profit_And_Loss_ID)
+    SELECT Expense_ID, @Profit_And_Loss_ID
+    FROM EXPENSE_RECEIPT
+    WHERE DAY([Date]) = @Day AND MONTH([Date]) = @Month AND YEAR([Date]) = @Year;
+
+    -- Thêm mối quan hệ với doanh thu (INCOME)
+    INSERT INTO MANAGE_INCOME (Income_ID, Profit_And_Loss_ID)
+    SELECT Income_ID, @Profit_And_Loss_ID
+    FROM INCOME_RECEIPT
+    WHERE DAY([Date]) = @Day AND MONTH([Date]) = @Month AND YEAR([Date]) = @Year;
+
+    PRINT 'Daily Profit and Loss report created successfully with related expenses and incomes.';
+END;
+
+-- TÍNH BÁO CÁO LÃI LỖ THEO THÁNG
+GO
+CREATE PROCEDURE CreateMonthlyProfitAndLossReport
+    @Month INT,
+    @Year INT
+AS
+BEGIN
+    DECLARE @Expense INT;
+    DECLARE @Revenue INT;
+    DECLARE @Gross_Profit INT;
+    DECLARE @Profit_And_Loss_ID INT;
+
+    -- Tính tổng chi phí từ các báo cáo ngày trong tháng
+    SELECT @Expense = SUM(Expense)
+    FROM PROFIT_AND_LOSS_STATEMENT
+    WHERE [Month] = @Month AND [Year] = @Year AND Report_Type = 'Day';
+
+    IF @Expense IS NULL 
+    BEGIN
+        SET @Expense = 0;
+    END
+
+    -- Tính tổng doanh thu từ các báo cáo ngày trong tháng
+    SELECT @Revenue = SUM(Revenue)
+    FROM PROFIT_AND_LOSS_STATEMENT
+    WHERE [Month] = @Month AND [Year] = @Year AND Report_Type = 'Day';
+
+    IF @Revenue IS NULL 
+    BEGIN
+        SET @Revenue = 0;
+    END
+
+    -- Tính lãi gộp
+    SET @Gross_Profit = @Revenue - @Expense;
+
+    -- Tạo báo cáo lãi lỗ cho tháng
+    INSERT INTO PROFIT_AND_LOSS_STATEMENT (Report_Type, Expense, Revenue, Gross_Profit, [Month], [Year])
+    VALUES ('Month', @Expense, @Revenue, @Gross_Profit, @Month, @Year);
+
+    PRINT 'Monthly Profit and Loss report created successfully with related expenses and incomes.';
+END;
+
+-- TÍNH BÁO CÁO LÃI LỖ THEO NĂM
+GO
+CREATE PROCEDURE CreateYearlyProfitAndLossReport
+    @Year INT
+AS
+BEGIN
+    DECLARE @Expense INT;
+    DECLARE @Revenue INT;
+    DECLARE @Gross_Profit INT;
+    DECLARE @Profit_And_Loss_ID INT;
+
+    -- Tính tổng chi phí từ các báo cáo tháng trong năm
+    SELECT @Expense = SUM(Expense)
+    FROM PROFIT_AND_LOSS_STATEMENT
+    WHERE [Year] = @Year AND Report_Type = 'Month';
+
+    IF @Expense IS NULL 
+    BEGIN
+        SET @Expense = 0;
+    END
+
+    -- Tính tổng doanh thu từ các báo cáo tháng trong năm
+    SELECT @Revenue = SUM(Revenue)
+    FROM PROFIT_AND_LOSS_STATEMENT
+    WHERE [Year] = @Year AND Report_Type = 'Month';
+
+    IF @Revenue IS NULL 
+    BEGIN
+        SET @Revenue = 0;
+    END
+
+    -- Tính lãi gộp
+    SET @Gross_Profit = @Revenue - @Expense;
+
+    -- Tạo báo cáo lãi lỗ cho năm
+    INSERT INTO PROFIT_AND_LOSS_STATEMENT (Report_Type, Expense, Revenue, Gross_Profit, [Year])
+    VALUES ('Year', @Expense, @Revenue, @Gross_Profit, @Year);
+
+    PRINT 'Yearly Profit and Loss report created successfully with related expenses and incomes.';
 END;
