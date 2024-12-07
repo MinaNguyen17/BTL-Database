@@ -393,3 +393,97 @@ BEGIN
 
     PRINT 'Yearly Profit and Loss report created successfully with related expenses and incomes.';
 END;
+
+-- HÀM TẠO EMPLOYEE
+GO
+CREATE PROCEDURE CreateEmployee
+    @ID_Card_Num CHAR(12),
+    @Fname NVARCHAR(20),
+    @Lname NVARCHAR(40),
+    @DOB DATE,
+    @Sex BIT,
+    @Position VARCHAR(30),
+    @Wage INT
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        -- Kiểm tra xem PERSON đã tồn tại chưa
+        IF NOT EXISTS (SELECT 1 FROM PERSON WHERE ID_Card_Num = @ID_Card_Num)
+        BEGIN
+            -- Thêm người vào bảng PERSON
+            INSERT INTO PERSON (ID_Card_Num, Fname, Lname, DOB, Sex)
+            VALUES (@ID_Card_Num, @Fname, @Lname, @DOB, @Sex);
+                -- Kiểm tra nếu EMPLOYEE đã tồn tại
+            IF EXISTS (SELECT 1 FROM EMPLOYEE WHERE ID_Card_Num = @ID_Card_Num)
+            BEGIN
+                RAISERROR ('Employee already exists for this ID Card Number.', 16, 1);
+                ROLLBACK TRANSACTION;
+            END
+                -- Thêm nhân viên vào bảng EMPLOYEE
+            INSERT INTO EMPLOYEE (ID_Card_Num, Position, Wage)
+            VALUES (@ID_Card_Num, @Position, @Wage);
+            COMMIT TRANSACTION;
+            PRINT 'Employee created successfully.';
+        END
+        ELSE
+        BEGIN
+            RAISERROR ('Person already exists for this ID Card Number.', 16, 1);
+            ROLLBACK TRANSACTION;
+        END
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        PRINT ERROR_MESSAGE();
+    END CATCH;
+END;
+GO
+
+-- EXEC CreateEmployee 
+--     @ID_Card_Num = '079305009315',
+--     @Fname = 'Nguyen Van Minh',
+--     @Lname = 'Thanh',
+--     @DOB = '1999-01-27',
+--     @Sex = 0,
+--     @Position = 'Senior',
+--     @Wage = 60000;
+
+
+-- HÀM CHỈNH THÔNG TIN EMPLOYEE
+
+GO
+CREATE PROCEDURE UpdateEmployeeInfo
+    @ID_Card_Num CHAR(12),
+    @New_Position VARCHAR(30) = NULL,
+    @New_Wage INT = NULL
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Kiểm tra nếu nhân viên tồn tại
+        IF NOT EXISTS (SELECT 1 FROM EMPLOYEE WHERE ID_Card_Num = @ID_Card_Num)
+        BEGIN
+            RAISERROR ('Employee not found for the given ID Card Number.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Cập nhật thông tin nhân viên
+        UPDATE EMPLOYEE
+        SET 
+            Position = ISNULL(@New_Position, Position),  -- Giữ nguyên nếu không truyền giá trị mới
+            Wage = ISNULL(@New_Wage, Wage)
+        WHERE ID_Card_Num = @ID_Card_Num;
+
+        COMMIT TRANSACTION;
+        PRINT 'Employee information updated successfully.';
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        PRINT ERROR_MESSAGE();
+    END CATCH;
+END;
+GO
+
+-- EXEC UpdateEmployeeInfo @ID_Card_Num = '071201876543', @New_Position = 'Senior', @New_Wage = 32000;
