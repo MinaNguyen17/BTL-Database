@@ -216,8 +216,8 @@ CREATE TABLE PROFIT_AND_LOSS_STATEMENT (
     Expense INT NOT NULL,
     Revenue INT NOT NULL,
     Gross_Profit INT NOT NULL,
-    [Day] INT NOT NULL,
-    [Month] INT CHECK ([Month] BETWEEN 1 AND 12) NOT NULL,
+    [Day] INT,
+    [Month] INT CHECK ([Month] BETWEEN 1 AND 12),
     [Year] INT NOT NULL
 );
 
