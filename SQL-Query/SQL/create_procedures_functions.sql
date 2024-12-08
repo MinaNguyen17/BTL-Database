@@ -487,3 +487,169 @@ END;
 GO
 
 -- EXEC UpdateEmployeeInfo @ID_Card_Num = '071201876543', @New_Position = 'Senior', @New_Wage = 32000;
+
+
+
+
+
+CREATE OR ALTER PROCEDURE  dbo.AddShift
+    @Shift_Type CHAR(1),
+    @Date DATE,
+    @E_Num INT,
+    @Rate DECIMAL(5, 2)
+AS
+BEGIN
+    INSERT INTO SHIFT(Shift_Type, [Date], E_Num, Rate)
+    VALUES(@Shift_Type, @Date, @E_Num, @Rate)
+END;
+GO
+EXEC dbo.AddShift '1', '2024-12-05', 234, 999;
+SELECT * FROM SHIFT;
+GO
+
+
+CREATE OR ALTER PROCEDURE  dbo.DeleteShift
+    @Shift_ID INT
+AS
+BEGIN
+    DELETE FROM SHIFT 
+    WHERE Shift_ID = @Shift_ID; 
+END;
+GO
+EXEC dbo.DeleteShift 32;
+SELECT * FROM SHIFT;
+GO
+
+
+
+CREATE OR ALTER PROCEDURE  dbo.UpdateShift
+    @Shift_ID INT,
+    @Shift_Type CHAR(1),
+    @Date DATE,
+    @E_Num INT,
+    @Rate DECIMAL(5, 2)
+AS
+BEGIN
+    UPDATE SHIFT 
+    SET
+        Shift_Type = @Shift_Type,
+        [Date] = @Date,
+        E_Num = @E_Num,
+        Rate = @Rate
+    WHERE Shift_ID = @Shift_ID; 
+END;
+GO
+EXEC dbo.UpdateShift 31, 2, '2024-12-03', 123, 789;
+SELECT * FROM SHIFT;
+GO
+
+
+
+CREATE OR ALTER PROCEDURE  dbo.GetShiftById
+    @Shift_ID INT
+AS
+BEGIN
+    SELECT * FROM SHIFT
+    WHERE Shift_ID = @Shift_ID; 
+END;
+GO
+EXEC dbo.GetShiftById 31;
+GO
+
+CREATE OR ALTER PROCEDURE  dbo.GetAllShifts
+AS
+BEGIN
+    SELECT * FROM SHIFT; 
+END;
+GO
+EXEC dbo.GetAllShifts;
+GO
+
+
+
+
+
+
+
+
+CREATE OR ALTER PROCEDURE  dbo.AddSupplier
+    @SUPPLIER_NAME VARCHAR(30),
+    @SUPPLIER_EMAIL VARCHAR(30),
+    @SUPPLIER_PHONE VARCHAR(20),
+    @ADDRESS VARCHAR(100)
+AS
+BEGIN
+    INSERT INTO SUPPLIER(SUPPLIER_NAME, SUPPLIER_EMAIL, SUPPLIER_PHONE, [ADDRESS])
+    VALUES(@SUPPLIER_EMAIL, @SUPPLIER_EMAIL, @SUPPLIER_PHONE, @ADDRESS)
+END;
+GO
+EXEC dbo.AddSupplier 'Routine', 'contact@routine.vn', '0901234567', '77 Nguyen Trai, District 1, Ho Chi Minh City';
+EXEC dbo.AddSupplier 'Hnoss',  'info@hnoss.vn', '0912345678', '88 Dong Khoi, District 1, Ho Chi Minh City';
+EXEC dbo.AddSupplier 'Coolmate', 'support@coolmate.me', '0923456789', '100 Cach Mang Thang 8, District 3, Ho Chi Minh City';
+SELECT * FROM SUPPLIER;
+GO
+
+
+CREATE OR ALTER PROCEDURE  dbo.DeleteSupplier
+    @SUPPLIER_ID INT
+AS
+BEGIN
+    DELETE FROM SUPPLIER 
+    WHERE SUPPLIER_ID = @SUPPLIER_ID; 
+END;
+GO
+EXEC dbo.DeleteSupplier 1;
+SELECT * FROM SUPPLIER;
+GO
+
+
+
+CREATE OR ALTER PROCEDURE  dbo.UpdateSupplier
+    @SUPPLIER_ID INT,
+    @SUPPLIER_NAME VARCHAR(30),
+    @SUPPLIER_EMAIL VARCHAR(30),
+    @SUPPLIER_PHONE VARCHAR(20),
+    @ADDRESS VARCHAR(100)
+AS
+BEGIN
+    UPDATE SUPPLIER 
+    SET
+        SUPPLIER_NAME = @SUPPLIER_NAME,
+        SUPPLIER_EMAIL = @SUPPLIER_EMAIL,
+        SUPPLIER_PHONE = @SUPPLIER_PHONE,
+        [ADDRESS] = @ADDRESS
+    WHERE SUPPLIER_ID = @SUPPLIER_ID; 
+END;
+GO
+EXEC dbo.UpdateSupplier 3, 'Coolmate', 'support@coolmate.me', '0822314976', '100 Cach Mang Thang 8, District 3, Ho Chi Minh City';
+SELECT * FROM SUPPLIER;
+GO
+
+
+
+CREATE OR ALTER PROCEDURE  dbo.GetSupplierById
+    @SUPPLIER_ID INT
+AS
+BEGIN
+    SELECT * FROM SUPPLIER
+    WHERE SUPPLIER_ID = @SUPPLIER_ID; 
+END;
+GO
+EXEC dbo.GetSupplierById 2;
+GO
+
+CREATE OR ALTER PROCEDURE  dbo.GetAllSuppliers
+AS
+BEGIN
+    SELECT * FROM SUPPLIER; 
+END;
+GO
+EXEC dbo.GetAllSuppliers;
+GO
+
+
+
+
+
+
+

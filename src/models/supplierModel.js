@@ -1,27 +1,31 @@
 const { getDBConnection } = require("../config/database.js");
 const sql = require("mssql");
 
-async function addSupplier(name, email) {
+async function addSupplier(SUPPLIER_NAME, SUPPLIER_EMAIL, SUPPLIER_PHONE, ADDRESS) {
 	const pool = await getDBConnection();
 	await pool
 		.request()
-		.input("name", sql.NVarChar, name)
-		.input("email", sql.NVarChar, email)
+		.input("SUPPLIER_NAME", sql.VarChar(30), SUPPLIER_NAME)
+		.input("SUPPLIER_EMAIL", sql.VarChar(30), SUPPLIER_EMAIL)
+		.input("SUPPLIER_PHONE", sql.VarChar(20), SUPPLIER_PHONE)
+		.input("ADDRESS", sql.VarChar(100), ADDRESS)
 		.execute("dbo.AddSupplier"); // Gọi stored procedure để thêm Supplier
 }
 
-async function deleteSupplier(id) {
+async function deleteSupplier(SUPPLIER_ID) {
 	const pool = await getDBConnection();
-	await pool.request().input("id", sql.Int, id).execute("dbo.DeleteSupplier"); // Gọi stored procedure để xóa Supplier
+	await pool.request().input("SUPPLIER_ID", sql.Int, SUPPLIER_ID).execute("dbo.DeleteSupplier"); // Gọi stored procedure để xóa Supplier
 }
 
-async function updateSupplier(id, name, email) {
+async function updateSupplier(SUPPLIER_ID, SUPPLIER_NAME, SUPPLIER_EMAIL, SUPPLIER_PHONE, ADDRESS) {
 	const pool = await getDBConnection();
 	await pool
 		.request()
-		.input("id", sql.Int, id)
-		.input("name", sql.NVarChar, name)
-		.input("email", sql.NVarChar, email)
+		.input("SUPPLIER_ID", sql.Int, SUPPLIER_ID)
+		.input("SUPPLIER_NAME", sql.VarChar(30), SUPPLIER_NAME)
+		.input("SUPPLIER_EMAIL", sql.VarChar(30), SUPPLIER_EMAIL)
+		.input("SUPPLIER_PHONE", sql.VarChar(20), SUPPLIER_PHONE)
+		.input("ADDRESS", sql.VarChar(100), ADDRESS)
 		.execute("dbo.UpdateSupplier"); // Gọi stored procedure để sửa Supplier
 }
 
@@ -31,11 +35,11 @@ async function getAllSuppliers() {
 	return result.recordset; // Trả về danh sách tất cả Suppliers
 }
 
-async function getSupplierById(id) {
+async function getSupplierById(SUPPLIER_ID) {
 	const pool = await getDBConnection();
 	const result = await pool
 		.request()
-		.input("id", sql.Int, id)
+		.input("SUPPLIER_ID", sql.Int, SUPPLIER_ID)
 		.execute("dbo.GetSupplierById"); // Gọi stored procedure để lấy một Supplier theo Id
 	return result.recordset[0]; // Trả về Supplier đầu tiên (nếu có)
 }

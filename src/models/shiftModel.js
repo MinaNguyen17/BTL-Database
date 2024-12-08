@@ -1,27 +1,32 @@
 const { getDBConnection } = require("../config/database.js");
 const sql = require("mssql");
 
-async function addShift(name, email) {
+async function addShift(Shift_Type, Date, E_Num, Rate) {
 	const pool = await getDBConnection();
 	await pool
 		.request()
-		.input("name", sql.NVarChar, name)
-		.input("email", sql.NVarChar, email)
+		.input("Shift_Type", sql.Char(1), Shift_Type)
+		.input("Date", sql.Date, Date)
+		.input("E_Num", sql.Int, E_Num)
+		.input("Rate", sql.Decimal(5,2), Rate)
 		.execute("dbo.AddShift"); // Gọi stored procedure để thêm Shift
 }
 
-async function deleteShift(id) {
+
+async function deleteShift(Shift_ID) {
 	const pool = await getDBConnection();
-	await pool.request().input("id", sql.Int, id).execute("dbo.DeleteShift"); // Gọi stored procedure để xóa Shift
+	await pool.request().input("Shift_ID", sql.Int, Shift_ID).execute("dbo.DeleteShift"); // Gọi stored procedure để xóa Shift
 }
 
-async function updateShift(id, name, email) {
+async function updateShift(Shift_ID, Shift_Type, Date, E_Num, Rate) {
 	const pool = await getDBConnection();
 	await pool
 		.request()
-		.input("id", sql.Int, id)
-		.input("name", sql.NVarChar, name)
-		.input("email", sql.NVarChar, email)
+		.input("Shift_ID", sql.Int, Shift_ID)
+		.input("Shift_Type", sql.Char(1), Shift_Type)
+		.input("Date", sql.Date, Date)
+		.input("E_Num", sql.Int, E_Num)
+		.input("Rate", sql.Decimal(5,2), Rate)
 		.execute("dbo.UpdateShift"); // Gọi stored procedure để sửa Shift
 }
 
@@ -31,11 +36,11 @@ async function getAllShifts() {
 	return result.recordset; // Trả về danh sách tất cả Shifts
 }
 
-async function getShiftById(id) {
+async function getShiftById(Shift_ID) {
 	const pool = await getDBConnection();
 	const result = await pool
 		.request()
-		.input("id", sql.Int, id)
+		.input("Shift_ID", sql.Int, Shift_ID)
 		.execute("dbo.GetShiftById"); // Gọi stored procedure để lấy một Shift theo Id
 	return result.recordset[0]; // Trả về Shift đầu tiên (nếu có)
 }
