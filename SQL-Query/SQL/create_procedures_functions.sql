@@ -648,7 +648,408 @@ EXEC dbo.GetAllSuppliers;
 GO
 
 
+----- Stored Procedure cho Item
+GO
+CREATE PROCEDURE AddItem
+    @SellingPrice DECIMAL(10, 2),
+    @Size VARCHAR(10),
+    @Color VARCHAR(10),
+    @ProductID INT
+AS
+BEGIN
+    -- chỉ đc thêm Item nếu Product có tồn tại
+    IF EXISTS ( 
+        SELECT 1
+        FROM PRODUCT
+        WHERE PRODUCT_ID = @ProductID
+    )
+    BEGIN
+        -- Nếu tồn tại, thực hiện thêm ITEM vào bảng ITEM
+        INSERT INTO ITEM (SELLING_PRICE, SIZE, COLOR, STOCK, PRODUCT_ID)
+        VALUES (@SellingPrice, @Size, @Color, 0, @ProductID);
+    END
+    ELSE
+    BEGIN
+        -- Nếu ProductID không tồn tại, trả về thông báo lỗi
+         RAISERROR ('Product không tồn tại.', 16, 1);
+    END
+END;
 
+-- Cập nhật Item
+GO
+CREATE PROCEDURE UpdateItem
+    @ItemId INT,
+    @SellingPrice DECIMAL(10, 2),
+    @Size VARCHAR(10),
+    @Color VARCHAR(10),
+    @Stock INT,
+    @ProductId INT
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Kiểm tra xem Item có tồn tại không
+        IF NOT EXISTS (SELECT 1 FROM ITEM WHERE ITEM_ID = @ItemId)
+        BEGIN
+            RAISERROR('Item not found with the provided ID.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
+        -- Kiểm tra xem Product có tồn tại không
+        IF NOT EXISTS (SELECT 1 FROM PRODUCT WHERE PRODUCT_ID = @ProductId)
+        BEGIN
+            RAISERROR('Product not found with the provided ID.', 16, 2);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
+        -- Cập nhật Item
+        UPDATE ITEM
+        SET 
+            SELLING_PRICE = @SellingPrice,
+            SIZE = @Size,
+            COLOR = @Color,
+            STOCK = @Stock,
+            PRODUCT_ID = @ProductId
+        WHERE ITEM_ID = @ItemId;
+
+        -- Hoàn tất giao dịch
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Rollback transaction nếu xảy ra lỗi
+        ROLLBACK TRANSACTION;
+
+        -- Báo lỗi chi tiết từ CATCH block
+        DECLARE @ErrorMessage NVARCHAR(4000);
+        DECLARE @ErrorSeverity INT;
+        DECLARE @ErrorState INT;
+
+        SELECT 
+            @ErrorMessage = ERROR_MESSAGE(),
+            @ErrorSeverity = ERROR_SEVERITY(),
+            @ErrorState = ERROR_STATE();
+
+        RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+    END CATCH;
+END;
+
+
+GO
+CREATE PROCEDURE dbo.GetAllItems
+AS
+BEGIN
+    SELECT * FROM ITEM;
+END;
+
+GO
+CREATE PROCEDURE dbo.GetItemById
+    @ItemId INT
+AS
+BEGIN
+    SELECT * FROM ITEM
+    WHERE ITEM_ID = @ItemId;
+END;
+
+GO
+CREATE PROCEDURE ImportItemDetails
+    @ItemID INT, 
+    @SupplierID INT, 
+    @ImportQuantity INT, 
+    @ImportPrice DECIMAL(10, 2),
+    @TotalFee DECIMAL(10, 2) 
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Thêm bản ghi vào IMPORT_BILL
+        DECLARE @NewImportID INT;
+        DECLARE @SupllierName VARCHAR(30);
+        DECLARE @ExpectedFee DECIMAL(10, 2);
+        DECLARE @ExpenseTypeID INT;
+        DECLARE @ImportName VARCHAR(40); -- Khai báo biến
+        SET @ImportName = CONCAT('Import Item: ', @ItemID);
+        DECLARE @PayeeName VARCHAR(40);
+
+        SET @ExpectedFee = @ImportQuantity * @ImportPrice;
+
+        -- Kiểm tra tổng phí
+        IF @TotalFee <= @ExpectedFee
+        BEGIN
+            RAISERROR('Tổng phí phải lớn hơn tổng tiền nhập hàng.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
+        SELECT @ExpenseTypeID = Expense_Type_ID
+        FROM EXPENSE_TYPE
+        WHERE [Name] = 'Inventory Purchase';
+
+        INSERT INTO IMPORT_BILL (IMPORT_STATE, TOTAL_FEE)
+        VALUES ('Pending', @TotalFee);
+
+        -- Lấy ID của Import vừa thêm
+        SET @NewImportID = SCOPE_IDENTITY();
+
+        -- Kiểm tra ItemID và SupplierID có tồn tại hay không
+        IF NOT EXISTS (SELECT 1 FROM ITEM WHERE ITEM_ID = @ItemID)
+        BEGIN
+            RAISERROR('Item không tồn tại.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
+        IF NOT EXISTS (SELECT 1 FROM SUPPLIER WHERE SUPPLIER_ID = @SupplierID)
+        BEGIN
+            RAISERROR('Supplier không tồn tại.', 16, 2);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
+        SELECT @SupllierName = SUPPLIER_NAME
+        FROM SUPPLIER 
+        WHERE SUPPLIER_ID = @SupplierID;
+
+        SET @PayeeName = CONCAT('Supplier: ', @SupllierName);
+
+        -- Thêm bản ghi vào bảng IMPORT (chi tiết nhập hàng)
+        INSERT INTO IMPORT (IMPORT_ID, ITEM_ID, SUPPLIER_ID, IMPORT_QUANTITY, IMPORT_PRICE)
+        VALUES (@NewImportID, @ItemID, @SupplierID, @ImportQuantity, @ImportPrice);
+
+        -- Cập nhật Stock trong bảng ITEM
+        UPDATE ITEM
+        SET STOCK = STOCK + @ImportQuantity
+        WHERE ITEM_ID = @ItemID;
+
+        -- Thêm bản ghi vào bảng EXPENSE_RECEIPT
+        INSERT INTO EXPENSE_RECEIPT ([Name], [Date], Amount, Payee_Name, Expense_Type_ID)
+        VALUES 
+        (@ImportName, GETDATE(), @TotalFee, @PayeeName, @ExpenseTypeID);
+
+        -- Hoàn tất transaction
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Nếu có lỗi, rollback transaction
+        ROLLBACK TRANSACTION;
+
+        -- Hiển thị lỗi chi tiết
+        DECLARE @ErrorMessage NVARCHAR(4000);
+        DECLARE @ErrorSeverity INT;
+        DECLARE @ErrorState INT;
+
+        SELECT 
+            @ErrorMessage = ERROR_MESSAGE(),
+            @ErrorSeverity = ERROR_SEVERITY(),
+            @ErrorState = ERROR_STATE();
+
+        RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+    END CATCH;
+END;
+GO
+
+GO
+
+
+-- Cập nhật trạng thái của Import
+GO
+CREATE PROCEDURE UpdateImportBillState
+    @ImportID INT,
+    @NewState VARCHAR(30)
+AS
+BEGIN
+    BEGIN TRY
+        -- Cập nhật trạng thái
+        UPDATE IMPORT_BILL
+        SET IMPORT_STATE = @NewState
+        WHERE IMPORT_ID = @ImportID;
+
+        -- Kiểm tra nếu không tồn tại ImportID
+        IF @@ROWCOUNT = 0
+        BEGIN
+            RAISERROR('ImportID không tồn tại.', 16, 1);
+        END;
+    END TRY
+    BEGIN CATCH
+        -- Hiển thị lỗi chi tiết
+        DECLARE @ErrorMessage NVARCHAR(4000);
+        DECLARE @ErrorSeverity INT;
+        DECLARE @ErrorState INT;
+
+        SELECT 
+            @ErrorMessage = ERROR_MESSAGE(),
+            @ErrorSeverity = ERROR_SEVERITY(),
+            @ErrorState = ERROR_STATE();
+
+        RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+    END CATCH;
+END;
+GO
+
+
+
+GO
+CREATE PROCEDURE GetAllImportBills
+AS
+BEGIN
+    SELECT * FROM IMPORT_BILL;
+END;
+
+GO
+CREATE PROCEDURE GetImportBillById
+    @ImportID INT
+AS
+BEGIN
+    SELECT * 
+    FROM IMPORT_BILL
+    WHERE IMPORT_ID = @ImportID;
+END;
+
+
+-- ---Cập nhật Stock của Item sau khi nhập kho
+-- --Câu lệnh để gọi Procedure : EXEC UpdateStockOnImport @Import_ID = 1;
+GO
+CREATE PROCEDURE UpdateStockOnImport
+    @Import_ID INT
+AS
+BEGIN
+    -- Cập nhật Stock dựa trên Import
+    UPDATE ITEM
+    SET STOCK = STOCK + i.IMPORT_QUANTITY
+    FROM ITEM it
+    INNER JOIN IMPORT i ON it.ITEM_ID = i.ITEM_ID
+    WHERE i.IMPORT_ID = @Import_ID;
+
+    PRINT 'Cập nhật Stock sau khi nhập kho';
+END;
+
+
+--Proceduce trả nhập hàng
+GO
+CREATE PROCEDURE AddReturnBill
+    @Reason TEXT,
+    @RefundFee DECIMAL(10, 2),
+    @ItemID INT,
+    @SupplierID INT,
+    @ReturnQuantity INT,
+    @ReturnPrice DECIMAL(10, 2)
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- 1. Thêm bản ghi vào RETURN_BILL
+        DECLARE @NewReturnID INT;
+        DECLARE @SupplierName VARCHAR(30);
+        DECLARE @IncomeTypeID INT;
+        DECLARE @IncomeName VARCHAR(40);
+        DECLARE @PayerName VARCHAR(40);
+        
+        -- Lấy tên Supplier
+        SELECT @SupplierName = SUPPLIER_NAME
+        FROM SUPPLIER
+        WHERE SUPPLIER_ID = @SupplierID;
+
+        -- Xác định Income_Type_ID cho "Inventory Returns"
+        SELECT @IncomeTypeID = Income_Type_ID
+        FROM INCOME_TYPE
+        WHERE [Name] = 'Inventory Returns';
+
+        -- Tạo tên và payer cho Income Receipt
+        SET @IncomeName = CONCAT('Refund for Item: ', @ItemID);
+        SET @PayerName = CONCAT('Supplier: ', @SupplierName);
+
+        -- Thêm bản ghi vào RETURN_BILL
+        INSERT INTO RETURN_BILL (REASON, REFUND_FEE)
+        VALUES (@Reason, @RefundFee);
+
+        -- Lấy ID của Return Bill vừa thêm
+        SET @NewReturnID = SCOPE_IDENTITY();
+
+        -- 2. Kiểm tra ItemID và SupplierID có tồn tại hay không
+        IF NOT EXISTS (SELECT 1 FROM ITEM WHERE ITEM_ID = @ItemID)
+        BEGIN
+            RAISERROR('Item không tồn tại.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
+        IF NOT EXISTS (SELECT 1 FROM SUPPLIER WHERE SUPPLIER_ID = @SupplierID)
+        BEGIN
+            RAISERROR('Supplier không tồn tại.', 16, 2);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
+        -- 3. Kiểm tra ReturnQuantity > 0
+        IF @ReturnQuantity <= 0
+        BEGIN
+            RAISERROR('ReturnQuantity phải lớn hơn 0.', 16, 3);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END;
+
+        -- 4. Thêm bản ghi vào RETURN_ITEM
+        INSERT INTO RETURN_ITEM (RETURN_ID, ITEM_ID, SUPPLIER_ID, RETURN_QUANTITY, RETURN_PRICE)
+        VALUES (@NewReturnID, @ItemID, @SupplierID, @ReturnQuantity, @ReturnPrice);
+
+        -- 5. Cập nhật lại Stock trong bảng ITEM
+        UPDATE ITEM
+        SET STOCK = STOCK - @ReturnQuantity
+        WHERE ITEM_ID = @ItemID;
+
+        -- 6. Thêm bản ghi vào INCOME_RECEIPT
+        INSERT INTO INCOME_RECEIPT ([Name], [Date], Amount, Payer_Name, Income_Type_ID)
+        VALUES (@IncomeName, GETDATE(), @RefundFee, @PayerName, @IncomeTypeID);
+
+        -- Hoàn tất transaction
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Rollback nếu có lỗi
+        ROLLBACK TRANSACTION;
+
+        -- Xử lý và ném lỗi ra ngoài
+        DECLARE @ErrorMessage NVARCHAR(4000);
+        DECLARE @ErrorSeverity INT;
+        DECLARE @ErrorState INT;
+
+        SELECT 
+            @ErrorMessage = ERROR_MESSAGE(),
+            @ErrorSeverity = ERROR_SEVERITY(),
+            @ErrorState = ERROR_STATE();
+
+        RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+    END CATCH;
+END;
+GO
+
+GO
+
+
+GO
+CREATE PROCEDURE GetAllReturnBills
+AS
+BEGIN
+    SELECT *
+    FROM RETURN_BILL;
+END;
+
+GO
+CREATE PROCEDURE GetReturnBillById
+    @ReturnID INT
+AS
+BEGIN
+    SELECT *
+    FROM RETURN_BILL
+    WHERE RETURN_ID = @ReturnID;
+END;
+
+
+-- Xóa Proceduce
+
+DROP PROCEDURE dbo.GetAllItems, dbo.GetItemById, AddItem, UpdateItem, GetAllReturnBills, AddReturnBill, GetReturnBillById, GetAllImportBills, GetImportBillById, UpdateImportBillState, ImportItemDetails, UpdateStockOnImport;
 
 
 
