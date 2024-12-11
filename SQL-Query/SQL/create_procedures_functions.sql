@@ -127,8 +127,7 @@ BEGIN
     END CATCH
 END;
 
-select * from account
-where Username = 'TranNguyenGiaHung345'
+
 
 -- UPDATE ACCOUNT
 GO
