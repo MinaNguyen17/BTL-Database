@@ -55,3 +55,7 @@ DROP SEQUENCE IF EXISTS EmpID_Sequence;
 SELECT table_name 
 FROM information_schema.tables 
 WHERE table_type = 'BASE TABLE' AND table_schema = 'dbo';
+
+-- Xóa Proceduce
+
+DROP PROCEDURE dbo.GetAllItems, dbo.GetItemById, AddItem, UpdateItem, GetAllReturnBills, AddReturnBill, GetReturnBillById, GetAllImportBills, GetImportBillById, UpdateImportBillState, ImportItemDetails, UpdateStockOnImport;

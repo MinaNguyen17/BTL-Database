@@ -264,7 +264,8 @@ INSERT INTO EXPENSE_TYPE ([Name]) VALUES
 ('Rent'),
 ('Salaries'),
 ('Utilities'),
-('Marketing');
+('Marketing'),
+('Refund');
 
 -- delete from EXPENSE_RECEIPT
 INSERT INTO EXPENSE_RECEIPT ([Name], [Date], Amount, Payee_Name, Expense_Type_ID) VALUES
@@ -476,18 +477,6 @@ SELECT * FROM Of_Group;
 -- SELECT * FROM Contain;
 
 -- Dữ liệu cho phần ORDER
-INSERT INTO [ORDER] (Discount, Payment_Method, Shipping_Fee, Order_Status, Total_Item_Amount, Customer_Notes)
-VALUES 
-(10, 'Cash', 20, 'Shipped', 300, 'Please deliver in the morning'),
-(15, 'Card', 25, 'Preparing', 500, 'Fragile item, handle with care'),
-(5, 'Online', 15, 'Completed', 200, 'No special instructions'),
-(20, 'Cash', 10, 'Canceled', 0, 'Out of stock, please refund'),
-(0, 'Online', 5, 'Preparing', 100, 'No special instructions'),
-(30, 'Card', 35, 'Shipped', 600, 'Gift wrap required, please include a note'),
-(0, 'Online', 0, 'Completed', 400, 'Deliver to reception desk'),
-(25, 'Cash', 20, 'Shipped', 700, 'Urgent delivery needed, please prioritize'),
-(10, 'Online', 10, 'Completed', 500, 'No special instructions'),
-(15, 'Card', 30, 'Canceled', 0, 'Address not found, please check details');
 
 
 
@@ -518,12 +507,112 @@ VALUES
 ('DHL', GETDATE(), DATEADD(DAY, 9, GETDATE()), 9),
 ('UPS', GETDATE(), DATEADD(DAY, 7, GETDATE()), 10);
 
-INSERT INTO RETURN_ORDER (Reason, Return_Description, Return_Status, Order_ID)
-VALUES
-('Damaged item', 'Item arrived broken', 'Approved', 1),
-('Wrong item', 'Received a different product', 'Under consideration', 2),
-('Change of mind', '', 'Rejected', 3),
-('Late delivery', '', 'Approved', 4);
+-- INSERT INTO [ORDER] (Discount, Payment_Method, Shipping_Fee, Order_Status, Total_Item_Amount, Customer_Notes)
+-- VALUES 
+-- (10, 'Cash', 20, 'Shipped', 300, 'Please deliver in the morning'),
+-- (15, 'Card', 25, 'Preparing', 500, 'Fragile item, handle with care'),
+-- (5, 'Online', 15, 'Completed', 200, 'No special instructions'),
+-- (20, 'Cash', 10, 'Canceled', 0, 'Out of stock, please refund'),
+-- (0, 'Online', 5, 'Preparing', 100, 'No special instructions'),
+-- (30, 'Card', 35, 'Shipped', 600, 'Gift wrap required, please include a note'),
+-- (0, 'Online', 0, 'Completed', 400, 'Deliver to reception desk'),
+-- (25, 'Cash', 20, 'Shipped', 700, 'Urgent delivery needed, please prioritize'),
+-- (10, 'Online', 10, 'Completed', 500, 'No special instructions'),
+-- (15, 'Card', 30, 'Canceled', 0, 'Address not found, please check details');
+
+-- INSERT INTO RETURN_ORDER (Reason, Return_Description, Return_Status, Order_ID)
+-- VALUES
+-- ('Damaged item', 'Item arrived broken', 'Approved', 1),
+-- ('Wrong item', 'Received a different product', 'Under consideration', 2),
+-- ('Change of mind', '', 'Rejected', 3),
+-- ('Late delivery', '', 'Approved', 4);
+
+-- Thêm nhiều dữ liệu vào ORDER và INCOME_RECEIPT bằng thủ tục CreateOrderAndIncomeReceipt
+EXEC CreateOrderAndIncomeReceipt 
+    @CustomerNotes = N'', 
+    @TotalItemAmount = 1500, 
+    @ShippingFee = 100, 
+    @Discount = 50, 
+    @PaymentMethod = 'Card', 
+    @IncomeName = N'Payment for Order 1', 
+    @PayerName = N'Customer', 
+    @IncomeTypeID = 1;
+
+EXEC CreateOrderAndIncomeReceipt 
+    @CustomerNotes = N'', 
+    @TotalItemAmount = 2000, 
+    @ShippingFee = 150, 
+    @Discount = 100, 
+    @PaymentMethod = 'Cash', 
+    @IncomeName = N'Payment for Order 2', 
+    @PayerName = N'Customer B', 
+    @IncomeTypeID = 1;
+
+EXEC CreateOrderAndIncomeReceipt 
+    @CustomerNotes = N'', 
+    @TotalItemAmount = 1200, 
+    @ShippingFee = 80, 
+    @Discount = 0, 
+    @PaymentMethod = 'Card', 
+    @IncomeName = N'Payment for Order 3', 
+    @PayerName = N'Customer', 
+    @IncomeTypeID = 1;
+
+EXEC CreateOrderAndIncomeReceipt 
+    @CustomerNotes = N'', 
+    @TotalItemAmount = 1500, 
+    @ShippingFee = 100, 
+    @Discount = 50, 
+    @PaymentMethod = 'Card', 
+    @IncomeName = N'Payment for Order 4', 
+    @PayerName = N'Customer', 
+    @IncomeTypeID = 1;
+
+EXEC CreateOrderAndIncomeReceipt 
+    @CustomerNotes = N'', 
+    @TotalItemAmount = 2000, 
+    @ShippingFee = 150, 
+    @Discount = 100, 
+    @PaymentMethod = 'Cash', 
+    @IncomeName = N'Payment for Order 5', 
+    @PayerName = N'Customer B', 
+    @IncomeTypeID = 1;
+
+EXEC CreateOrderAndIncomeReceipt 
+    @CustomerNotes = N'', 
+    @TotalItemAmount = 1200, 
+    @ShippingFee = 80, 
+    @Discount = 0, 
+    @PaymentMethod = 'Card', 
+    @IncomeName = N'Payment for Order 6', 
+    @PayerName = N'Customer', 
+    @IncomeTypeID = 1;
+
+-- Thêm nhiều dữ liệu vào RETURN_ORDER và EXPENSE_RECEIPT bằng thủ tục ReturnOrderAndCreateExpenseReceipt
+EXEC ReturnOrderAndCreateExpenseReceipt 
+    @OrderID = 1, 
+    @Reason = N'Damaged item', 
+    @ReturnDescription = N'Item arrived broken', 
+    @ExpenseName = N'Refund for Order 1', 
+    @PayeeName = N'Customer', 
+    @ExpenseTypeID = 6;
+
+EXEC ReturnOrderAndCreateExpenseReceipt 
+    @OrderID = 2, 
+    @Reason = N'Wrong item', 
+    @ReturnDescription = N'Received a different product', 
+    @ExpenseName = N'Refund for Order 2', 
+    @PayeeName = N'Customer', 
+    @ExpenseTypeID = 6;
+
+EXEC ReturnOrderAndCreateExpenseReceipt 
+    @OrderID = 3, 
+    @Reason = N'Late delivery', 
+    @ReturnDescription = N'', 
+    @ExpenseName = N'Refund for Order 3', 
+    @PayeeName = N'Customer', 
+    @ExpenseTypeID = 6;
+
 
 INSERT INTO VOUCHER_VALID_PERIOD (Voucher_ID, Voucher_Start_Date, Voucher_End_Date)
 VALUES

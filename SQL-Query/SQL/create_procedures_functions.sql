@@ -1046,10 +1046,118 @@ BEGIN
     WHERE RETURN_ID = @ReturnID;
 END;
 
+--ORDER
+CREATE PROCEDURE CreateOrderAndIncomeReceipt
+    @CustomerNotes NVARCHAR(255),
+    @TotalItemAmount INT,
+    @ShippingFee INT,
+    @Discount INT,
+    @PaymentMethod VARCHAR(10),
+    @IncomeName NVARCHAR(40),
+    @PayerName NVARCHAR(40),
+    @IncomeTypeID INT
+AS
+BEGIN
+    BEGIN TRY
+        -- Bắt đầu transaction
+        BEGIN TRANSACTION;
 
--- Xóa Proceduce
+        -- Bước 1: Tạo order mới
+        DECLARE @OrderID INT;
+        INSERT INTO [ORDER] (Order_Date, Discount, Payment_Method, Shipping_Fee, Total_Item_Amount, Customer_Notes)
+        VALUES (GETDATE(), @Discount, @PaymentMethod, @ShippingFee, @TotalItemAmount, @CustomerNotes);
 
-DROP PROCEDURE dbo.GetAllItems, dbo.GetItemById, AddItem, UpdateItem, GetAllReturnBills, AddReturnBill, GetReturnBillById, GetAllImportBills, GetImportBillById, UpdateImportBillState, ImportItemDetails, UpdateStockOnImport;
+        -- Lấy Order_ID của order vừa tạo
+        SET @OrderID = SCOPE_IDENTITY();
+
+        -- Bước 2: Tính toán tổng tiền (Revenue)
+        DECLARE @TotalRevenue INT;
+        SET @TotalRevenue = @TotalItemAmount + @ShippingFee - @Discount;
+
+        -- Bước 3: Thêm phiếu thu (Income Receipt)
+        INSERT INTO INCOME_RECEIPT ([Name], [Date], Amount, Payer_Name, Income_Type_ID)
+        VALUES (@IncomeName, GETDATE(), @TotalRevenue, @PayerName, @IncomeTypeID);
+
+        -- Commit transaction
+        COMMIT TRANSACTION;
+
+        PRINT 'Order và Income Receipt đã được tạo thành công.';
+    END TRY
+    BEGIN CATCH
+        -- Nếu có lỗi, rollback transaction
+        ROLLBACK TRANSACTION;
+        PRINT 'Lỗi xảy ra: ' + ERROR_MESSAGE();
+    END CATCH
+END;
+GO
+
+CREATE PROCEDURE ReturnOrderAndCreateExpenseReceipt
+    @OrderID INT,
+    @Reason NVARCHAR(255),
+    @ReturnDescription NVARCHAR(255),
+    @ExpenseName NVARCHAR(40),
+    @PayeeName NVARCHAR(40),
+    @ExpenseTypeID INT
+AS
+BEGIN
+    BEGIN TRY
+        -- Bắt đầu transaction
+        BEGIN TRANSACTION;
+
+        -- Bước 1: Xác minh đơn hàng tồn tại và chưa được trả lại
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM [ORDER] 
+            WHERE Order_ID = @OrderID AND Order_Status <> 'Returned'
+        )
+        BEGIN
+            THROW 50000, 'Đơn hàng không tồn tại hoặc đã được trả lại.', 1;
+        END
+
+        -- Bước 2: Lấy thông tin tổng số tiền của đơn hàng
+        DECLARE @TotalRefundAmount INT;
+        SELECT @TotalRefundAmount = (Total_Item_Amount + Shipping_Fee - Discount)
+        FROM [ORDER]
+        WHERE Order_ID = @OrderID;
+
+        -- Kiểm tra tổng tiền hoàn trả có hợp lệ
+        IF @TotalRefundAmount <= 0
+        BEGIN
+            THROW 50001, 'Số tiền hoàn trả không hợp lệ.', 1;
+        END
+
+        -- Bước 3: Cập nhật trạng thái đơn hàng
+        UPDATE [ORDER]
+        SET Order_Status = 'Returned', Return_Date = GETDATE()
+        WHERE Order_ID = @OrderID;
+
+        -- Bước 4: Tạo một bản ghi trong bảng RETURN_ORDER
+        INSERT INTO RETURN_ORDER (Reason, Return_Description, Return_Status, Order_ID)
+        VALUES (@Reason, @ReturnDescription, 'Approved', @OrderID);
+
+        -- Bước 5: Tạo phiếu chi trong bảng EXPENSE_RECEIPT
+        INSERT INTO EXPENSE_RECEIPT ([Name], [Date], Amount, Payee_Name, Expense_Type_ID)
+        VALUES (@ExpenseName, GETDATE(), @TotalRefundAmount, @PayeeName, @ExpenseTypeID);
+
+        -- Commit transaction
+        COMMIT TRANSACTION;
+
+        PRINT 'Đơn hàng đã được trả lại, phiếu hoàn trả và phiếu chi đã được tạo thành công.';
+    END TRY
+    BEGIN CATCH
+        -- Nếu có lỗi, rollback transaction
+        ROLLBACK TRANSACTION;
+
+        -- Hiển thị thông báo lỗi chi tiết
+        DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;
+        SELECT @ErrorMessage = ERROR_MESSAGE(), 
+               @ErrorSeverity = ERROR_SEVERITY(), 
+               @ErrorState = ERROR_STATE();
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+    END CATCH
+END;
+GO
+
 
 
 
