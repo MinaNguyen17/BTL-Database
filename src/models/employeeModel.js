@@ -66,15 +66,9 @@ async function updateEmployee(idCardNum, newPosition, newWage) {
     .execute("dbo.UpdateEmployeeInfo"); // Gọi stored procedure UpdateEmployeeInfo
 }
 
-async function deleteEmployee(id) {
-  const pool = await getDBConnection();
-  await pool.request().input("id", sql.Int, id).execute("dbo.DeleteEmployee"); // Gọi stored procedure để xóa Employee
-}
-
 module.exports = {
   getAllEmployees,
   getEmployeeById,
   createEmployee,
   updateEmployee,
-  deleteEmployee,
 };

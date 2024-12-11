@@ -70,20 +70,9 @@ async function updateEmployee(req, res) {
   }
 }
 
-async function deleteEmployee(req, res) {
-  const { id } = req.params;
-  try {
-    await EmployeeService.deleteEmployee(id);
-    res.status(200).json({ message: "Employee đã được xóa thành công." });
-  } catch (error) {
-    res.status(500).json({ message: "Lỗi khi xóa Employee.", error });
-  }
-}
-
 module.exports = {
   getAllEmployees,
   getEmployeeById,
   addEmployee,
   updateEmployee,
-  deleteEmployee,
 };
