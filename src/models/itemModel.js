@@ -1,12 +1,14 @@
 const { getDBConnection } = require("../config/database.js");
 const sql = require("mssql");
 
-async function addItem(name, email) {
+async function addItem(sellingPrice, size, color, productID) {
 	const pool = await getDBConnection();
 	await pool
 		.request()
-		.input("name", sql.NVarChar, name)
-		.input("email", sql.NVarChar, email)
+		.input("SellingPrice", sql.Decimal(10, 2), sellingPrice)
+		.input("Size", sql.VarChar(10), size)
+		.input("Color", sql.VarChar(10), c)
+		.input("ProductID", sql.NVarChar, email)
 		.execute("dbo.AddItem"); // Gọi stored procedure để thêm Item
 }
 

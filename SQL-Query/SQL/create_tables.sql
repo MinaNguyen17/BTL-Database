@@ -17,7 +17,7 @@ CREATE TABLE VOUCHER(
     Voucher_ID INT IDENTITY(1,1) PRIMARY KEY,
     Voucher_Code CHAR(5) UNIQUE NOT NULL,
     Voucher_Name VARCHAR(50) DEFAULT 'Voucher',
-    Voucher_Status VARCHAR(10) DEFAULT 'Not activated',
+    Voucher_Status VARCHAR(20) DEFAULT 'Not activated',
     Discount_Percentage INT DEFAULT 0,
     Max_Discount_Amount INT DEFAULT 0
 );
