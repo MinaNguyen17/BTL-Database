@@ -578,3 +578,103 @@ VALUES
 (3, '061303543210'),
 (4, '079201345678'), 
 (5, '048203987654'); 
+
+-- Dữ liệu insert supplier 
+INSERT INTO SUPPLIER (SUPPLIER_NAME, SUPPLIER_EMAIL, SUPPLIER_PHONE, ADDRESS)
+VALUES 
+('Routine', 'contact@routine.vn', '0901234567', '77 Nguyen Trai, District 1, Ho Chi Minh City'),
+('Hnoss', 'info@hnoss.vn', '0912345678', '88 Dong Khoi, District 1, Ho Chi Minh City'),
+('Coolmate', 'support@coolmate.me', '0923456789', '100 Cach Mang Thang 8, District 3, Ho Chi Minh City'),
+('Yody', 'hello@yody.vn', '0934567890', '20 Le Loi, Hai Chau District, Da Nang'),
+('Canifa', 'sales@canifa.com', '0945678901', '50 Hang Bong, Hoan Kiem District, Hanoi'),
+('Owen', 'contact@owen.vn', '0956789012', '25 Tran Hung Dao, District 5, Ho Chi Minh City'),
+('Blue Exchange', 'info@blueexchange.vn', '0967890123', '15 Le Thanh Ton, District 1, Ho Chi Minh City'),
+('Lime Orange', 'service@limeorange.vn', '0978901234', '99 Phan Dinh Phung, Phu Nhuan District, Ho Chi Minh City');
+
+--Dữ liệu insert product
+INSERT INTO PRODUCT (PRODUCT_NAME, BRAND, STYLE_TAG, SEASON, CATEGORY, DESCRIPTION)
+VALUES
+('Cotton T-Shirt', 'Routine', 'Casual', 'Summer', 'Clothing', 'Comfortable cotton t-shirt for everyday wear.'),
+('Chiffon Dress', 'Hnoss', 'Elegant', 'Spring', 'Clothing', 'Lightweight chiffon dress for formal events.'),
+('Polo Shirt', 'Coolmate', 'Classic', 'All Seasons', 'Clothing', 'Breathable polo shirt with modern fit.'),
+('Jogger Pants', 'Yody', 'Sporty', 'Fall', 'Clothing', 'Stretchable jogger pants for active lifestyle.'),
+('Jeans', 'Canifa', 'Denim', 'All Seasons', 'Clothing', 'Durable denim jeans with versatile styling.'),
+('Business Shirt', 'Owen', 'Formal', 'Winter', 'Clothing', 'Elegant business shirt with wrinkle-resistant fabric.');
+
+
+--Dữ liệu insert Item
+INSERT INTO ITEM (SELLING_PRICE, SIZE, COLOR, STOCK, PRODUCT_ID)
+VALUES
+(199000, 'M', 'White', 150, 1),
+(299000, 'S', 'Pink', 100, 2),
+(250000, 'L', 'Black', 200, 3),
+(350000, 'XL', 'Gray', 120, 4),
+(500000, '32', 'Blue', 80, 5),
+(400000, 'L', 'White', 50, 6);
+
+--Dữ liệu product_set
+INSERT INTO PRODUCT_SET (NAME, STYLE)
+VALUES
+('Summer Collection', 'Casual'),
+('Winter Elegance', 'Formal'),
+('Wind Breaker', 'Casual'),
+('Sportwear Line', 'Sport');
+
+--Dữ liệu combine
+INSERT INTO COMBINE (PRODUCT_ID, SET_ID)
+VALUES
+(1, 1),
+(2, 1),
+(3, 3),
+(4, 3),
+(6, 2);
+
+--dữ liệu import_bill
+INSERT INTO IMPORT_BILL (IMPORT_STATE, TOTAL_FEE)
+VALUES
+('Pending', 5000000),
+('Completed', 10000000),
+('Completed', 12000000),
+('Completed', 1500000);
+
+--dữ liệu import
+INSERT INTO IMPORT (IMPORT_ID, ITEM_ID, SUPPLIER_ID, IMPORT_QUANTITY, IMPORT_PRICE)
+VALUES
+(1, 1, 1, 100, 180000),
+(2, 2, 2, 50, 250000),
+(2, 3, 3, 200, 230000),
+(3, 4, 4, 120, 300000),
+(3, 5, 5, 80, 450000),
+(3, 6, 6, 50, 380000);
+
+--dữ liệu return bill
+INSERT INTO RETURN_BILL (REASON, REFUND_FEE)
+VALUES
+('Damaged during transport', 500000),
+('Wrong item sent', 700000),
+('Damaged during transport', 100000),
+('Defective goods', 250000);
+
+--dữ liệu return_item
+INSERT INTO RETURN_ITEM (RETURN_ID, ITEM_ID, SUPPLIER_ID, RETURN_QUANTITY, RETURN_PRICE)
+VALUES
+(1, 1, 1, 5, 180000),
+(2, 2, 2, 3, 250000), 
+(3, 3, 3, 10, 100000), 
+(4, 4, 4, 2, 125000); 
+
+
+--dữ liệu reconcilation_form
+INSERT INTO RECONCILIATION_FORM (CHECKED_DATE)
+VALUES
+('2024-01-01'),
+('2024-01-15'),
+('2024-02-01'),
+('2024-02-15');
+
+INSERT INTO RECONCILE (CHECK_ID, ITEM_ID, ID_CARD_NUM, ACTUAL_QUANTITY)
+VALUES
+(1, 1, '130044556677', 5),
+(2, 2, '140055667788', 10),
+(3, 3, '150066778899', 15),
+(4, 4, '160077889900', 20);
