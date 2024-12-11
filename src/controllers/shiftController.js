@@ -96,9 +96,58 @@ async function updateShift(req, res) {
   }
 }
 
+async function removeEmployeeFromShift(req, res) {
+  const { Shift_ID, ID_Card_Num } = req.body;
+  try {
+    const response = await ShiftService.removeEmployeeFromShift(
+      Shift_ID,
+      ID_Card_Num
+    );
+    if (response.success) {
+      res.status(200).json({ message: response.message });
+    } else {
+      res.status(400).json({ message: response.message });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi server khi xóa nhân viên khỏi ca làm việc.",
+      error,
+    });
+  }
+}
+
+async function registerEmployeeToShift(req, res) {
+  const { Shift_ID, ID_Card_Num } = req.body;
+
+  if (!Shift_ID || !ID_Card_Num) {
+    return res
+      .status(400)
+      .json({ message: "Thiếu Shift_ID hoặc ID_Card_Num." });
+  }
+
+  try {
+    const response = await ShiftService.registerEmployeeToShift(
+      Shift_ID,
+      ID_Card_Num
+    );
+    if (response.success) {
+      res.status(200).json({ message: response.message });
+    } else {
+      res.status(400).json({ message: response.message });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi server khi thêm nhân viên vào ca làm việc.",
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   getAllShifts,
   getShiftById,
   addShift,
   updateShift,
+  removeEmployeeFromShift,
+  registerEmployeeToShift,
 };

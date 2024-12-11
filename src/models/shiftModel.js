@@ -57,6 +57,46 @@ async function GetEmployeesOfShift(Shift_ID) {
   return employeesResult.recordset;
 }
 
+async function removeEmployeeFromShift(shiftId, idCardNum) {
+  const pool = await getDBConnection();
+  try {
+    const result = await pool
+      .request()
+      .input("Shift_ID", sql.Int, shiftId)
+      .input("ID_Card_Num", sql.Char(12), idCardNum)
+      .execute("dbo.RemoveEmployeeFromShift");
+    return {
+      success: true,
+      message: "Nhân viên đã được xóa khỏi ca làm việc thành công.",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.originalError.info.message || "Lỗi không xác định.",
+    };
+  }
+}
+
+async function registerEmployeeToShift(shiftId, idCardNum) {
+  const pool = await getDBConnection();
+  try {
+    const result = await pool
+      .request()
+      .input("Shift_ID", sql.Int, shiftId)
+      .input("ID_Card_Num", sql.Char(12), idCardNum)
+      .execute("dbo.RegisterShift");
+    return {
+      success: true,
+      message: "Nhân viên đã được thêm vào ca làm việc thành công.",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.originalError?.info?.message || "Lỗi không xác định.",
+    };
+  }
+}
+
 module.exports = {
   getAllShifts,
   getShiftById,
@@ -64,4 +104,6 @@ module.exports = {
   updateShift,
   deleteShift,
   GetEmployeesOfShift,
+  removeEmployeeFromShift,
+  registerEmployeeToShift,
 };
