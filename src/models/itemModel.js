@@ -7,23 +7,27 @@ async function addItem(sellingPrice, size, color, productID) {
 		.request()
 		.input("SellingPrice", sql.Decimal(10, 2), sellingPrice)
 		.input("Size", sql.VarChar(10), size)
-		.input("Color", sql.VarChar(10), c)
-		.input("ProductID", sql.NVarChar, email)
+		.input("Color", sql.VarChar(10), color)
+		.input("ProductID", sql.Int, productID)
 		.execute("dbo.AddItem"); // Gọi stored procedure để thêm Item
 }
 
 async function deleteItem(id) {
-	const pool = await getDBConnection();
-	await pool.request().input("id", sql.Int, id).execute("dbo.DeleteItem"); // Gọi stored procedure để xóa Item
+	// const pool = await getDBConnection();
+	// await pool.request().input("id", sql.Int, id).execute("dbo.DeleteItem"); // Gọi stored procedure để xóa Item
+	console.log("Not implement");
 }
 
-async function updateItem(id, name, email) {
+async function updateItem(id, sellingPrice, size, color, stock, productID) {
 	const pool = await getDBConnection();
 	await pool
 		.request()
-		.input("id", sql.Int, id)
-		.input("name", sql.NVarChar, name)
-		.input("email", sql.NVarChar, email)
+		.input("ItemId", sql.Int, id)
+		.input("SellingPrice", sql.Decimal(10, 2), sellingPrice)
+		.input("Size", sql.VarChar(10), size)
+		.input("Color", sql.VarChar(10), color)
+		.input("Stock", sql.Int, stock)
+		.input("ProductID", sql.Int, productID)
 		.execute("dbo.UpdateItem"); // Gọi stored procedure để sửa Item
 }
 
@@ -37,7 +41,7 @@ async function getItemById(id) {
 	const pool = await getDBConnection();
 	const result = await pool
 		.request()
-		.input("id", sql.Int, id)
+		.input("ItemId", sql.Int, id)
 		.execute("dbo.GetItemById"); // Gọi stored procedure để lấy một Item theo Id
 	return result.recordset[0]; // Trả về Item đầu tiên (nếu có)
 }

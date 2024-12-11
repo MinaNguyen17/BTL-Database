@@ -28,9 +28,9 @@ async function getItemById(req, res) {
 }
 
 async function addItem(req, res) {
-	const { name, email } = req.body;
+	const { sellingPrice, size, color, productID } = req.body;
 	try {
-		await ItemService.addItem(name, email);
+		await ItemService.addItem(sellingPrice, size, color, productID);
 		res.status(201).json({ message: "Item đã được thêm thành công." });
 	} catch (error) {
 		res.status(500).json({ message: "Lỗi khi thêm Item.", error });
@@ -39,9 +39,9 @@ async function addItem(req, res) {
 
 async function updateItem(req, res) {
 	const { id } = req.params;
-	const { name, email } = req.body;
+	const { sellingPrice, size, color, stock, productID } = req.body;
 	try {
-		await ItemService.updateItem(id, name, email);
+		await ItemService.updateItem(id, sellingPrice, size, color, stock, productID);
 		res.status(200).json({ message: "Item đã được cập nhật thành công." });
 	} catch (error) {
 		res.status(500).json({ message: "Lỗi khi cập nhật Item.", error });
