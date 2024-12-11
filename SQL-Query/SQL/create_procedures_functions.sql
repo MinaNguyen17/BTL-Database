@@ -414,13 +414,17 @@ BEGIN
             -- Thêm người vào bảng PERSON
             INSERT INTO PERSON (ID_Card_Num, Fname, Lname, DOB, Sex)
             VALUES (@ID_Card_Num, @Fname, @Lname, @DOB, @Sex);
-                -- Kiểm tra nếu EMPLOYEE đã tồn tại
+            
+            -- Kiểm tra nếu EMPLOYEE đã tồn tại
             IF EXISTS (SELECT 1 FROM EMPLOYEE WHERE ID_Card_Num = @ID_Card_Num)
             BEGIN
+                -- Ném lỗi khi nhân viên đã tồn tại
                 RAISERROR ('Employee already exists for this ID Card Number.', 16, 1);
                 ROLLBACK TRANSACTION;
+                RETURN;  -- Thoát thủ tục sau khi ném lỗi
             END
-                -- Thêm nhân viên vào bảng EMPLOYEE
+
+            -- Thêm nhân viên vào bảng EMPLOYEE
             INSERT INTO EMPLOYEE (ID_Card_Num, Position, Wage)
             VALUES (@ID_Card_Num, @Position, @Wage);
             COMMIT TRANSACTION;
@@ -428,13 +432,17 @@ BEGIN
         END
         ELSE
         BEGIN
+            -- Ném lỗi khi người đã tồn tại
             RAISERROR ('Person already exists for this ID Card Number.', 16, 1);
             ROLLBACK TRANSACTION;
+            RETURN;
         END
     END TRY
     BEGIN CATCH
+        -- Ghi lại lỗi nếu có và rollback transaction
         ROLLBACK TRANSACTION;
-        PRINT ERROR_MESSAGE();
+        -- Ném lại lỗi để Node.js có thể bắt
+        THROW;  -- THROW sẽ ném lỗi từ SQL ra ngoài
     END CATCH;
 END;
 GO
@@ -488,6 +496,51 @@ GO
 
 -- EXEC UpdateEmployeeInfo @ID_Card_Num = '071201876543', @New_Position = 'Senior', @New_Wage = 32000;
 
+-- Procedure: Lấy danh sách tất cả Employees
+CREATE PROCEDURE dbo.GetAllEmployees
+AS
+BEGIN
+    SELECT 
+        e.ID_Card_Num,
+        e.Employee_ID,
+        e.Position,
+        e.Wage,
+        p.Fname,
+        p.Lname,
+        p.DOB,
+        p.Sex
+    FROM 
+        EMPLOYEE e
+    INNER JOIN 
+        PERSON p ON e.ID_Card_Num = p.ID_Card_Num;
+END;
+GO
+
+-- exec dbo.GetAllEmployees
+
+-- Procedure: Lấy thông tin Employee theo ID
+GO
+CREATE PROCEDURE dbo.GetEmployeeById
+    @id CHAR(12)
+AS
+BEGIN
+    SELECT 
+        e.ID_Card_Num,
+        e.Employee_ID,
+        e.Position,
+        e.Wage,
+        p.Fname,
+        p.Lname,
+        p.DOB,
+        p.Sex
+    FROM 
+        EMPLOYEE e
+    INNER JOIN 
+        PERSON p ON e.ID_Card_Num = p.ID_Card_Num
+    WHERE 
+        e.ID_Card_Num = @id; 
+END;
+GO
 
 
 
