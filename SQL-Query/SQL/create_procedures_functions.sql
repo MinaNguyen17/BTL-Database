@@ -446,13 +446,17 @@ BEGIN
             -- Thêm người vào bảng PERSON
             INSERT INTO PERSON (ID_Card_Num, Fname, Lname, DOB, Sex)
             VALUES (@ID_Card_Num, @Fname, @Lname, @DOB, @Sex);
-                -- Kiểm tra nếu EMPLOYEE đã tồn tại
+            
+            -- Kiểm tra nếu EMPLOYEE đã tồn tại
             IF EXISTS (SELECT 1 FROM EMPLOYEE WHERE ID_Card_Num = @ID_Card_Num)
             BEGIN
+                -- Ném lỗi khi nhân viên đã tồn tại
                 RAISERROR ('Employee already exists for this ID Card Number.', 16, 1);
                 ROLLBACK TRANSACTION;
+                RETURN;  -- Thoát thủ tục sau khi ném lỗi
             END
-                -- Thêm nhân viên vào bảng EMPLOYEE
+
+            -- Thêm nhân viên vào bảng EMPLOYEE
             INSERT INTO EMPLOYEE (ID_Card_Num, Position, Wage)
             VALUES (@ID_Card_Num, @Position, @Wage);
             COMMIT TRANSACTION;
@@ -460,13 +464,17 @@ BEGIN
         END
         ELSE
         BEGIN
+            -- Ném lỗi khi người đã tồn tại
             RAISERROR ('Person already exists for this ID Card Number.', 16, 1);
             ROLLBACK TRANSACTION;
+            RETURN;
         END
     END TRY
     BEGIN CATCH
+        -- Ghi lại lỗi nếu có và rollback transaction
         ROLLBACK TRANSACTION;
-        PRINT ERROR_MESSAGE();
+        -- Ném lại lỗi để Node.js có thể bắt
+        THROW;  -- THROW sẽ ném lỗi từ SQL ra ngoài
     END CATCH;
 END;
 GO
@@ -520,24 +528,97 @@ GO
 
 -- EXEC UpdateEmployeeInfo @ID_Card_Num = '071201876543', @New_Position = 'Senior', @New_Wage = 32000;
 
+-- Procedure: Lấy danh sách tất cả Employees
+CREATE PROCEDURE dbo.GetAllEmployees
+AS
+BEGIN
+    SELECT 
+        e.ID_Card_Num,
+        e.Employee_ID,
+        e.Position,
+        e.Wage,
+        p.Fname,
+        p.Lname,
+        p.DOB,
+        p.Sex
+    FROM 
+        EMPLOYEE e
+    INNER JOIN 
+        PERSON p ON e.ID_Card_Num = p.ID_Card_Num;
+END;
+GO
 
+-- exec dbo.GetAllEmployees
 
+-- Procedure: Lấy thông tin Employee theo ID
+GO
+CREATE PROCEDURE dbo.GetEmployeeById
+    @id CHAR(12)
+AS
+BEGIN
+    SELECT 
+        e.ID_Card_Num,
+        e.Employee_ID,
+        e.Position,
+        e.Wage,
+        p.Fname,
+        p.Lname,
+        p.DOB,
+        p.Sex
+    FROM 
+        EMPLOYEE e
+    INNER JOIN 
+        PERSON p ON e.ID_Card_Num = p.ID_Card_Num
+    WHERE 
+        e.ID_Card_Num = @id; 
+END;
+GO
 
-
-CREATE OR ALTER PROCEDURE  dbo.AddShift
+-- TẠO SHIFT
+GO
+CREATE PROCEDURE CreateShift
     @Shift_Type CHAR(1),
     @Date DATE,
     @E_Num INT,
-    @Rate DECIMAL(5, 2)
+    @Rate DECIMAL(5, 2) = 1.00 -- Mặc định Rate là 1.00
 AS
 BEGIN
-    INSERT INTO SHIFT(Shift_Type, [Date], E_Num, Rate)
-    VALUES(@Shift_Type, @Date, @E_Num, @Rate)
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Kiểm tra xem đã có shift với loại ca và ngày này chưa
+        IF EXISTS (SELECT 1 FROM SHIFT WHERE Shift_Type = @Shift_Type AND [Date] = @Date)
+        BEGIN
+            -- Nếu đã có shift, ném lỗi
+            RAISERROR ('A shift already exists for this type and date.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Thêm dữ liệu vào bảng SHIFT
+        INSERT INTO SHIFT (Shift_Type, [Date], E_Num, Rate)
+        VALUES (@Shift_Type, @Date, @E_Num, @Rate);
+
+        -- Lấy thông tin của shift vừa tạo và trả về nó
+        SELECT 
+            Shift_ID,
+            Shift_Type,
+            [Date],
+            E_Num,
+            Rate
+        FROM SHIFT
+        WHERE Shift_ID = SCOPE_IDENTITY();  -- SCOPE_IDENTITY() trả về ID của bản ghi vừa thêm
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        -- Ném lỗi ra ngoài nếu có lỗi
+        THROW;
+    END CATCH
 END;
 GO
-EXEC dbo.AddShift '1', '2024-12-05', 234, 999;
-SELECT * FROM SHIFT;
-GO
+
 
 
 CREATE OR ALTER PROCEDURE  dbo.DeleteShift
@@ -575,35 +656,92 @@ EXEC dbo.UpdateShift 31, 2, '2024-12-03', 123, 789;
 SELECT * FROM SHIFT;
 GO
 
+-- GET ALL SHIFT
+GO
+CREATE PROCEDURE GetAllShifts
+AS
+BEGIN
+    SELECT * FROM SHIFT;
+END;
+GO
 
-
-CREATE OR ALTER PROCEDURE  dbo.GetShiftById
+-- GET SHIFT BY ID
+CREATE PROCEDURE GetShiftById
     @Shift_ID INT
 AS
 BEGIN
-    SELECT * FROM SHIFT
-    WHERE Shift_ID = @Shift_ID; 
+    SELECT 
+        Shift_ID,
+        Shift_Type,
+        [Date],
+        E_Num,
+        Rate
+    FROM SHIFT
+    WHERE Shift_ID = @Shift_ID;
 END;
-GO
-EXEC dbo.GetShiftById 31;
-GO
 
-CREATE OR ALTER PROCEDURE  dbo.GetAllShifts
+
+-- GET EMPLOYEES OF A SHIFT
+GO
+CREATE OR ALTER PROCEDURE GetEmployeesOfShift
+    @Shift_ID INT
 AS
 BEGIN
-    SELECT * FROM SHIFT; 
+    SELECT 
+        E.ID_Card_Num,
+        E.Employee_ID,
+        E.Position,
+        E.Wage,
+        P.Fname,
+        P.Lname
+    FROM WORK_ON W
+    INNER JOIN EMPLOYEE E ON W.ID_Card_Num = E.ID_Card_Num
+    INNER JOIN PERSON P ON E.ID_Card_Num = P.ID_Card_Num
+    WHERE W.Shift_ID = @Shift_ID;
+END;
+
+-- UPDATE CA
+GO
+CREATE OR ALTER PROCEDURE UpdateShiftInfo
+    @Shift_ID INT,                -- ID của ca cần cập nhật
+    @New_E_Num INT = NULL,         -- Số nhân viên mới, có thể null nếu không thay đổi
+    @New_Rate DECIMAL(5, 2) = NULL  -- Tỷ lệ mới, có thể null nếu không thay đổi
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Kiểm tra xem ca làm việc có tồn tại không
+        IF NOT EXISTS (SELECT 1 FROM SHIFT WHERE Shift_ID = @Shift_ID)
+        BEGIN
+            RAISERROR ('Shift not found for the given ID.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        -- Cập nhật thông tin của ca làm việc
+        UPDATE SHIFT
+        SET 
+            E_Num = ISNULL(@New_E_Num, E_Num),  -- Giữ nguyên nếu không có giá trị mới
+            Rate = ISNULL(@New_Rate, Rate)
+        WHERE Shift_ID = @Shift_ID;
+
+        COMMIT TRANSACTION;
+        PRINT 'Shift information updated successfully.';
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        PRINT ERROR_MESSAGE();
+        THROW;
+    END CATCH;
 END;
 GO
-EXEC dbo.GetAllShifts;
+
+
+
+
+
 GO
-
-
-
-
-
-
-
-
 CREATE OR ALTER PROCEDURE  dbo.AddSupplier
     @SUPPLIER_NAME VARCHAR(30),
     @SUPPLIER_EMAIL VARCHAR(30),

@@ -3,65 +3,102 @@
 const ShiftService = require("../models/shiftModel");
 
 async function getAllShifts(req, res) {
-	try {
-		const Shifts = await ShiftService.getAllShifts();
-		res.status(200).json(Shifts); // Trả về danh sách người dùng
-	} catch (error) {
-		res.status(500).json({
-			message: "Lỗi khi lấy tất cả người dùng.",
-			error,
-		});
-	}
+  try {
+    const Shifts = await ShiftService.getAllShifts();
+    res.status(200).json(Shifts); // Trả về danh sách người dùng
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy tất cả shift.",
+      error,
+    });
+  }
 }
 
 async function getShiftById(req, res) {
-	const { id } = req.params;
-	try {
-		const Shift = await ShiftService.getShiftById(id);
-		if (!Shift) {
-			return res.status(404).json({ message: "Shift không tồn tại." });
-		}
-		res.status(200).json(Shift); // Trả về thông tin Shift
-	} catch (error) {
-		res.status(500).json({ message: "Lỗi khi lấy Shift.", error });
-	}
+  const { shiftId } = req.params;
+
+  try {
+    const shift = await ShiftService.getShiftById(shiftId);
+
+    // Kiểm tra xem có shift với ID này không
+    if (!shift) {
+      return res.status(404).json({ message: "Shift not found." });
+    }
+
+    // lấy danh sách nhân viên làm việc trong ca này
+    const employees = await ShiftService.GetEmployeesOfShift(shiftId); // Danh sách nhân viên
+
+    // Trả về thông tin ca làm việc và danh sách nhân viên
+    res.status(200).json({
+      shift: shift,
+      employees: employees, // Trả về danh sách nhân viên
+    });
+  } catch (error) {
+    // Xử lý lỗi
+    console.error(error);
+    res.status(500).json({ message: "Error retrieving shift data", error });
+  }
 }
 
 async function addShift(req, res) {
-	const { name, email } = req.body;
-	try {
-		await ShiftService.addShift(name, email);
-		res.status(201).json({ message: "Shift đã được thêm thành công." });
-	} catch (error) {
-		res.status(500).json({ message: "Lỗi khi thêm Shift.", error });
-	}
+  const { Shift_Type, S_Date, E_Num, Rate } = req.body;
+
+  // Kiểm tra đầu vào
+  if (!Shift_Type || !S_Date || !E_Num) {
+    return res.status(400).json({
+      message: "Thiếu tham số bắt buộc (Shift_Type, Date, E_Num).",
+    });
+  }
+
+  const currentDate = new Date();
+  const shiftDate = new Date(S_Date);
+
+  if (shiftDate <= currentDate) {
+    return res.status(400).json({
+      message: "Ngày shift phải sau ít nhất 1 ngày kể từ ngày hiện tại.",
+    });
+  }
+
+  try {
+    // Gọi hàm addShift trong ShiftService để thêm shift
+    const shift = await ShiftService.addShift(Shift_Type, S_Date, E_Num, Rate);
+
+    // Trả về thông tin của shift vừa được thêm
+    res.status(201).json({
+      message: "Shift đã được thêm thành công.",
+      shift: shift,
+    });
+  } catch (error) {
+    // Xử lý lỗi nếu có
+    res.status(500).json({
+      message: "Lỗi khi thêm Shift.",
+      error: error.message || error,
+    });
+  }
 }
 
 async function updateShift(req, res) {
-	const { id } = req.params;
-	const { name, email } = req.body;
-	try {
-		await ShiftService.updateShift(id, name, email);
-		res.status(200).json({ message: "Shift đã được cập nhật thành công." });
-	} catch (error) {
-		res.status(500).json({ message: "Lỗi khi cập nhật Shift.", error });
-	}
-}
+  const { Shift_ID, E_Num, Rate } = req.body;
 
-async function deleteShift(req, res) {
-	const { id } = req.params;
-	try {
-		await ShiftService.deleteShift(id);
-		res.status(200).json({ message: "Shift đã được xóa thành công." });
-	} catch (error) {
-		res.status(500).json({ message: "Lỗi khi xóa Shift.", error });
-	}
+  try {
+    // Gọi service để cập nhật thông tin ca làm việc
+    if (!Shift_ID) {
+      return res.status(400).json({
+        message: "Thiếu tham số bắt buộc (Shift_ID).",
+      });
+    }
+    await ShiftService.updateShift(Shift_ID, E_Num, Rate);
+
+    res.status(200).json({ message: "Shift updated successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating shift.", error });
+  }
 }
 
 module.exports = {
-	getAllShifts,
-	getShiftById,
-	addShift,
-	updateShift,
-	deleteShift,
+  getAllShifts,
+  getShiftById,
+  addShift,
+  updateShift,
 };
