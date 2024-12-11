@@ -93,42 +93,84 @@ GO
 
 
 -- ACCOUNT
-CREATE PROCEDURE AddAccount
+GO
+CREATE OR ALTER PROCEDURE dbo.CreateAccount
     @ID_Card_Num CHAR(12),
+    @Role CHAR(20)
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Kiểm tra ID_Card_Num có tồn tại trong bảng Person
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM Person
+            WHERE ID_Card_Num = @ID_Card_Num
+        )
+        BEGIN
+            THROW 50001, 'ID_Card_Num không tồn tại trong bảng Person.', 1;
+        END;
+
+        -- Lấy thông tin FName và LName từ Person
+        DECLARE @LName NVARCHAR(50);
+        DECLARE @FName NVARCHAR(50);
+        SELECT @LName = LName, @FName = FName 
+        FROM Person
+        WHERE ID_Card_Num = @ID_Card_Num;
+
+        -- Tạo Username
+        DECLARE @Username NVARCHAR(100);
+        SET @Username = REPLACE(@LName, ' ', '') + @FName + RIGHT(@ID_Card_Num, 3);
+
+        -- Kiểm tra trùng lặp Username
+        IF EXISTS (
+            SELECT 1
+            FROM ACCOUNT
+            WHERE Username = @Username
+        )
+        BEGIN
+            THROW 50002, 'Username đã tồn tại.', 1;
+        END;
+
+        -- Tạo Password mặc định giống Username
+        DECLARE @Password NVARCHAR(255);
+        SET @Password = @Username;
+
+        -- Thêm tài khoản vào bảng ACCOUNT
+        INSERT INTO ACCOUNT (ID_Card_Num, Username, Password, Role)
+        VALUES (@ID_Card_Num, @Username, @Password, @Role);
+
+        -- Trả về Username và Role
+        SELECT Username, Role FROM ACCOUNT WHERE Username = @Username;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+
+        DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;
+        SELECT
+            @ErrorMessage = ERROR_MESSAGE(),
+            @ErrorSeverity = ERROR_SEVERITY(),
+            @ErrorState = ERROR_STATE();
+
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+    END CATCH
+END;
+
+
+
+-- UPDATE ACCOUNT
+GO
+CREATE OR ALTER PROCEDURE UpdateAccount
     @Username VARCHAR(100),
-    @Password VARCHAR(255),
-    @Role VARCHAR(20)
-AS
-BEGIN
-    INSERT INTO ACCOUNT (ID_Card_Num, Username, [Password], [Role])
-    VALUES (@ID_Card_Num, @Username, @Password, @Role);
-END
-GO
-
-CREATE PROCEDURE GetAccountById
-    @AccountID INT
-AS
-BEGIN
-    SELECT * FROM ACCOUNT WHERE Account_ID = @AccountID;
-END
-GO
-
-CREATE PROCEDURE GetAllAccounts
-AS
-BEGIN
-    SELECT * FROM ACCOUNT;
-END
-GO
-
-
-CREATE PROCEDURE UpdateAccount
-    @AccountID INT,
     @NewPassword VARCHAR(255)
 AS
 BEGIN
     UPDATE ACCOUNT
     SET [Password] = @NewPassword
-    WHERE Account_ID = @AccountID;
+    WHERE Username = @Username;
 END
 GO
 
@@ -178,7 +220,6 @@ BEGIN
 END;
 
 -- ĐĂNG KÝ CA
--- drop procedure RegisterShift
 GO
 CREATE PROCEDURE RegisterShift
     @Shift_ID INT,
@@ -240,6 +281,72 @@ BEGIN
     -- Kết thúc giao dịch
     COMMIT TRANSACTION;
 END;
+
+-- XÓA NHÂN VIÊN KHỎI CA
+GO
+CREATE OR ALTER PROCEDURE dbo.RemoveEmployeeFromShift
+    @Shift_ID INT,
+    @ID_Card_Num CHAR(12)
+AS
+BEGIN
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        -- Kiểm tra Shift_ID có tồn tại trong bảng Shift không
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM Shift
+            WHERE Shift_ID = @Shift_ID
+        )
+        BEGIN
+            THROW 50001, 'Shift_ID không tồn tại.', 1;
+        END;
+
+        -- Kiểm tra ID_Card_Num có tồn tại trong bảng EMPLOYEE không
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM EMPLOYEE
+            WHERE ID_Card_Num = @ID_Card_Num
+        )
+        BEGIN
+            THROW 50002, 'ID_Card_Num không tồn tại.', 1;
+        END;
+
+        -- Kiểm tra nhân viên có đang làm trong ca đó không
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM WORK_ON
+            WHERE Shift_ID = @Shift_ID AND ID_Card_Num = @ID_Card_Num
+        )
+        BEGIN
+            THROW 50003, 'Nhân viên không làm việc trong ca này.', 1;
+        END;
+
+        -- Xóa nhân viên khỏi ca làm việc
+        DELETE FROM WORK_ON
+        WHERE Shift_ID = @Shift_ID AND ID_Card_Num = @ID_Card_Num;
+
+        -- Xác nhận giao dịch
+        COMMIT TRANSACTION;
+
+        PRINT 'Nhân viên đã được xóa khỏi ca làm việc thành công.';
+    END TRY
+    BEGIN CATCH
+        -- Hủy giao dịch nếu có lỗi
+        ROLLBACK TRANSACTION;
+
+        -- Trả về lỗi chi tiết
+        DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;
+        SELECT 
+            @ErrorMessage = ERROR_MESSAGE(), 
+            @ErrorSeverity = ERROR_SEVERITY(), 
+            @ErrorState = ERROR_STATE();
+
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+    END CATCH
+END;
+GO
+
 
 -- TÍNH TỔNG LƯƠNG VÀ TẠO PHIẾU CHI
 -- DROP PROCEDURE dbo.InsertTotalSalaryReceipt
@@ -737,9 +844,9 @@ BEGIN
 END;
 GO
 
+-- 
 
-
-
+----------------------------------------------------------------
 
 GO
 CREATE OR ALTER PROCEDURE  dbo.AddSupplier
