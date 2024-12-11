@@ -1,10 +1,42 @@
 ----------------------------------------PROCEDURE & FUNCTION------------------------------------
-CREATE FUNCTION GenerateVoucherCode()
-RETURNS CHAR(5)
+
+GO
+CREATE PROCEDURE InsertVoucher
+    @VoucherName NVARCHAR(100),
+    @VoucherStatus NVARCHAR(20),
+    @DiscountPercentage INT,
+    @MaxDiscountAmount INT,
+    @VoucherStartDate DATE,  -- Ngày bắt đầu của voucher
+    @VoucherEndDate DATE     -- Ngày kết thúc của voucher
 AS
 BEGIN
-    RETURN 'V' + RIGHT(CAST((ABS(CHECKSUM(NEWID())) % 10000) AS VARCHAR(4)), 4);
+    DECLARE @VoucherCode CHAR(5);
+    DECLARE @VoucherID INT;
+    DECLARE @MaxVoucherCode INT;
+
+    -- Lấy mã voucher lớn nhất hiện tại trong bảng VOUCHER, nếu không có thì gán giá trị mặc định là 0
+    SELECT @MaxVoucherCode = ISNULL(MAX(CAST(SUBSTRING(Voucher_Code, 2, 4) AS INT)), 0)
+    FROM VOUCHER;
+
+    -- Tạo mã voucher mới bằng cách cộng thêm 1 vào mã voucher hiện tại
+    SET @VoucherCode = 'V' + RIGHT('0000' + CAST(@MaxVoucherCode + 1 AS VARCHAR(4)), 4);
+
+    -- Thêm voucher vào bảng VOUCHER
+    INSERT INTO VOUCHER (Voucher_Code, Voucher_Name, Voucher_Status, Discount_Percentage, Max_Discount_Amount)
+    VALUES (@VoucherCode, @VoucherName, @VoucherStatus, @DiscountPercentage, @MaxDiscountAmount);
+
+    -- Lấy Voucher_ID của voucher vừa thêm vào
+    SET @VoucherID = SCOPE_IDENTITY();
+
+    -- Thêm dữ liệu vào bảng VOUCHER_VALID_PERIOD
+    INSERT INTO VOUCHER_VALID_PERIOD (Voucher_ID, Voucher_Start_Date, Voucher_End_Date)
+    VALUES (@VoucherID, @VoucherStartDate, @VoucherEndDate);
+
+    PRINT 'Voucher đã được thêm với mã: ' + @VoucherCode + ' và thời gian hiệu lực từ ' + CAST(@VoucherStartDate AS NVARCHAR) + ' đến ' + CAST(@VoucherEndDate AS NVARCHAR);
 END;
+GO
+
+
 
 GO
 -- PRODUCT
@@ -1047,41 +1079,80 @@ BEGIN
 END;
 
 --ORDER
+GO
 CREATE PROCEDURE CreateOrderAndIncomeReceipt
     @CustomerNotes NVARCHAR(255),
     @TotalItemAmount INT,
     @ShippingFee INT,
-    @Discount INT,
     @PaymentMethod VARCHAR(10),
     @IncomeName NVARCHAR(40),
     @PayerName NVARCHAR(40),
-    @IncomeTypeID INT
+    @IncomeTypeID INT,
+    @VoucherCode CHAR(5) = NULL -- Thêm tham số VoucherCode để nhận voucher
 AS
 BEGIN
     BEGIN TRY
         -- Bắt đầu transaction
         BEGIN TRANSACTION;
 
-        -- Bước 1: Tạo order mới
+        -- Bước 1: Kiểm tra và áp dụng voucher nếu có
+        DECLARE @VoucherDiscount INT = 0;
+        DECLARE @MaxDiscountAmount INT = 0;
+        DECLARE @VoucherID INT;
+
+        IF @VoucherCode IS NOT NULL
+        BEGIN
+            -- Kiểm tra xem voucher code có hợp lệ không
+            SELECT @VoucherID = Voucher_ID,
+                   @VoucherDiscount = Discount_Percentage,
+                   @MaxDiscountAmount = Max_Discount_Amount
+            FROM VOUCHER
+            WHERE Voucher_Code = @VoucherCode -- Sử dụng voucher code thay vì voucher name
+              AND Voucher_Status = 'Activated';
+
+            -- Nếu voucher hợp lệ, tính toán giá trị giảm giá
+            IF @VoucherDiscount > 0
+            BEGIN
+                -- Áp dụng giảm giá tối đa
+                DECLARE @CalculatedDiscount INT = (@TotalItemAmount * @VoucherDiscount) / 100;
+                IF @CalculatedDiscount > @MaxDiscountAmount
+                    SET @CalculatedDiscount = @MaxDiscountAmount;
+
+                -- Áp dụng giảm giá từ voucher vào Discount
+                SET @VoucherDiscount = @CalculatedDiscount;
+            END
+        END
+
+        -- Nếu voucher không hợp lệ hoặc không có voucher thì không áp dụng giảm giá
+        -- Bước 2: Tạo order mới với hoặc không có giảm giá
         DECLARE @OrderID INT;
         INSERT INTO [ORDER] (Order_Date, Discount, Payment_Method, Shipping_Fee, Total_Item_Amount, Customer_Notes)
-        VALUES (GETDATE(), @Discount, @PaymentMethod, @ShippingFee, @TotalItemAmount, @CustomerNotes);
+        VALUES (GETDATE(), @VoucherDiscount, @PaymentMethod, @ShippingFee, @TotalItemAmount, @CustomerNotes);
 
         -- Lấy Order_ID của order vừa tạo
         SET @OrderID = SCOPE_IDENTITY();
 
-        -- Bước 2: Tính toán tổng tiền (Revenue)
+        -- Bước 3: Tính toán tổng tiền (Revenue)
         DECLARE @TotalRevenue INT;
-        SET @TotalRevenue = @TotalItemAmount + @ShippingFee - @Discount;
+        SET @TotalRevenue = @TotalItemAmount + @ShippingFee - @VoucherDiscount;
 
-        -- Bước 3: Thêm phiếu thu (Income Receipt)
+        -- Bước 4: Thêm phiếu thu (Income Receipt)
         INSERT INTO INCOME_RECEIPT ([Name], [Date], Amount, Payer_Name, Income_Type_ID)
         VALUES (@IncomeName, GETDATE(), @TotalRevenue, @PayerName, @IncomeTypeID);
+
+        -- Bước 5: Nếu voucher có áp dụng, thêm dữ liệu vào bảng APPLY_VOUCHER
+        IF @VoucherCode IS NOT NULL
+        BEGIN
+            INSERT INTO APPLY_VOUCHER (Voucher_ID, Order_ID)
+            VALUES (@VoucherID, @OrderID);
+        END
 
         -- Commit transaction
         COMMIT TRANSACTION;
 
-        PRINT 'Order và Income Receipt đã được tạo thành công.';
+        PRINT 'Order và Income Receipt đã được tạo thành công.' + 
+              CASE WHEN @VoucherCode IS NOT NULL THEN ' Voucher đã được áp dụng.' ELSE '' END;
+
     END TRY
     BEGIN CATCH
         -- Nếu có lỗi, rollback transaction
@@ -1089,8 +1160,9 @@ BEGIN
         PRINT 'Lỗi xảy ra: ' + ERROR_MESSAGE();
     END CATCH
 END;
-GO
 
+
+GO
 CREATE PROCEDURE ReturnOrderAndCreateExpenseReceipt
     @OrderID INT,
     @Reason NVARCHAR(255),
@@ -1128,7 +1200,7 @@ BEGIN
 
         -- Bước 3: Cập nhật trạng thái đơn hàng
         UPDATE [ORDER]
-        SET Order_Status = 'Returned', Return_Date = GETDATE()
+        SET Order_Status = 'Returned'
         WHERE Order_ID = @OrderID;
 
         -- Bước 4: Tạo một bản ghi trong bảng RETURN_ORDER

@@ -267,6 +267,9 @@ INSERT INTO EXPENSE_TYPE ([Name]) VALUES
 ('Marketing'),
 ('Refund');
 
+GO
+SELECT * FROM EXPENSE_TYPE;
+
 -- delete from EXPENSE_RECEIPT
 INSERT INTO EXPENSE_RECEIPT ([Name], [Date], Amount, Payee_Name, Expense_Type_ID) VALUES
 ('Store Rent for December', '2024-12-01', 25000000, 'Landlord', 2),
@@ -479,115 +482,134 @@ SELECT * FROM Of_Group;
 -- Dữ liệu cho phần ORDER
 
 
+-- Trường hợp 1: Thêm voucher "Special Offer"
+EXEC InsertVoucher 
+    @VoucherName = 'Special Offer', 
+    @VoucherStatus = 'Activated', 
+    @DiscountPercentage = 20, 
+    @MaxDiscountAmount = 30000,
+    @VoucherStartDate = '2024-12-01',  -- Ngày bắt đầu voucher
+    @VoucherEndDate = '2024-12-31';    -- Ngày kết thúc voucher
+
+-- Trường hợp 2: Thêm voucher "Holiday Deal"
+EXEC InsertVoucher 
+    @VoucherName = 'Holiday Deal', 
+    @VoucherStatus = 'Not activated', 
+    @DiscountPercentage = 15, 
+    @MaxDiscountAmount = 15000,
+    @VoucherStartDate = '2024-12-10',  -- Ngày bắt đầu voucher
+    @VoucherEndDate = '2025-01-10';    -- Ngày kết thúc voucher
+
+-- Trường hợp 3: Thêm voucher "Flash Sale"
+EXEC InsertVoucher 
+    @VoucherName = 'Flash Sale', 
+    @VoucherStatus = 'Expired', 
+    @DiscountPercentage = 25, 
+    @MaxDiscountAmount = 25000,
+    @VoucherStartDate = '2024-11-15',  -- Ngày bắt đầu voucher
+    @VoucherEndDate = '2024-11-30';    -- Ngày kết thúc voucher
+
+-- Trường hợp 4: Thêm voucher "Black Friday"
+EXEC InsertVoucher 
+    @VoucherName = 'Black Friday', 
+    @VoucherStatus = 'Expired', 
+    @DiscountPercentage = 30, 
+    @MaxDiscountAmount = 50000,
+    @VoucherStartDate = '2024-11-28',  -- Ngày bắt đầu voucher
+    @VoucherEndDate = '2024-11-29';    -- Ngày kết thúc voucher
+
+-- Trường hợp 5: Thêm voucher "New Year Gift"
+EXEC InsertVoucher 
+    @VoucherName = 'New Year Gift', 
+    @VoucherStatus = 'Not activated', 
+    @DiscountPercentage = 10, 
+    @MaxDiscountAmount = 10000,
+    @VoucherStartDate = '2024-12-20',  -- Ngày bắt đầu voucher
+    @VoucherEndDate = '2025-01-10';    -- Ngày kết thúc voucher
+
+EXEC InsertVoucher 
+    @VoucherName = 'SALE 12.12', 
+    @VoucherStatus = 'Activated', 
+    @DiscountPercentage = 15, 
+    @MaxDiscountAmount = 15000,
+    @VoucherStartDate = '2024-12-12',  -- Ngày bắt đầu voucher
+    @VoucherEndDate = '2025-12-13';    -- Ngày kết thúc voucher
+
+EXEC InsertVoucher 
+    @VoucherName = 'SALE 12.12-2', 
+    @VoucherStatus = 'Activated', 
+    @DiscountPercentage = 15, 
+    @MaxDiscountAmount = 15000,
+    @VoucherStartDate = '2024-12-12',  -- Ngày bắt đầu voucher
+    @VoucherEndDate = '2025-12-13';    -- Ngày kết thúc voucher
 
 
-INSERT INTO VOUCHER (Voucher_Code, Voucher_Name, Voucher_Status, Discount_Percentage, Max_Discount_Amount)
-VALUES 
-(dbo.GenerateVoucherCode(), 'Special Offer', 'Activated', 20, 300),
-(dbo.GenerateVoucherCode(), 'Holiday Deal', 'Not activated', 15, 150),
-(dbo.GenerateVoucherCode(), 'Flash Sale', 'Expired', 25, 250),
-(dbo.GenerateVoucherCode(), 'Black Friday', 'Activated', 30, 500),
-(dbo.GenerateVoucherCode(), 'New Year Gift', 'Not activated', 10, 100),
-(dbo.GenerateVoucherCode(), 'Birthday Bonus', 'Activated', 20, 200),
-(dbo.GenerateVoucherCode(), 'Loyalty Reward', 'Activated', 25, 300),
-(dbo.GenerateVoucherCode(), 'Referral Code', 'Activated', 15, 150),
-(dbo.GenerateVoucherCode(), 'Summer Sale', 'Expired', 40, 400),
-(dbo.GenerateVoucherCode(), 'Clearance Offer', 'Not activated', 50, 500);
-
-INSERT INTO DELIVERY_INFO (Shipping_Provider, Pick_up_Date, Expected_Delivery_Date, Order_ID)
-VALUES
-('FedEx', GETDATE(), DATEADD(DAY, 7, GETDATE()), 1),
-('DHL', GETDATE(), DATEADD(DAY, 10, GETDATE()), 2),
-('UPS', GETDATE(), DATEADD(DAY, 5, GETDATE()), 3),
-('USPS', GETDATE(), DATEADD(DAY, 8, GETDATE()), 4),
-('Aramex', GETDATE(), DATEADD(DAY, 10, GETDATE()), 5),
-('BlueDart', GETDATE(), DATEADD(DAY, 12, GETDATE()), 6),
-('TNT', GETDATE(), DATEADD(DAY, 6, GETDATE()), 7),
-('FedEx', GETDATE(), DATEADD(DAY, 10, GETDATE()), 8),
-('DHL', GETDATE(), DATEADD(DAY, 9, GETDATE()), 9),
-('UPS', GETDATE(), DATEADD(DAY, 7, GETDATE()), 10);
-
--- INSERT INTO [ORDER] (Discount, Payment_Method, Shipping_Fee, Order_Status, Total_Item_Amount, Customer_Notes)
--- VALUES 
--- (10, 'Cash', 20, 'Shipped', 300, 'Please deliver in the morning'),
--- (15, 'Card', 25, 'Preparing', 500, 'Fragile item, handle with care'),
--- (5, 'Online', 15, 'Completed', 200, 'No special instructions'),
--- (20, 'Cash', 10, 'Canceled', 0, 'Out of stock, please refund'),
--- (0, 'Online', 5, 'Preparing', 100, 'No special instructions'),
--- (30, 'Card', 35, 'Shipped', 600, 'Gift wrap required, please include a note'),
--- (0, 'Online', 0, 'Completed', 400, 'Deliver to reception desk'),
--- (25, 'Cash', 20, 'Shipped', 700, 'Urgent delivery needed, please prioritize'),
--- (10, 'Online', 10, 'Completed', 500, 'No special instructions'),
--- (15, 'Card', 30, 'Canceled', 0, 'Address not found, please check details');
-
--- INSERT INTO RETURN_ORDER (Reason, Return_Description, Return_Status, Order_ID)
--- VALUES
--- ('Damaged item', 'Item arrived broken', 'Approved', 1),
--- ('Wrong item', 'Received a different product', 'Under consideration', 2),
--- ('Change of mind', '', 'Rejected', 3),
--- ('Late delivery', '', 'Approved', 4);
+GO
+SELECT * FROM VOUCHER
+SELECT * FROM VOUCHER_VALID_PERIOD
+-- DELETE FROM VOUCHER_VALID_PERIOD
+-- DELETE FROM VOUCHER
 
 -- Thêm nhiều dữ liệu vào ORDER và INCOME_RECEIPT bằng thủ tục CreateOrderAndIncomeReceipt
 EXEC CreateOrderAndIncomeReceipt 
     @CustomerNotes = N'', 
-    @TotalItemAmount = 1500, 
-    @ShippingFee = 100, 
-    @Discount = 50, 
+    @TotalItemAmount = 150000, 
+    @ShippingFee = 50000, 
     @PaymentMethod = 'Card', 
     @IncomeName = N'Payment for Order 1', 
     @PayerName = N'Customer', 
-    @IncomeTypeID = 1;
+    @IncomeTypeID = 1,
+    @VoucherCode = 'V0001';  -- Áp dụng voucher code
 
 EXEC CreateOrderAndIncomeReceipt 
     @CustomerNotes = N'', 
-    @TotalItemAmount = 2000, 
-    @ShippingFee = 150, 
-    @Discount = 100, 
+    @TotalItemAmount = 200000, 
+    @ShippingFee = 15000, 
     @PaymentMethod = 'Cash', 
     @IncomeName = N'Payment for Order 2', 
     @PayerName = N'Customer B', 
-    @IncomeTypeID = 1;
+    @IncomeTypeID = 1,
+    @VoucherCode = 'V0007';  -- Áp dụng voucher code
 
 EXEC CreateOrderAndIncomeReceipt 
     @CustomerNotes = N'', 
-    @TotalItemAmount = 1200, 
-    @ShippingFee = 80, 
-    @Discount = 0, 
+    @TotalItemAmount = 120000, 
+    @ShippingFee = 8000, 
     @PaymentMethod = 'Card', 
     @IncomeName = N'Payment for Order 3', 
     @PayerName = N'Customer', 
-    @IncomeTypeID = 1;
+    @IncomeTypeID = 1,
+    @VoucherCode = NULL;  -- Không áp dụng voucher (discount = 0)
 
 EXEC CreateOrderAndIncomeReceipt 
     @CustomerNotes = N'', 
-    @TotalItemAmount = 1500, 
-    @ShippingFee = 100, 
-    @Discount = 50, 
+    @TotalItemAmount = 150000, 
+    @ShippingFee = 10000, 
     @PaymentMethod = 'Card', 
     @IncomeName = N'Payment for Order 4', 
     @PayerName = N'Customer', 
-    @IncomeTypeID = 1;
+    @IncomeTypeID = 1,
+    @VoucherCode = NULL;  -- Áp dụng voucher code
 
 EXEC CreateOrderAndIncomeReceipt 
     @CustomerNotes = N'', 
-    @TotalItemAmount = 2000, 
-    @ShippingFee = 150, 
-    @Discount = 100, 
+    @TotalItemAmount = 200000, 
+    @ShippingFee = 15000, 
     @PaymentMethod = 'Cash', 
     @IncomeName = N'Payment for Order 5', 
     @PayerName = N'Customer B', 
-    @IncomeTypeID = 1;
+    @IncomeTypeID = 1,
+    @VoucherCode = 'V0006';  -- Áp dụng voucher code
 
 EXEC CreateOrderAndIncomeReceipt 
     @CustomerNotes = N'', 
-    @TotalItemAmount = 1200, 
-    @ShippingFee = 80, 
-    @Discount = 0, 
+    @TotalItemAmount = 120000, 
+    @ShippingFee = 8000, 
     @PaymentMethod = 'Card', 
     @IncomeName = N'Payment for Order 6', 
     @PayerName = N'Customer', 
-    @IncomeTypeID = 1;
-
+    @IncomeTypeID = 1,
+    @VoucherCode = NULL;  -- Không áp dụng voucher (discount = 0)
 -- Thêm nhiều dữ liệu vào RETURN_ORDER và EXPENSE_RECEIPT bằng thủ tục ReturnOrderAndCreateExpenseReceipt
 EXEC ReturnOrderAndCreateExpenseReceipt 
     @OrderID = 1, 
@@ -595,7 +617,7 @@ EXEC ReturnOrderAndCreateExpenseReceipt
     @ReturnDescription = N'Item arrived broken', 
     @ExpenseName = N'Refund for Order 1', 
     @PayeeName = N'Customer', 
-    @ExpenseTypeID = 6;
+    @ExpenseTypeID = 7;
 
 EXEC ReturnOrderAndCreateExpenseReceipt 
     @OrderID = 2, 
@@ -603,7 +625,7 @@ EXEC ReturnOrderAndCreateExpenseReceipt
     @ReturnDescription = N'Received a different product', 
     @ExpenseName = N'Refund for Order 2', 
     @PayeeName = N'Customer', 
-    @ExpenseTypeID = 6;
+    @ExpenseTypeID = 7;
 
 EXEC ReturnOrderAndCreateExpenseReceipt 
     @OrderID = 3, 
@@ -611,29 +633,51 @@ EXEC ReturnOrderAndCreateExpenseReceipt
     @ReturnDescription = N'', 
     @ExpenseName = N'Refund for Order 3', 
     @PayeeName = N'Customer', 
-    @ExpenseTypeID = 6;
+    @ExpenseTypeID = 7;
 
+SELECT * FROM [ORDER]
+SELECT * FROM RETURN_ORDER
+SELECT * FROM INCOME_RECEIPT
+SELECT * FROM EXPENSE_RECEIPT
+SELECT * FROM APPLY_VOUCHER
+-- DELETE FROM APPLY_VOUCHER
+-- DELETE FROM RETURN_ORDER
+-- DELETE FROM [ORDER]
+-- DELETE FROM INCOME_RECEIPT 
+-- WHERE Income_ID >5
+-- DELETE FROM EXPENSE_RECEIPT 
+-- WHERE Expense_ID >5
+INSERT INTO DELIVERY_INFO (Shipping_Provider, Pick_up_Date, Expected_Delivery_Date, Order_ID)
+VALUES
+('DHL', GETDATE(), DATEADD(DAY, 7, GETDATE()), 1),
+('DHL', GETDATE(), DATEADD(DAY, 10, GETDATE()), 2),
+('DHL', GETDATE(), DATEADD(DAY, 5, GETDATE()), 3),
+('DHL', GETDATE(), DATEADD(DAY, 8, GETDATE()), 4),
+('DHL', GETDATE(), DATEADD(DAY, 10, GETDATE()), 5),
+('DHL', GETDATE(), DATEADD(DAY, 12, GETDATE()), 6);
 
+SELECT * FROM DELIVERY_INFO
+
+GO
 INSERT INTO VOUCHER_VALID_PERIOD (Voucher_ID, Voucher_Start_Date, Voucher_End_Date)
 VALUES
-(1, '2024-01-01', '2024-01-31'),
-(2, '2024-02-01', '2024-02-28'),
-(3, '2024-03-01', '2024-03-31'),
-(4, '2024-04-01', '2024-04-30'),
-(5, '2024-05-01', '2024-05-31'),
-(6, '2024-06-01', '2024-06-30'),
-(7, '2024-07-01', '2024-07-31'),
-(8, '2024-08-01', '2024-08-31'),
-(9, '2024-09-01', '2024-09-30'),
-(10, '2024-10-01', '2024-10-31');
+(1, '2024-12-01', '2024-12-31'),
+(2, '2024-12-01', '2024-12-28'),
+(3, '2024-12-01', '2024-12-31'),
+(4, '2024-12-01', '2024-12-30'),
+(5, '2024-12-01', '2024-12-31');
+GO
+
+SELECT * FROM VOUCHER_VALID_PERIOD
+
 
 INSERT INTO APPLY_VOUCHER (Voucher_ID, Order_ID)
 VALUES 
-(1, 2), -- Voucher ID 1 được áp dụng cho Order ID 2
-(3, 4),
-(5, 6),
-(7, 8),
-(9, 10);
+(1, 1), -- Voucher ID 1 được áp dụng cho Order ID 2
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5);
 
 -- INSERT INTO INCLUDE_ITEM (Order_ID, Item_ID, Count)
 -- VALUES
