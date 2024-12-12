@@ -17,6 +17,7 @@ import {
     { icon: RiFileListLine, label: 'Message', active: false, href:'/message' },
     { icon: RiExchangeLine, label: 'Transaction', active: false, href:'/transaction' },
     { icon: RiArchiveLine, label: 'Inventory', active: false, href:'#' },
+    { icon: RiArchiveLine, label: 'Product Details', active: false, href: '/product-details' },
     { icon: RiArchiveLine, label: 'Product View', active: false, href: '/productview' },
     { icon: RiArchiveLine, label: 'Product Add 1', active: false, href: '/productadd1' },
     { icon: RiArchiveLine, label: 'Product Add 2', active: false, href: '/productadd2' },
