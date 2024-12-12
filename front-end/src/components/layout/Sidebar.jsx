@@ -17,7 +17,8 @@ import {
     { icon: RiFileListLine, label: 'Message', active: false, href:'/message' },
     { icon: RiExchangeLine, label: 'Transaction', active: false, href:'/transaction' },
     { icon: RiArchiveLine, label: 'Inventory', active: false, href:'#' },
-    { icon: RiArchiveLine, label: 'Product', active: false,href:'/product' },
+    { icon: RiArchiveLine, label: 'Product View', active: false, href: '/productview' },
+    { icon: RiArchiveLine, label: 'Product Add', active: false, href: '/productadd1' },
   ];
 const supportItems = [
     { icon: RiUserLine, label: 'Account' },
