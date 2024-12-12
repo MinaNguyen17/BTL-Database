@@ -83,12 +83,13 @@ async function changePassword(req, res) {
 }
 
 async function updateAccount(req, res) {
-	const { id, role, status } = req.params;
+	const { id } = req.params;
+	const { role, status } = req.body;
 	try {
 		await AccountService.updateAccount(id, role, status);
-		res.status(200).json({ message: "Account đã được xóa thành công." });
+		res.status(200).json({ message: "Account đã được cập nhật thành công." });
 	} catch (error) {
-		res.status(500).json({ message: "Lỗi khi xóa Account.", error });
+		res.status(500).json({ message: "Lỗi khi cập nhật Account.", error });
 	}
 }
 

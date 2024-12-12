@@ -24,11 +24,5 @@ router.get(
 	auth.isAdmin,
 	AccountController.getAccountById
 );
-router.post(
-	"/update/:id",
-	auth.authenticateToken,
-	auth.isAdmin,
-	AccountController.updateAccount
-);
 
 module.exports = router;
