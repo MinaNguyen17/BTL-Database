@@ -1135,10 +1135,10 @@ BEGIN
         INSERT INTO IMPORT (IMPORT_ID, ITEM_ID, SUPPLIER_ID, IMPORT_QUANTITY, IMPORT_PRICE)
         VALUES (@NewImportID, @ItemID, @SupplierID, @ImportQuantity, @ImportPrice);
 
-        -- Cập nhật Stock trong bảng ITEM
-        UPDATE ITEM
-        SET STOCK = STOCK + @ImportQuantity
-        WHERE ITEM_ID = @ItemID;
+        -- -- Cập nhật Stock trong bảng ITEM
+        -- UPDATE ITEM
+        -- SET STOCK = STOCK + @ImportQuantity
+        -- WHERE ITEM_ID = @ItemID;
 
         -- Thêm bản ghi vào bảng EXPENSE_RECEIPT
         INSERT INTO EXPENSE_RECEIPT ([Name], [Date], Amount, Payee_Name, Expense_Type_ID)
