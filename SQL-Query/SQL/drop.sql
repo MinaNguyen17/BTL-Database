@@ -119,3 +119,7 @@ DROP PROCEDURE dbo.CreateOrderAndIncomeReceipt
 DROP PROCEDURE dbo.InsertVoucher
 DROP PROCEDURE dbo.GetAccountById, dbo.GetAllAccount
 DROP PROCEDURE dbo.UpdateAccount
+DROP PROCEDURE dbo.AssignShiftsForNextWeek
+DROP PROCEDURE IF EXISTS RankAndAssignEmployeesToShifts;
+DROP PROCEDURE IF EXISTS GetInsufficientShifts;
+DROP PROCEDURE IF EXISTS GetEmployeesWithInsufficientShifts;

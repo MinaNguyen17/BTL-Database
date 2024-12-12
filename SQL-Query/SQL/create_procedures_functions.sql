@@ -434,52 +434,116 @@ BEGIN
 END;
 
 -- Sắp xếp nhân viên vào ca
+
 GO
 CREATE PROCEDURE AssignShiftsForNextWeek
 AS
 BEGIN
-    -- 1. Xác định tuần tiếp theo
+    SET NOCOUNT ON;
+
+    -- Xác định ngày bắt đầu và kết thúc của tuần tiếp theo
     DECLARE @StartOfNextWeek DATE, @EndOfNextWeek DATE;
     SET @StartOfNextWeek = DATEADD(DAY, 8 - DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE)); -- Ngày đầu tuần tiếp theo
     SET @EndOfNextWeek = DATEADD(DAY, 14 - DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE));  -- Ngày cuối tuần tiếp theo
 
-    -- 2. Tìm các ca làm chưa đủ số lượng người trong tuần tiếp theo
-    WITH InsufficientShifts AS (
-        SELECT 
-            S.Shift_ID,
-            S.E_Num,
-            COUNT(WO.ID_Card_Num) AS Current_Employee_Count
-        FROM SHIFT S
-        LEFT JOIN WORK_ON WO ON S.Shift_ID = WO.Shift_ID
-        WHERE 
-            S.[Date] BETWEEN @StartOfNextWeek AND @EndOfNextWeek -- Chỉ xét ca trong tuần tiếp theo
-        GROUP BY S.Shift_ID, S.E_Num
-        HAVING COUNT(WO.ID_Card_Num) < S.E_Num -- Lọc ra các ca chưa đủ người
-    ),
-    -- 3. Tìm nhân viên chưa đủ số ca đăng ký trong tuần tiếp theo
-    EmployeesWithInsufficientShifts AS (
-        SELECT 
-            E.ID_Card_Num,
-            COUNT(WO.Shift_ID) AS Shifts_Worked
-        FROM EMPLOYEE E
-        LEFT JOIN WORK_ON WO ON E.ID_Card_Num = WO.ID_Card_Num
-        LEFT JOIN SHIFT S ON WO.Shift_ID = S.Shift_ID
-        WHERE 
-            S.[Date] BETWEEN @StartOfNextWeek AND @EndOfNextWeek -- Chỉ xét ca tuần tiếp theo
-        GROUP BY E.ID_Card_Num
-        HAVING COUNT(WO.Shift_ID) < 5 -- Yêu cầu tối thiểu 5 ca/tuần
-    )
-    -- 4. Gán nhân viên vào các ca chưa đủ người trong tuần tiếp theo
-    INSERT INTO WORK_ON (Shift_ID, ID_Card_Num, [Check])
-    SELECT TOP (1) [IS].Shift_ID, EWI.ID_Card_Num, 0
-    FROM InsufficientShifts [IS]
-    CROSS JOIN EmployeesWithInsufficientShifts EWI
-    WHERE NOT EXISTS (
-        SELECT 1 
-        FROM WORK_ON WO
-        WHERE WO.Shift_ID = [IS].Shift_ID AND WO.ID_Card_Num = EWI.ID_Card_Num
-    )
-    ORDER BY [IS].Shift_ID, EWI.ID_Card_Num; -- Sắp xếp để phân bổ hợp lý nhất
+    -- 1. Tìm các ca thiếu người trong tuần tiếp theo
+    DECLARE @InsufficientShifts TABLE (Shift_ID INT, E_Num INT, Current_Employee_Count INT);
+    INSERT INTO @InsufficientShifts
+    SELECT 
+        S.Shift_ID,
+        S.E_Num,
+        COUNT(WO.ID_Card_Num) AS Current_Employee_Count
+    FROM SHIFT S
+    LEFT JOIN WORK_ON WO ON S.Shift_ID = WO.Shift_ID
+    WHERE S.[Date] BETWEEN @StartOfNextWeek AND @EndOfNextWeek
+    GROUP BY S.Shift_ID, S.E_Num
+    HAVING COUNT(WO.ID_Card_Num) < S.E_Num;
+
+    -- 2. Tìm các nhân viên chưa đủ số ca đăng ký trong tuần tiếp theo
+    DECLARE @EmployeesWithInsufficientShifts TABLE (ID_Card_Num CHAR(12), Shifts_Worked INT);
+    INSERT INTO @EmployeesWithInsufficientShifts
+    SELECT 
+    E.ID_Card_Num,
+    ISNULL(COUNT(WO.Shift_ID), 0) AS Shifts_Worked
+    FROM EMPLOYEE E
+    LEFT JOIN WORK_ON WO ON E.ID_Card_Num = WO.ID_Card_Num
+    LEFT JOIN SHIFT S ON WO.Shift_ID = S.Shift_ID AND S.[Date] BETWEEN @StartOfNextWeek AND @EndOfNextWeek
+    GROUP BY E.ID_Card_Num
+    HAVING ISNULL(COUNT(WO.Shift_ID), 0) < 5;  -- Yêu cầu tối thiểu 5 ca/tuần
+
+    -- 3. Phân bổ nhân viên vào các ca thiếu
+    DECLARE @RowNum INT = 1;
+    DECLARE @ShiftID INT;
+    DECLARE @ID_Card_Num CHAR(12);
+    DECLARE @MaxPeople INT;
+    DECLARE @CurrentPeople INT;
+
+    -- Lặp qua danh sách nhân viên chưa đủ số ca
+    DECLARE @EmployeeCursor CURSOR;
+    SET @EmployeeCursor = CURSOR FOR
+    SELECT ID_Card_Num FROM @EmployeesWithInsufficientShifts;
+
+    OPEN @EmployeeCursor;
+    FETCH NEXT FROM @EmployeeCursor INTO @ID_Card_Num;
+
+    -- Lặp qua các nhân viên chưa đủ số ca
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Tìm ca thiếu người tiếp theo mà nhân viên có thể được phân bổ vào
+        DECLARE @Assigned INT = 0;
+        DECLARE @ShiftCursor CURSOR;
+        SET @ShiftCursor = CURSOR FOR
+        SELECT Shift_ID
+        FROM @InsufficientShifts
+        WHERE Current_Employee_Count < E_Num
+        ORDER BY Shift_ID;
+
+        OPEN @ShiftCursor;
+        FETCH NEXT FROM @ShiftCursor INTO @ShiftID;
+
+        -- Lặp qua các ca thiếu và phân bổ nhân viên
+        WHILE @@FETCH_STATUS = 0 AND @Assigned = 0
+        BEGIN
+            -- Kiểm tra nếu ca có đủ người
+            SELECT @MaxPeople = E_Num
+            FROM SHIFT
+            WHERE Shift_ID = @ShiftID;
+
+            SELECT @CurrentPeople = COUNT(*)
+            FROM WORK_ON
+            WHERE Shift_ID = @ShiftID;
+
+            IF @CurrentPeople < @MaxPeople
+            BEGIN
+                -- Kiểm tra nếu nhân viên chưa được phân bổ vào ca này
+                IF NOT EXISTS (SELECT 1 FROM WORK_ON WHERE Shift_ID = @ShiftID AND ID_Card_Num = @ID_Card_Num)
+                BEGIN
+                    -- Chèn nhân viên vào ca
+                    INSERT INTO WORK_ON (Shift_ID, ID_Card_Num)
+                    VALUES (@ShiftID, @ID_Card_Num);
+
+                    -- Cập nhật số ca đã phân bổ cho nhân viên
+                    UPDATE @EmployeesWithInsufficientShifts
+                    SET Shifts_Worked = Shifts_Worked + 1
+                    WHERE ID_Card_Num = @ID_Card_Num;
+
+                    SET @Assigned = 1; -- Đã phân bổ xong
+                END
+            END
+
+            FETCH NEXT FROM @ShiftCursor INTO @ShiftID;
+        END
+
+        CLOSE @ShiftCursor;
+        DEALLOCATE @ShiftCursor;
+
+        -- Tiến đến nhân viên tiếp theo
+        FETCH NEXT FROM @EmployeeCursor INTO @ID_Card_Num;
+    END
+
+    CLOSE @EmployeeCursor;
+    DEALLOCATE @EmployeeCursor;
+
 END;
 
 GO
@@ -504,7 +568,7 @@ BEGIN
 END;
 
 -- EXEC ViewEmployeeShifts @ID_Card_Num = '079144005846'
--- SELECT * FROM WORK_ON
+SELECT * FROM WORK_ON
 
 GO
 CREATE PROCEDURE ViewEmployeeSalary
