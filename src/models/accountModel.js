@@ -42,11 +42,10 @@ async function updateAccount(id, role, status) {
 
 async function changePassword(username, password) {
 	const pool = await getDBConnection();
-	const hashedPassword = await bcrypt.hash(password, 10);
 	await pool
 		.request()
 		.input("Username", sql.VarChar(100), username)
-		.input("NewPassword", sql.VarChar(255), hashedPassword)
+		.input("NewPassword", sql.VarChar(255), password)
 		.execute("dbo.ChangePassword"); // Gọi stored procedure để sửa Account
 }
 

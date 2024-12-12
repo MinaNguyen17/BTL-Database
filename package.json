@@ -17,6 +17,7 @@
     "express": "^4.21.1",
     "morgan": "^1.10.0",
     "mssql": "^11.0.1",
+    "node-cron": "^3.0.3",
     "oracledb": "^6.7.0",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0"

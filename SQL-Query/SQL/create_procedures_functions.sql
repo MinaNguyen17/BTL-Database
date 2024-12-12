@@ -322,6 +322,7 @@ BEGIN
     COMMIT TRANSACTION;
 END;
 
+SELECT * FROM SHIFT
 -- XÓA NHÂN VIÊN KHỎI CA
 GO
 CREATE OR ALTER PROCEDURE dbo.RemoveEmployeeFromShift
@@ -431,6 +432,104 @@ BEGIN
         PRINT 'An expense receipt for this month and year already exists.';
     END;
 END;
+
+-- Sắp xếp nhân viên vào ca
+GO
+CREATE PROCEDURE AssignShiftsForNextWeek
+AS
+BEGIN
+    -- 1. Xác định tuần tiếp theo
+    DECLARE @StartOfNextWeek DATE, @EndOfNextWeek DATE;
+    SET @StartOfNextWeek = DATEADD(DAY, 8 - DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE)); -- Ngày đầu tuần tiếp theo
+    SET @EndOfNextWeek = DATEADD(DAY, 14 - DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE));  -- Ngày cuối tuần tiếp theo
+
+    -- 2. Tìm các ca làm chưa đủ số lượng người trong tuần tiếp theo
+    WITH InsufficientShifts AS (
+        SELECT 
+            S.Shift_ID,
+            S.E_Num,
+            COUNT(WO.ID_Card_Num) AS Current_Employee_Count
+        FROM SHIFT S
+        LEFT JOIN WORK_ON WO ON S.Shift_ID = WO.Shift_ID
+        WHERE 
+            S.[Date] BETWEEN @StartOfNextWeek AND @EndOfNextWeek -- Chỉ xét ca trong tuần tiếp theo
+        GROUP BY S.Shift_ID, S.E_Num
+        HAVING COUNT(WO.ID_Card_Num) < S.E_Num -- Lọc ra các ca chưa đủ người
+    ),
+    -- 3. Tìm nhân viên chưa đủ số ca đăng ký trong tuần tiếp theo
+    EmployeesWithInsufficientShifts AS (
+        SELECT 
+            E.ID_Card_Num,
+            COUNT(WO.Shift_ID) AS Shifts_Worked
+        FROM EMPLOYEE E
+        LEFT JOIN WORK_ON WO ON E.ID_Card_Num = WO.ID_Card_Num
+        LEFT JOIN SHIFT S ON WO.Shift_ID = S.Shift_ID
+        WHERE 
+            S.[Date] BETWEEN @StartOfNextWeek AND @EndOfNextWeek -- Chỉ xét ca tuần tiếp theo
+        GROUP BY E.ID_Card_Num
+        HAVING COUNT(WO.Shift_ID) < 5 -- Yêu cầu tối thiểu 5 ca/tuần
+    )
+    -- 4. Gán nhân viên vào các ca chưa đủ người trong tuần tiếp theo
+    INSERT INTO WORK_ON (Shift_ID, ID_Card_Num, [Check])
+    SELECT TOP (1) [IS].Shift_ID, EWI.ID_Card_Num, 0
+    FROM InsufficientShifts [IS]
+    CROSS JOIN EmployeesWithInsufficientShifts EWI
+    WHERE NOT EXISTS (
+        SELECT 1 
+        FROM WORK_ON WO
+        WHERE WO.Shift_ID = [IS].Shift_ID AND WO.ID_Card_Num = EWI.ID_Card_Num
+    )
+    ORDER BY [IS].Shift_ID, EWI.ID_Card_Num; -- Sắp xếp để phân bổ hợp lý nhất
+END;
+
+GO
+CREATE PROCEDURE ViewEmployeeShifts
+    @ID_Card_Num CHAR(12)
+AS
+BEGIN
+    SELECT 
+        S.Shift_ID,
+        S.Shift_Type,
+        S.[Date],
+        S.Rate,
+        WO.[Check] AS IsCheckedIn,
+        CASE 
+            WHEN WO.[Check] = 1 THEN 'Checked In'
+            ELSE 'Registered Only'
+        END AS Status
+    FROM WORK_ON WO
+    JOIN SHIFT S ON WO.Shift_ID = S.Shift_ID
+    WHERE WO.ID_Card_Num = @ID_Card_Num
+    ORDER BY S.[Date], S.Shift_ID;
+END;
+
+-- EXEC ViewEmployeeShifts @ID_Card_Num = '079144005846'
+-- SELECT * FROM WORK_ON
+
+GO
+CREATE PROCEDURE ViewEmployeeSalary
+    @ID_Card_Num CHAR(12),
+    @Month INT = NULL,
+    @Year INT = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        s.ID_Card_Num,
+        e.Employee_ID,
+        e.Position,
+        s.[Month],
+        s.[Year],
+        s.Amount
+    FROM SALARY s
+    JOIN EMPLOYEE e ON s.ID_Card_Num = e.ID_Card_Num
+    WHERE s.ID_Card_Num = @ID_Card_Num
+        AND (@Month IS NULL OR s.[Month] = @Month)
+        AND (@Year IS NULL OR s.[Year] = @Year)
+    ORDER BY s.[Year] DESC, s.[Month] DESC;
+END;
+
 
 -- TẠO BÁO CÁO LÃI LỖ THEO NGÀY
 -- DROP PROCEDURE CreateDailyProfitAndLossReport

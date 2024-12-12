@@ -94,7 +94,54 @@ async function registerEmployeeToShift(shiftId, idCardNum) {
 	}
 }
 
-async function checkIn(params) {}
+async function checkIn(shiftId, idCardNum) {
+	const pool = await getDBConnection();
+	try {
+		const result = await pool
+			.request()
+			.input("Shift_ID", sql.Int, shiftId)
+			.input("ID_Card_Num", sql.Char(12), idCardNum)
+			.execute("dbo.CheckInAndUpdateSalary");
+		return {
+			success: true,
+			message: "Nhân viên đã checkin thành công.",
+		};
+	} catch (error) {
+		return {
+			success: false,
+			message: error.originalError?.info?.message || "Lỗi không xác định.",
+		};
+	}
+}
+
+async function getEmployeeShifts(idCardNum) {
+	try {
+		const pool = await getDBConnection();
+
+		const result = await pool
+			.request()
+			.input("ID_Card_Num", sql.Char(12), idCardNum)
+			.execute("ViewEmployeeShifts");
+
+		return result.recordset; // Trả về danh sách các ca làm và đăng ký
+	} catch (error) {
+		console.error("Error in getEmployeeShifts:", error);
+		throw new Error("Could not retrieve employee shifts");
+	}
+}
+
+async function assignShiftsForNextWeek() {
+	try {
+		const pool = await getDBConnection();
+
+		await pool.request().execute("AssignShiftsForNextWeek");
+
+		return { message: "Shifts successfully assigned for next week." };
+	} catch (error) {
+		console.error("Error in assignShiftsForNextWeek:", error);
+		throw new Error("Could not assign shifts for next week");
+	}
+}
 
 module.exports = {
 	getAllShifts,
@@ -105,4 +152,7 @@ module.exports = {
 	GetEmployeesOfShift,
 	removeEmployeeFromShift,
 	registerEmployeeToShift,
+	checkIn,
+	getEmployeeShifts,
+	assignShiftsForNextWeek,
 };
