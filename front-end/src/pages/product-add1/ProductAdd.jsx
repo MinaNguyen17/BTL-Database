@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import ProductImageUpload from './ProductImageUpload';
+import ProductImageUpload from '../../components/product/ProductImageUpload';
 import ProductBasicInfo from './ProductBasicInfo';
 import ProductVariantSelector from './ProductVariantSelector';
-import ProductDescriptionForm from './ProductDescriptionForm';
+import ProductDescriptionForm from '../../components/product/ProductDescriptionForm';
 
 const ProductAdd = () => {
   const [productData, setProductData] = useState({
@@ -36,12 +36,10 @@ const ProductAdd = () => {
       <form onSubmit={handleSubmit} className="flex gap-6">
         <div className="w-[35%] flex flex-col gap-5">
           <div className="bg-white rounded-lg shadow-xl min-h-1/2 p-5">
-            <h2 className="text-xl font-semibold mb-4">Add Image</h2>
             <ProductImageUpload onImageUpload={handleImageUpload} />
           </div>
           
           <div className="bg-white rounded-lg shadow-xl min-h-1/2 p-5">
-            <h2 className="text-xl font-semibold mb-4">About Product</h2>
             <ProductDescriptionForm 
               productData={productData} 
               setProductData={setProductData} 
@@ -50,7 +48,6 @@ const ProductAdd = () => {
         </div>
         
         <div className="flex-1 bg-white rounded-lg shadow-2xl border-t-4 shadow-inner-xl shadow-gray-300 p-5">
-          <h2 className="text-xl font-semibold mb-6">Add product</h2>
           <ProductBasicInfo 
             productData={productData} 
             setProductData={setProductData} 

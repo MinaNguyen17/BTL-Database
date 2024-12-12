@@ -31,7 +31,8 @@ const ProductImageUpload = ({ onImageUpload }) => {
     fileInputRef.current.click();
   };
 
-  return (
+  return (<>
+    <h2 className="text-xl font-semibold mb-4">Add Image</h2>
     <div className="flex flex-col items-center gap-4">
       <input 
         type="file" 
@@ -72,7 +73,7 @@ const ProductImageUpload = ({ onImageUpload }) => {
         </div>
       )}
     </div>
-  );
+    </>);
 };
 
 export default ProductImageUpload;
