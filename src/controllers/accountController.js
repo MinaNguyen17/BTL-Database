@@ -119,6 +119,7 @@ async function login(req, res) {
 			{
 				accountId: account.Account_ID,
 				username: account.Username,
+				ID_Card_Num: account.ID_Card_Num,
 				role: account.Role.trim(), // Xóa khoảng trắng nếu có
 				status: account.Status.trim(), // Xóa khoảng trắng nếu có
 			},

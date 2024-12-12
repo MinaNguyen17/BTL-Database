@@ -73,7 +73,9 @@ async function updateEmployee(req, res) {
 async function viewEmployeeSalary(req, res) {
 	const { idCardNum } = req.params;
 	const { month, year } = req.query;
-
+	if (req.user.role != "Admin" && req.user.ID_Card_Num != idCardNum) {
+		return res.status(404).json({ message: "You cannot see." });
+	}
 	try {
 		const salaries = await EmployeeService.getEmployeeSalary(
 			idCardNum,

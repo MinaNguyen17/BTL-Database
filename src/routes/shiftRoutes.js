@@ -1,15 +1,25 @@
 const express = require("express");
 const ShiftController = require("../controllers/shiftController.js");
 const router = express.Router();
+const auth = require("../middleware/authenticate.js");
 
 // Route lấy danh sách users
-router.get("/all", ShiftController.getAllShifts);
-router.get("/:shiftId", ShiftController.getShiftById);
-router.get("/view/:idCardNum", ShiftController.viewEmployeeShifts);
-router.post("/checkin", ShiftController.checkIn);
-router.post("/assign", ShiftController.autoAssignShifts);
-router.post("/remove", ShiftController.removeEmployeeFromShift);
-router.post("/add", ShiftController.registerEmployeeToShift);
-router.post("/", ShiftController.addShift);
-router.put("/", ShiftController.updateShift);
+router.get("/all", auth.authenticateToken, ShiftController.getAllShifts);
+router.get(
+	"/view/:idCardNum",
+	auth.authenticateToken,
+	ShiftController.viewEmployeeShifts
+);
+router.post("/checkin", auth.authenticateToken, ShiftController.checkIn);
+router.post(
+	"/assign",
+	auth.authenticateToken,
+	auth.isAdmin,
+	ShiftController.autoAssignShifts
+);
+router.post("/remove", auth.authenticateToken, ShiftController.removeEmployeeFromShift);
+router.post("/add", auth.authenticateToken, ShiftController.registerEmployeeToShift);
+router.get("/:shiftId", auth.authenticateToken, ShiftController.getShiftById);
+router.post("/", auth.authenticateToken, ShiftController.addShift);
+router.put("/", auth.authenticateToken, ShiftController.updateShift);
 module.exports = router;
