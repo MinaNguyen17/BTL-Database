@@ -187,7 +187,7 @@ const ProductView = () => {
 
   return (
     <div className="flex bg-gray-50 flex-col p-6 gap-6">
-      <h1 className="text-2xl font-semibold">Product</h1>
+      {/* <h1 className="text-2xl font-semibold">Product</h1> */}
 
       <div className="flex gap-6 h-[calc(100vh-8rem)]">
         {/* Filters Section - Static Sidebar */}
