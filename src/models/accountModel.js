@@ -36,7 +36,7 @@ async function updateAccount(id, role, status) {
 		.request()
 		.input("Account_ID", sql.Int, id)
 		.input("Role", sql.Char(20), role)
-		.input("Account_ID", sql.VarChar(20), status)
+		.input("Status", sql.VarChar(20), status)
 		.execute("dbo.updateAccount"); // Gọi stored procedure để xóa Account
 }
 
