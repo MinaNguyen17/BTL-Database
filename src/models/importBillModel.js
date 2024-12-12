@@ -1,31 +1,39 @@
 const { getDBConnection } = require("../config/database.js");
 const sql = require("mssql");
 
-async function addImportBill(name, email) {
+async function addImportBill(itemID, supplierID, importQuantity, importPrice, totalFee) {
 	const pool = await getDBConnection();
 	await pool
 		.request()
-		.input("name", sql.NVarChar, name)
-		.input("email", sql.NVarChar, email)
-		.execute("dbo.AddImportBill"); // Gọi stored procedure để thêm ImportBill
+		.input("ItemID", sql.Int, itemID)
+		.input("SupplierID", sql.Int, supplierID)
+		.input("ImportQuantity", sql.Int, importQuantity)
+		.input("ImportPrice", sql.Decimal(10, 2), importPrice)
+		.input("TotalFee", sql.Decimal(10, 2), totalFee)
+		.execute("dbo.ImportItemDetails"); // Gọi stored procedure để thêm ImportBill
+	console.log("Hello2");
 }
 
 async function deleteImportBill(id) {
 	const pool = await getDBConnection();
-	await pool
-		.request()
-		.input("id", sql.Int, id)
-		.execute("dbo.DeleteImportBill"); // Gọi stored procedure để xóa ImportBill
+	await pool.request().input("id", sql.Int, id).execute("dbo.DeleteImportBill"); // Gọi stored procedure để xóa ImportBill
 }
 
-async function updateImportBill(id, name, email) {
+async function updateImportBill(id, newState) {
 	const pool = await getDBConnection();
 	await pool
 		.request()
-		.input("id", sql.Int, id)
-		.input("name", sql.NVarChar, name)
-		.input("email", sql.NVarChar, email)
-		.execute("dbo.UpdateImportBill"); // Gọi stored procedure để sửa ImportBill
+		.input("ImportID", sql.Int, id)
+		.input("NewState", sql.VarChar(30), newState)
+		.execute("dbo.UpdateImportBillState"); // Gọi stored procedure để sửa ImportBill
+}
+
+async function updateStockOnImport(id) {
+	const pool = await getDBConnection();
+	await pool
+		.request()
+		.input("Import_ID", sql.Int, id)
+		.execute("dbo.UpdateStockOnImport"); // Gọi stored procedure để sửa ImportBill
 }
 
 async function getAllImportBills() {
@@ -38,7 +46,7 @@ async function getImportBillById(id) {
 	const pool = await getDBConnection();
 	const result = await pool
 		.request()
-		.input("id", sql.Int, id)
+		.input("ImportID", sql.Int, id)
 		.execute("dbo.GetImportBillById"); // Gọi stored procedure để lấy một ImportBill theo Id
 	return result.recordset[0]; // Trả về ImportBill đầu tiên (nếu có)
 }
@@ -49,4 +57,5 @@ module.exports = {
 	addImportBill,
 	updateImportBill,
 	deleteImportBill,
+	updateStockOnImport,
 };

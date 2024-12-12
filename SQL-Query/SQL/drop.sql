@@ -117,3 +117,5 @@ GO
 DROP PROCEDURE dbo.GetAllItems, dbo.GetItemById, AddItem, UpdateItem, GetAllReturnBills, AddReturnBill, GetReturnBillById, GetAllImportBills, GetImportBillById, UpdateImportBillState, ImportItemDetails, UpdateStockOnImport;
 DROP PROCEDURE dbo.CreateOrderAndIncomeReceipt
 DROP PROCEDURE dbo.InsertVoucher
+DROP PROCEDURE dbo.GetAccountById, dbo.GetAllAccount
+DROP PROCEDURE dbo.UpdateAccount

@@ -19,9 +19,7 @@ async function getReturnBillById(req, res) {
 	try {
 		const ReturnBill = await ReturnBillService.getReturnBillById(id);
 		if (!ReturnBill) {
-			return res
-				.status(404)
-				.json({ message: "ReturnBill không tồn tại." });
+			return res.status(404).json({ message: "ReturnBill không tồn tại." });
 		}
 		res.status(200).json(ReturnBill); // Trả về thông tin ReturnBill
 	} catch (error) {
@@ -30,9 +28,17 @@ async function getReturnBillById(req, res) {
 }
 
 async function addReturnBill(req, res) {
-	const { name, email } = req.body;
+	const { reason, returnFee, itemID, supplierID, returnQuantity, returnPrice } =
+		req.body;
 	try {
-		await ReturnBillService.addReturnBill(name, email);
+		await ReturnBillService.addReturnBill(
+			reason,
+			returnFee,
+			itemID,
+			supplierID,
+			returnQuantity,
+			returnPrice
+		);
 		res.status(201).json({
 			message: "ReturnBill đã được thêm thành công.",
 		});

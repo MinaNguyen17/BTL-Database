@@ -163,7 +163,7 @@ END;
 
 -- UPDATE ACCOUNT
 GO
-CREATE OR ALTER PROCEDURE UpdateAccount
+CREATE OR ALTER PROCEDURE ChangePassword
     @Username VARCHAR(100),
     @NewPassword VARCHAR(255)
 AS
@@ -173,6 +173,46 @@ BEGIN
     WHERE Username = @Username;
 END
 GO
+
+GO
+CREATE OR ALTER PROCEDURE UpdateAccount
+    @Account_ID INT,
+    @Role CHAR(20),
+    @Status NVARCHAR(20)
+AS
+BEGIN
+    UPDATE ACCOUNT
+    SET [Role] = @Role,
+        [Status] = @Status
+    WHERE Account_ID = @Account_ID;
+END
+GO
+-- GET ACCOUNT
+CREATE PROCEDURE GetAllAccounts
+AS
+BEGIN
+    SELECT * FROM ACCOUNT;
+END
+GO
+
+CREATE PROCEDURE GetAccountById
+    @AccountID INT
+AS
+BEGIN
+    SELECT * FROM ACCOUNT WHERE Account_ID = @AccountID;
+END
+GO
+
+CREATE PROCEDURE GetAccountByUsername
+    @Username VARCHAR(100)
+AS
+BEGIN
+    SELECT * FROM ACCOUNT WHERE Username = @Username;
+END
+GO
+
+
+GO 
 
 -- CHECK IN AND UPDATE SALARY
 -- DROP PROCEDURE CheckInAndUpdateSalary
