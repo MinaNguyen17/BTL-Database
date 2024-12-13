@@ -16,7 +16,7 @@ const ProductService = {
   // Get product by ID
   getProductById: async (productId) => {
     try {
-      const response = await axiosInstance.get(`/product/${productId}`);
+      const response = await axiosInstance.get(`/product/get/${productId}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching product ${productId}:`, error);
@@ -38,7 +38,7 @@ const ProductService = {
   // Update an existing product
   updateProduct: async (productId, productData) => {
     try {
-      const response = await axiosInstance.put(`/product/${productId}`, productData);
+      const response = await axiosInstance.post(`/product/update/${productId}`, productData);
       return response.data;
     } catch (error) {
       console.error(`Error updating product ${productId}:`, error);

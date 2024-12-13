@@ -1,6 +1,20 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from 'react-router-dom';
+import { 
+  EyeIcon, 
+  EditIcon, 
+  MoreHorizontalIcon 
+} from 'lucide-react';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import productService from "@/services/productService";
 
 const ProductTableSkeleton = ({ itemsPerPage }) => {
   return (
@@ -10,7 +24,7 @@ const ProductTableSkeleton = ({ itemsPerPage }) => {
           key={index} 
           className={`${index % 2 === 0 ? 'bg-[#FAFCF3]' : 'bg-white'}`}
         >
-          {[...Array(7)].map((_, colIndex) => (
+          {[...Array(8)].map((_, colIndex) => (
             <td key={colIndex} className="p-4">
               <Skeleton className="h-4 w-full" />
             </td>
@@ -28,8 +42,11 @@ const ProductTable = ({
   itemsPerPage, 
   totalItems, 
   onPageChange,
-  isLoading 
+  isLoading,
+  onRefreshProducts 
 }) => {
+  const navigate = useNavigate();
+
   // Calculate total pages
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -68,6 +85,27 @@ const ProductTable = ({
     return pageNumbers;
   };
 
+  const handleViewProduct = (productId) => {
+    navigate(`/productview/${productId}`);
+  };
+
+  const handleEditProduct = (product) => {
+    navigate('/productedit', { state: { product } });
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await productService.deleteProduct(productId);
+      toast.success('Sản phẩm đã được xóa thành công');
+      // Refresh products list if onRefreshProducts is provided
+      if (onRefreshProducts) {
+        onRefreshProducts();
+      }
+    } catch (error) {
+      toast.error('Không thể xóa sản phẩm: ' + error.message);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg">
       <table className="w-full">
@@ -80,6 +118,7 @@ const ProductTable = ({
             <th className="p-4 text-left">Season</th>
             <th className="p-4 text-left">Category</th>
             <th className="p-4 text-left">Description</th>
+            <th className="p-4 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -92,6 +131,7 @@ const ProductTable = ({
                 className={`
                   ${index % 2 === 0 ? 'bg-[#FAFCF3]' : 'bg-white'}
                   ${product.isEditing ? 'pointer-events-none opacity-50' : ''}
+                  hover:bg-gray-50 transition-colors duration-200
                 `}
               >
                 <td className="p-4">{product.PRODUCT_ID}</td>
@@ -101,6 +141,42 @@ const ProductTable = ({
                 <td className="p-4">{product.SEASON}</td>
                 <td className="p-4">{product.CATEGORY}</td>
                 <td className="p-4">{product.DESCRIPTION}</td>
+                <td className="p-4">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="hover:bg-gray-100"
+                      >
+                        <MoreHorizontalIcon className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[160px]">
+                      <DropdownMenuItem 
+                        onSelect={() => handleViewProduct(product.PRODUCT_ID)}
+                        className="cursor-pointer"
+                      >
+                        <EyeIcon className="mr-2 h-4 w-4" />
+                        Xem chi tiết
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onSelect={() => handleEditProduct(product)}
+                        className="cursor-pointer"
+                      >
+                        <EditIcon className="mr-2 h-4 w-4" />
+                        Chỉnh sửa
+                      </DropdownMenuItem>
+                      {/* <DropdownMenuItem 
+                        onSelect={() => handleDeleteProduct(product.PRODUCT_ID)}
+                        className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700"
+                      >
+                        <EditIcon className="mr-2 h-4 w-4 text-red-500" />
+                        Xóa
+                      </DropdownMenuItem> */}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
               </tr>
             ))
           )}

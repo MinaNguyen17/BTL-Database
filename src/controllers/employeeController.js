@@ -16,6 +16,9 @@ async function getAllEmployees(req, res) {
 
 async function getEmployeeById(req, res) {
 	const { employeeId } = req.params;
+	if (req.user.role != "Admin" && req.user.ID_Card_Num != employeeId) {
+		return res.status(404).json({ message: "You cannot see." });
+	}
 	try {
 		const Employee = await EmployeeService.getEmployeeById(employeeId);
 		if (!Employee) {

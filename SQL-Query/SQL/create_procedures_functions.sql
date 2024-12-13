@@ -172,7 +172,7 @@ END;
 
 -- UPDATE ACCOUNT
 GO
-CREATE OR ALTER PROCEDURE ChangePassword
+CREATE OR ALTER PROCEDURE UpdateAccount
     @Username VARCHAR(100),
     @NewPassword VARCHAR(255)
 AS
@@ -183,19 +183,6 @@ BEGIN
 END
 GO
 
-GO
-CREATE OR ALTER PROCEDURE UpdateAccount
-    @Account_ID INT,
-    @Role CHAR(20),
-    @Status NVARCHAR(20)
-AS
-BEGIN
-    UPDATE ACCOUNT
-    SET [Role] = @Role,
-        [Status] = @Status
-    WHERE Account_ID = @Account_ID;
-END
-GO
 -- GET ACCOUNT
 CREATE PROCEDURE GetAllAccounts
 AS
