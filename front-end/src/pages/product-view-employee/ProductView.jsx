@@ -70,7 +70,52 @@ const CollapsibleFilter = ({ title, items, onToggle }) => {
 };
 
 // Product Table Component
-const ProductTable = ({ products, onToggleStatus }) => {
+const ProductTable = ({ 
+  products, 
+  onToggleStatus, 
+  currentPage, 
+  itemsPerPage, 
+  totalItems, 
+  onPageChange 
+}) => {
+  // Calculate total pages
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      pageNumbers.push(1);
+      
+      if (currentPage > 3) {
+        pageNumbers.push('...');
+      }
+      
+      const startPage = Math.max(2, currentPage - 1);
+      const endPage = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = startPage; i <= endPage; i++) {
+        if (!pageNumbers.includes(i)) {
+          pageNumbers.push(i);
+        }
+      }
+      
+      if (currentPage < totalPages - 2) {
+        pageNumbers.push('...');
+      }
+      
+      pageNumbers.push(totalPages);
+    }
+    
+    return pageNumbers;
+  };
+
   return (
     <div className="bg-white rounded-lg">
       <table className="w-full">
@@ -112,14 +157,38 @@ const ProductTable = ({ products, onToggleStatus }) => {
         </tbody>
       </table>
       <div className="p-4 flex justify-between items-center border-t">
-        <span className="text-sm text-gray-500">Showing 1 to 10 of 10 entries</span>
+        <span className="text-sm text-gray-500">
+          Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+          {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} entries
+        </span>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">1</Button>
-          <Button variant="ghost" size="sm">2</Button>
-          <Button variant="ghost" size="sm">...</Button>
-          <Button variant="ghost" size="sm">9</Button>
-          <Button variant="ghost" size="sm">10</Button>
-          <Button variant="ghost" size="sm">→</Button>
+          <Button 
+            variant={currentPage === 1 ? 'outline' : 'ghost'} 
+            size="sm"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            ←
+          </Button>
+          {getPageNumbers().map((page, index) => (
+            <Button 
+              key={index}
+              variant={page === currentPage ? 'outline' : 'ghost'} 
+              size="sm"
+              onClick={() => typeof page === 'number' && onPageChange(page)}
+              disabled={page === '...'}
+            >
+              {page}
+            </Button>
+          ))}
+          <Button 
+            variant={currentPage === totalPages ? 'outline' : 'ghost'} 
+            size="sm"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            →
+          </Button>
         </div>
       </div>
     </div>
@@ -129,7 +198,7 @@ const ProductTable = ({ products, onToggleStatus }) => {
 const ProductView = () => {
   // Initial state for products
   const [products, setProducts] = useState(
-    Array(8).fill(null).map((_, index) => ({
+    Array(50).fill(null).map((_, index) => ({
       id: `P${909 + index}`,
       name: 'bodycare',
       totalBuyers: 2456,
@@ -138,6 +207,21 @@ const ProductView = () => {
       status: true
     }))
   );
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Paginate products
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return products.slice(startIndex, startIndex + itemsPerPage);
+  }, [products, currentPage]);
+
+  // Page change handler
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   // Use custom hook for filter states
   const categoriesFilter = useFilterState([
@@ -291,8 +375,18 @@ const ProductView = () => {
           </div>
 
           <ProductTable 
-            products={products} 
-            onToggleStatus={toggleProductStatus} 
+            products={paginatedProducts} 
+            onToggleStatus={(index) => {
+              // Adjust index for pagination
+              const globalIndex = (currentPage - 1) * itemsPerPage + index;
+              const updatedProducts = [...products];
+              updatedProducts[globalIndex].status = !updatedProducts[globalIndex].status;
+              setProducts(updatedProducts);
+            }}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            totalItems={products.length}
+            onPageChange={handlePageChange}
           />
         </div>
       </div>
