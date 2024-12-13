@@ -18,7 +18,7 @@ const handleSubmit = async (event) => {
   const password = event.target.password.value;
 
   try {
-    const response = await axiosInstance.post('/account/login', {
+    const response = await axiosInstance.post("/account/login", {
       username,
       password,
     });

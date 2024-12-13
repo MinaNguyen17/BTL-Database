@@ -1,19 +1,4 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
-html, body {
-  height: 100%; /* Ensure the body spans the full height */
-  margin: 0;    /* Reset default margin */
-  padding: 0;   /* Reset default padding */
-}
-
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f7f7f7;
-}
 
 .login-container {
   display: flex;

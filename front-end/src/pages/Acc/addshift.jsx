@@ -198,7 +198,7 @@ function EmpShift() {
   const currentWeekDates = getDatesForWeek(currentWeekStart);
 
   return (
-    <div className="container">
+    <div className="scontainer">
       <div className="timetable-container">
         <div className="timetable">
           <div className="week-names">
