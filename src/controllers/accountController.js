@@ -133,6 +133,7 @@ async function login(req, res) {
 			message: "Login successful",
 			token,
 			ID_Card_Num: account.ID_Card_Num,
+			Role: account.Role.trim(),
 		});
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error", error: error.message });
