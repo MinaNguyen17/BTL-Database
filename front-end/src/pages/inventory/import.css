@@ -1,0 +1,141 @@
+/* import.css */
+.ImportContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f4f4f4;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.ImportContainer > div {
+  display: flex;
+  /* flex-direction: row; */
+  justify-content: space-between;
+  /* align-items: center; */
+  width: 100%;
+  padding: 20px;
+}
+
+.ImportContainer > div input {
+  padding: 10px;
+  width: 50%;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.ImportContainer button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: none;
+  background-color: #56705e;
+  color: white;
+  cursor: pointer;
+}
+
+.ImportContainer  button:hover {
+  background-color: #4a5d50;
+}
+
+.ImportContainer button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+button:active {
+  background-color: #3e4c3b;
+}
+
+
+.supplier-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: space-between;
+  width: 30%;
+  height: 100%;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+.item-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: space-between;
+  width: 30%;
+  height: 100%;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.dropdown-container {
+  position: relative;
+  width: 100%;
+  height: 40px;
+}
+
+.dropdown-btn {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  cursor: pointer;
+  background-color: #fff;
+  color: #333;
+}
+
+.dropdown-btn:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+}
+
+.dropdown-item:hover {
+  background-color: #56705e; /* Màu nền khi hover */
+  color: white; /* Màu chữ khi hover */
+}
+.SelectContent{
+  min-height: 200px;
+}
+.selected-supplier {
+  margin-top: 20px;
+}
+
+.selected-supplier h3 {
+  margin-bottom: 10px;
+}
+
+.selected-supplier p {
+  margin: 5px 0;
+}
