@@ -20,6 +20,7 @@
     "mssql": "^11.0.1",
     "node-cron": "^3.0.3",
     "oracledb": "^6.7.0",
+    "react-toastify": "^10.0.6",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0"
   },
