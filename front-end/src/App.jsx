@@ -19,6 +19,7 @@ import ImportBill from './pages/inventory/importBill';
 import Return from './pages/inventory/return';
 import ReturnBill from './pages/inventory/returnBill';
 import Inventory from './pages/inventory/inventory';
+import CreateShift from './pages/Acc/createshift';
 
 import EmployeeView from './pages/employee-view/EmployeeView';
 import ProductView from './pages/productview';
@@ -53,6 +54,7 @@ function App() {
               <Route path="/return" element={<Return/>} />
               <Route path="/returnbill" element={<ReturnBill/>}/>
               <Route path="/inventory" element={<Inventory/>}/>
+              <Route path="/dkca" element={<CreateShift/>}/>
 
 
 

@@ -9,10 +9,13 @@ const CreateAccount = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent default form submission behavior
+    event.preventDefault(); // Ngăn hành vi mặc định của form
 
-    // Lấy token từ localStorage hoặc context (tuỳ theo cách bạn quản lý token)
-    const token = localStorage.getItem('token');
+    // Lấy token từ localStorage
+    const token = localStorage.getItem('authToken');
+    const ID = localStorage.getItem('UserID');
+
+    console.log(ID);
 
     // Kiểm tra token hợp lệ
     if (!token) {
@@ -20,39 +23,37 @@ const CreateAccount = () => {
       return;
     }
 
-    // Cấu hình axios với token để xác thực
+    // Cấu hình axios với token
     setAuthToken(token);
 
-    // Kiểm tra quyền phân quyền trước khi gửi yêu cầu
+    // Gửi yêu cầu tạo tài khoản
     try {
-      const roleResponse = await axiosInstance.get('/user/role', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // Kiểm tra nếu người dùng có quyền tạo tài khoản
-      if (roleResponse.data.role !== 'Admin') {
-        setErrorMessage('You do not have permission to create an account.');
-        return;
-      }
-
-      // Nếu có quyền, tiếp tục gửi yêu cầu tạo tài khoản
-      setLoading(true);
-      const response = await axiosInstance.post("/account/create", {
-        username,
-        role,
-      });
-
-      alert('Create Account successful:', response.data);
+      setLoading(true); // Đặt trạng thái loading
+      const response = await axiosInstance.post(
+        '/account/create',
+        { ID_Card_Num: username, Role: role },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+    
+      // Lấy ra username từ phản hồi
+      const createdUsername = response.data.account?.username;
+    
+      alert(`Create Account successful for username: ${createdUsername}`);
       setLoading(false);
-      // Xử lý sau khi tạo tài khoản thành công (chuyển hướng hoặc lưu token)
+    
+      // Reset form sau khi thành công
+      setUsername('');
+      setRole('');
     } catch (error) {
       setLoading(false);
-
+    
       if (error.response) {
-        // Nếu có lỗi từ server
+        // Lỗi từ server
         setErrorMessage(error.response.data?.message || 'Failed to create account.');
       } else {
-        // Nếu không có phản hồi từ server
+        // Lỗi mạng hoặc không có phản hồi từ server
         setErrorMessage('Network error. Please try again later.');
       }
     }
@@ -63,8 +64,8 @@ const CreateAccount = () => {
       <div className="login-left">
         <form onSubmit={handleSubmit}>
           <h2>Fashion Store Management!</h2>
-          
-          {/* Error message */}
+
+          {/* Thông báo lỗi */}
           {errorMessage && <div className="error-message">{errorMessage}</div>}
 
           <div className="input-group">
@@ -74,7 +75,7 @@ const CreateAccount = () => {
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username"
+              placeholder="Enter ID Card Number"
               required
             />
           </div>
@@ -85,7 +86,7 @@ const CreateAccount = () => {
               id="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              placeholder="Role"
+              placeholder="Enter Role (e.g., Admin)"
               required
             />
           </div>

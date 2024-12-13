@@ -41,6 +41,14 @@ export const setAuthToken = (token) => {
     delete axiosInstance.defaults.headers.common['Authorization'];
   }
 };
+export const setUserID = (ID) => {
+  if (ID) {
+    // Save token to localStorage
+    localStorage.setItem('UserID', ID);
+    // Optionally, you can also set the token in the default headers
+    // axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } 
+};
 
 // Export the configured axios instance and BASE_URL for reference
 export { BASE_URL };

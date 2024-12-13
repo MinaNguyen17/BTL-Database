@@ -1,99 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axiosInstance from "@/utils/axiosInstance";
 import "./addshift.css";
 
 function EmpShift() {
   const [hoveredData, setHoveredData] = useState(null);
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
-  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-02")); // Start from Monday
+  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-09")); // Start from Monday
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [timetableData, setTimetableData] = useState([
-    {
-      shift: {
-        Shift_ID: 1,
-        Shift_Type: "1", // 1: 7:00 - 12:00
-        Date: "2024-12-05T00:00:00.000Z",
-        E_Num: 2,
-        Rate: 1,
-      },
-      employees: [
-        {
-          ID_Card_Num: "079203478901",
-          Employee_ID: "EMP00002",
-          Position: "Senior",
-          Wage: 30000,
-          Fname: "Tran Van",
-          Lname: "Binh",
-        },
-        {
-          ID_Card_Num: "079304008477",
-          Employee_ID: "EMP00001",
-          Position: "Senior",
-          Wage: 35000,
-          Fname: "Nguyen Minh",
-          Lname: "Hoa",
-        },
-      ],
-      label: "Shift 1",
-      color: "green",
-    },
-    {
-      shift: {
-        Shift_ID: 2,
-        Shift_Type: "2", // 2: 12:00 - 17:00
-        Date: "2024-12-06T00:00:00.000Z",
-        E_Num: 2,
-        Rate: 1,
-      },
-      employees: [
-        {
-          ID_Card_Num: "079203478901",
-          Employee_ID: "EMP00002",
-          Position: "Senior",
-          Wage: 30000,
-          Fname: "Tran Van",
-          Lname: "Binh",
-        },
-        {
-          ID_Card_Num: "079304008477",
-          Employee_ID: "EMP00001",
-          Position: "Senior",
-          Wage: 35000,
-          Fname: "Nguyen Minh",
-          Lname: "Hoa",
-        },
-      ],
-      label: "Shift 2",
-      color: "pink",
-    },
-    {
-      shift: {
-        Shift_ID: 3,
-        Shift_Type: "3", // 3: 17:00 - 22:00
-        Date: "2024-12-07T00:00:00.000Z",
-        E_Num: 2,
-        Rate: 1,
-      },
-      employees: [
-        {
-          ID_Card_Num: "079203478901",
-          Employee_ID: "EMP00002",
-          Position: "Senior",
-          Wage: 30000,
-          Fname: "Tran Van",
-          Lname: "Binh",
-        },
-        {
-          ID_Card_Num: "079304008477",
-          Employee_ID: "EMP00001",
-          Position: "Senior",
-          Wage: 35000,
-          Fname: "Nguyen Minh",
-          Lname: "Hoa",
-        },
-      ],
-      label: "Shift 3",
-      color: "orange",
-    },
+    // Initial dummy data
   ]);
+
+  
+  useEffect(() => {
+    const fetchShifts = async () => {
+      try {
+        const response = await axiosInstance.get("/shift/all");
+        if (response.data) {
+          const fetchedShifts = response.data.map((shift) => ({
+            shift: {
+              Shift_ID: shift.Shift_ID,
+              Shift_Type: shift.Shift_Type,
+              Date: shift.Date,
+              E_Num: shift.E_Num,
+              Rate: shift.Rate,
+            },
+            employees: [],
+            label: `Shift ${shift.Shift_Type}`,
+            color: "blue",
+          }));
+          setTimetableData(fetchedShifts);
+        }
+      } catch (err) {
+        console.error("Failed to fetch shifts:", err.message);
+        setError("Failed to load shifts. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShifts();
+  }, []);
+
+  
+
 
   const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
   const hours = Array.from({ length: 17 }, (_, index) => `${7 + index}:00`); // Time slots from 7:00 to 23:00
@@ -139,26 +90,59 @@ function EmpShift() {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const { startTime, endTime } = getShiftTimes(newShift.label);
-    const newShiftData = {
-      shift: {
-        Shift_ID: timetableData.length + 1, // Assuming Shift_ID is auto-incremented
-        Shift_Type: newShift.label, // Assign Shift Type from the label (1, 2, 3)
-        Date: newShift.date,
-        E_Num: newShift.E_Num,
-        Rate: newShift.Rate,
-      },
-      employees: newShift.employees,
-      startTime,
-      endTime,
-      label: newShift.label,
-      color: "blue", // Default color for the shift
-    };
-    setTimetableData((prev) => [...prev, newShiftData]); // Add new shift to timetable
-    setNewShift({ label: "", startTime: "", endTime: "", date: "", employees: [], E_Num: 0, Rate: 1 }); // Reset form
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Ngăn chặn hành vi mặc định của form
+  
+    try {
+      // Chuẩn bị dữ liệu gửi đi
+      const shiftData = {
+        Shift_Type: newShift.label,
+        S_Date: newShift.date,
+        E_Num: parseInt(newShift.E_Num, 10),
+        Rate: parseFloat(newShift.Rate),
+      };
+      console.log(shiftData);
+  
+      // Gửi yêu cầu POST tới API
+      const response = await axiosInstance.post("/shift", shiftData);
+  
+      // Kiểm tra phản hồi từ API
+      if (response?.data?.shift) {
+        const addedShift = response.data.shift;
+  
+        // Chuẩn bị dữ liệu mới để thêm vào timetable
+        const newShiftEntry = {
+          shift: {
+            Shift_ID: addedShift.Shift_ID,
+            Shift_Type: addedShift.Shift_Type,
+            Date: addedShift.Date,
+            E_Num: addedShift.E_Num,
+            Rate: addedShift.Rate,
+          },
+          employees: [], // Danh sách nhân viên ban đầu là rỗng
+          label: `Shift ${addedShift.Shift_Type}`,
+          color: "blue", // Màu mặc định
+        };
+  
+        // Cập nhật state với dữ liệu mới
+        setTimetableData((prev) => [...prev, newShiftEntry]);
+  
+        // Reset form về trạng thái ban đầu
+        setNewShift({ label: "", date: "", E_Num: 0, Rate: 1 });
+  
+        // Thông báo thành công
+        alert("Shift has been successfully added.");
+      } else {
+        // Xử lý trường hợp phản hồi không mong muốn
+        throw new Error("Unexpected response from the server.");
+      }
+    } catch (error) {
+      // Bắt lỗi và hiển thị thông báo
+      console.error("Error creating shift:", error.message);
+      alert("Failed to add shift. Please try again.");
+    }
   };
+  
 
   const getCurrentShift = (currentDate) => {
     const currentDateObj = new Date(currentDate);

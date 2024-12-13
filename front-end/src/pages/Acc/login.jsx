@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './login.css'; // You can adjust your CSS file name accordingly
-import axiosInstance, { setAuthToken } from '../../utils/axiosInstance';
+import axiosInstance, { setAuthToken , setUserID } from '../../utils/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -25,6 +25,8 @@ const handleSubmit = async (event) => {
     console.log('Login successful:', response.data);
     // Handle successful login (e.g., redirect or save token)
     setAuthToken(response.data.token);
+    localStorage.setItem('UserID', response.data.ID_Card_Num);
+    console.log(localStorage.getItem("UserID"))
     navigate('/order');
     
   } catch (error) {

@@ -1,4 +1,4 @@
-import axiosInstance, { setAuthToken } from '../utils/axiosInstance';
+import axiosInstance, { setAuthToken, setUserID } from '../utils/axiosInstance';
 
 // Service for account-related API calls
 export const accountService = {
@@ -15,6 +15,8 @@ export const accountService = {
         // Set the auth token in localStorage and headers
         localStorage.setItem('authToken', response.data.token);
         setAuthToken(response.data.token);
+        setUserID(response.data.ID_Card_Num);
+        
         
         // Return user data or login status
         return {

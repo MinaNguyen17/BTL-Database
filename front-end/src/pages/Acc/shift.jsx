@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
+import axiosInstance from "@/utils/axiosInstance";
 import "./shift.css";
 
 function EmpShift() {
@@ -6,95 +7,48 @@ function EmpShift() {
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-02")); // Bắt đầu từ ngày thứ hai
   const [shiftStatus, setShiftStatus] = useState({}); // Track the checked-in status of each shift
-  const timetableData = [
-    {
-      shift: {
-        Shift_ID: 1,
-        Shift_Type: "1", // Shift type 1 is 7:00 - 12:00
-        Date: "2024-12-05T00:00:00.000Z",
-        E_Num: 2,
-        Rate: 1,
-      },
-      employees: [
-        {
-          ID_Card_Num: "079203478901",
-          Employee_ID: "EMP00002",
-          Position: "Senior",
-          Wage: 30000,
-          Fname: "Tran Van",
-          Lname: "Binh",
-        },
-        {
-          ID_Card_Num: "079304008477",
-          Employee_ID: "EMP00001",
-          Position: "Senior",
-          Wage: 35000,
-          Fname: "Nguyen Minh",
-          Lname: "Hoa",
-        },
-      ],
-      label: "Shift 1",
-      color: "green",
-    },
-    {
-      shift: {
-        Shift_ID: 2,
-        Shift_Type: "2", // Shift type 2 is 12:00 - 17:00
-        Date: "2024-12-06T00:00:00.000Z",
-        E_Num: 2,
-        Rate: 1,
-      },
-      employees: [
-        {
-          ID_Card_Num: "079203478901",
-          Employee_ID: "EMP00002",
-          Position: "Senior",
-          Wage: 30000,
-          Fname: "Tran Van",
-          Lname: "Binh",
-        },
-        {
-          ID_Card_Num: "079304008477",
-          Employee_ID: "EMP00001",
-          Position: "Senior",
-          Wage: 35000,
-          Fname: "Nguyen Minh",
-          Lname: "Hoa",
-        },
-      ],
-      label: "Shift 2",
-      color: "pink",
-    },
-    {
-      shift: {
-        Shift_ID: 3,
-        Shift_Type: "3", // Shift type 3 is 17:00 - 22:00
-        Date: "2024-12-07T00:00:00.000Z",
-        E_Num: 2,
-        Rate: 1,
-      },
-      employees: [
-        {
-          ID_Card_Num: "079203478901",
-          Employee_ID: "EMP00002",
-          Position: "Senior",
-          Wage: 30000,
-          Fname: "Tran Van",
-          Lname: "Binh",
-        },
-        {
-          ID_Card_Num: "079304008477",
-          Employee_ID: "EMP00001",
-          Position: "Senior",
-          Wage: 35000,
-          Fname: "Nguyen Minh",
-          Lname: "Hoa",
-        },
-      ],
-      label: "Shift 3",
-      color: "orange",
-    },
-  ];
+  const [timetableData, setTimetableData] = useState([]);
+
+ // Fetch shift data from API
+ useEffect(() => {
+  const fetchShifts = async () => {
+    try {
+      const idCardNum = localStorage.getItem("UserID");
+      if (!idCardNum) {
+        console.error("UserID not found in localStorage.");
+        return;
+      }
+
+      const response = await axiosInstance.get(`/shift/view/${idCardNum}`);
+      // Kiểm tra nếu API trả về đối tượng có thuộc tính `shifts`
+      if (response.data && Array.isArray(response.data.shifts)) {
+        // Trích xuất mảng shifts và map dữ liệu
+        const fetchedShifts = response.data.shifts.map((shift) => ({
+          shift: {
+            Shift_ID: shift.Shift_ID,
+            Shift_Type: shift.Shift_Type,
+            Date: shift.Date,
+            E_Num: shift.E_Num,
+            Rate: shift.Rate,
+          },
+          employees: [], // Có thể cập nhật sau
+          label: `Shift ${shift.Shift_Type}`,
+          color: "blue",
+        }));
+
+        setTimetableData(fetchedShifts); // Cập nhật state
+      } else {
+        console.error("API response does not contain shifts array or is invalid:", response.data);
+        setTimetableData([]); // Xử lý khi không có dữ liệu hợp lệ
+      }
+    } catch (err) {
+      console.error("Failed to fetch shifts:", err.message);
+      setTimetableData([]); // Xử lý lỗi và đặt giá trị mặc định
+    }
+  };
+
+  fetchShifts();
+}, []);
 
   const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
   const hours = Array.from({ length: 17 }, (_, index) => `${7 + index}:00`); // Time slots from 7:00 to 23:00
@@ -127,14 +81,16 @@ function EmpShift() {
   const getCurrentShift = (currentDate) => {
     const currentDateObj = new Date(currentDate);
     const formattedCurrentDate = currentDateObj.toISOString().split("T")[0];
-
+  
     const todayShift = timetableData.filter((shift) => {
-      const shiftDate = new Date(shift.shift.Date).toISOString().split("T")[0];
+      // Sử dụng optional chaining để bảo vệ không truy cập vào thuộc tính Date nếu shift hoặc shift.shift không tồn tại
+      const shiftDate = shift?.shift?.Date ? new Date(shift.shift.Date).toISOString().split("T")[0] : null;
       return shiftDate === formattedCurrentDate;
     });
-
+  
     return todayShift.length ? todayShift[0] : null; // Return null if no shift found
   };
+  
 
   const getDayOfWeek = (dateStr) => {
     const dateObj = new Date(dateStr);
@@ -164,14 +120,36 @@ function EmpShift() {
   const handleMouseLeave = () => {
     setHoveredData(null);
   };
-
-  const handleClockIn = (shiftId) => {
-    setShiftStatus((prevState) => ({
-      ...prevState,
-      [shiftId]: !prevState[shiftId],
-    }));
+  const handleClockIn = async (shiftId) => {
+    try {
+      // Lấy ID_Card_Num từ localStorage
+      const idCardNum = localStorage.getItem("UserID");
+      if (!idCardNum) {
+        console.error("UserID not found in localStorage.");
+        return;
+      }
+  
+      // Gửi yêu cầu tới API
+      const response = await axiosInstance.post("/shift/checkIn", {
+        Shift_ID: shiftId,
+        ID_Card_Num: idCardNum,
+      });
+  
+      // Kiểm tra phản hồi từ API
+      if (response.status === 200) {
+        console.log("Check-in successful:", response.data);
+        setShiftStatus((prevState) => ({
+          ...prevState,
+          [shiftId]: true, // Đánh dấu ca làm việc đã được check-in
+        }));
+      } else {
+        console.error("Check-in failed with status:", response.status);
+      }
+    } catch (error) {
+      console.error("Failed to check-in:", error.response?.data || error.message);
+    }
   };
-
+  
   const currentWeekDates = getDatesForWeek(currentWeekStart);
 
   return (
@@ -191,31 +169,39 @@ function EmpShift() {
               <div key={index}>{hour}</div>
             ))}
           </div>
-
           <div className="content">
-            {daysOfWeek.map((day, dayIndex) => {
-              const currentDate = currentWeekDates[dayIndex].toISOString().split("T")[0];
-              return timetableData
-                .filter((item) => item.shift.Date.split("T")[0] === currentDate)
-                .map((data, index) => {
-                  const { startTime, endTime } = getShiftTimes(data.shift.Shift_Type);
-                  return (
-                    <div
-                      key={index}
-                      className={`cell accent-${data.color}-gradient`}
-                      style={{
-                        gridRow: `${calculateGridRow(startTime)} / span ${calculateRowSpan(startTime, endTime)}`,
-                        gridColumn: dayIndex + 1,
-                      }}
-                      onMouseEnter={(e) => handleMouseEnter(e, data)}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      <span>{data.label}</span>
-                    </div>
-                  );
-                });
-            })}
-          </div>
+  {daysOfWeek.map((day, dayIndex) => {
+    const currentDate = currentWeekDates[dayIndex].toISOString().split("T")[0];
+
+    // Kiểm tra timetableData có phải là mảng và chứa dữ liệu hợp lệ
+    if (Array.isArray(timetableData) && timetableData.length > 0) {
+      return timetableData
+        .filter((item) => {
+          const shiftDate = item?.shift?.Date ? new Date(item.shift.Date).toISOString().split("T")[0] : null;
+          return shiftDate === currentDate;
+        })
+        .map((data, index) => {
+          const { startTime, endTime } = getShiftTimes(data.shift.Shift_Type || "1"); // Mặc định Shift_Type là "1" nếu không tồn tại
+          return (
+            <div
+              key={index}
+              className={`cell accent-${data.color}-gradient`}
+              style={{
+                gridRow: `${calculateGridRow(startTime)} / span ${calculateRowSpan(startTime, endTime)}`,
+                gridColumn: dayIndex + 1,
+              }}
+              onMouseEnter={(e) => handleMouseEnter(e, data)}
+              onMouseLeave={handleMouseLeave}
+            >
+              <span>{data.label || "No Label"}</span>
+            </div>
+          );
+        });
+    } else {
+      return null; // Không render gì nếu timetableData không hợp lệ
+    }
+  })}
+</div>
 
           {hoveredData && (
             <div
