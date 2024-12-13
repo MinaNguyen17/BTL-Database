@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import './login.css'; // You can adjust your CSS file name accordingly
-import axiosInstance from '../../utils/axiosInstance';
+import axiosInstance, { setAuthToken } from '../../utils/axiosInstance';
+import { useNavigate } from 'react-router-dom';
+
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
+  const navigate = useNavigate();
 
 const handleSubmit = async (event) => {
   event.preventDefault(); // Prevent default form submission behavior
 
-  const username = 'exampleUser'; // Replace with your input handling logic
-  const password = 'examplePass';
+  const username = event.target.username.value; // Replace with your input handling logic
+  const password = event.target.password.value;
 
   try {
     const response = await axiosInstance.post('/account/login', {
@@ -23,6 +24,9 @@ const handleSubmit = async (event) => {
     });
     console.log('Login successful:', response.data);
     // Handle successful login (e.g., redirect or save token)
+    setAuthToken(response.data.token);
+    navigate('/order');
+    
   } catch (error) {
     if (error.response) {
       // Server responded with a status code outside the range 2xx

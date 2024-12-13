@@ -10,23 +10,34 @@ import ProductAdd2 from './pages/product-add2/ProductAdd';
 import LoginPage from './pages/Acc/login';
 import EmployeeInfo from './pages/Acc/empInfo';
 import EmpShift from './pages/Acc/shift';
+import AddShift from './pages/Acc/addshift';
+import ProtectedRoute from './components/route/ProtectedRoute';
+import CreateAccount from './pages/Acc/createAccount';
+
 
 function App() {
   return (
       <Router>
         <Routes>
-          <Route element={<Layout />}>
-            <Route path="/order" element={<OrderSummary />} />
-            <Route path="/productview" element={<ProductViewEmployee />} />
-            <Route path="/product-details" element={<ProductPage />} />
-            <Route path="/productadd1" element={<ProductAdd />} />
-            <Route path="/productadd2" element={<ProductAdd2 />} />
-            <Route path="/transaction" element={<TransactionPage />} />
-            <Route path="/message" element={<MessagePage />} />
-            <Route path="/empInfo" element={<EmployeeInfo />} />
-          <Route path="Login" element={<LoginPage />} />
-            <Route path='*' element={<Navigate to="/order" />} />
-            <Route  path="shift" element={<EmpShift/>}/>
+          {/* Public Login Route */}
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route path="/order" element={<OrderSummary />} />
+              <Route path="/productview" element={<ProductViewEmployee />} />
+              <Route path="/product-details" element={<ProductPage />} />
+              <Route path="/productadd1" element={<ProductAdd />} />
+              <Route path="/productadd2" element={<ProductAdd2 />} />
+              <Route path="/transaction" element={<TransactionPage />} />
+              <Route path="/message" element={<MessagePage />} />
+              <Route path="/empInfo" element={<EmployeeInfo />} />
+              <Route path="/create-account" element={<CreateAccount />} />
+              <Route path="/shift" element={<EmpShift/>}/>
+              <Route path="/add-shift" element={<AddShift/>}/>
+              <Route path='*' element={<Navigate to="/order" />} />
+            </Route>
           </Route>
         </Routes>
       </Router>

@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require('cors');
 const AccountController = require("../controllers/accountController.js");
 const router = express.Router();
 const auth = require("../middleware/authenticate.js");
@@ -11,6 +12,9 @@ router.get(
 	AccountController.getAllAccounts
 );
 router.post("/changePassword", auth.authenticateToken, AccountController.changePassword);
+
+
+router.options('/login', cors()); // Enable preflight requests for this route
 router.post("/login", AccountController.login);
 router.post(
 	"/create",

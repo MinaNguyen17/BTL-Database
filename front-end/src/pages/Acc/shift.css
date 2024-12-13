@@ -27,7 +27,7 @@ body {
 /* Define color variables */
 :root {
     --accent-base: #8eeec0;
-    --cutty-sark: #fff2df;
+    --cutty-sark: black;
     --porcelain: #b5be9a;
     --pink: #ff8f96;
     --orange: #ffb464;
