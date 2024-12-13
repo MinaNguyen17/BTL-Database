@@ -1,0 +1,107 @@
+
+
+.account-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
+  width: 100%;
+  padding: 20px;
+  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
+}
+
+.account-section {
+  display: flex;
+  width: 100%;
+  margin-top: 50px;
+  margin-bottom: 20px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.account-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.account-avatar {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.account-info {
+  flex: 1;
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+.account-label {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.account-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.account-input:disabled {
+  background-color: #f5f5f5;
+}
+
+.edit-button {
+  padding: 10px 15px;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #8b9373;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+.payroll-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 50px;
+    margin-bottom: 20px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .payroll-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .payroll-table th, .payroll-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .payroll-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  

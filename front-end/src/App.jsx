@@ -6,7 +6,10 @@ import Layout from './Layout';
 import TransactionPage from './pages/transaction/TransactionPage';
 import MessagePage from './pages/message/MessagePage';
 import ProductAdd from './pages/product-add1/ProductAdd';
-import ProductAdd2 from './pages/product-add2/ProductAdd'
+import ProductAdd2 from './pages/product-add2/ProductAdd';
+import LoginPage from './pages/Acc/login';
+import EmployeeInfo from './pages/Acc/empInfo';
+import EmpShift from './pages/Acc/shift';
 
 function App() {
   return (
@@ -20,7 +23,10 @@ function App() {
             <Route path="/productadd2" element={<ProductAdd2 />} />
             <Route path="/transaction" element={<TransactionPage />} />
             <Route path="/message" element={<MessagePage />} />
+            <Route path="/empInfo" element={<EmployeeInfo />} />
+          <Route path="Login" element={<LoginPage />} />
             <Route path='*' element={<Navigate to="/order" />} />
+            <Route  path="shift" element={<EmpShift/>}/>
           </Route>
         </Routes>
       </Router>
