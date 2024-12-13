@@ -1,0 +1,55 @@
+/* returnbill.css */
+.return-bill-container {
+    padding: 20px;
+    max-width: 800px;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #7c6864;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+  }
+  
+  .return-bill-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .return-bill-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+  }
+  
+  .return-bill-table th,
+  .return-bill-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .return-bill-table th {
+    background-color: #f5f5f5;
+  }
+  
+  
+ 
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .return-bill-container {
+      padding: 10px;
+    }
+  
+    .return-bill-table th,
+    .return-bill-table td {
+      padding: 8px;
+      font-size: 14px;
+    }
+  
+    .return-bill-container h1 {
+      font-size: 20px;
+    }
+  }
+  

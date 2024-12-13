@@ -1,38 +1,41 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from '@/utils/axiosInstance';
-import "./import.css"; // Import file CSS
+import "./return.css"; // Import file CSS
 
-const Import = () => {
+const Return = () => {
   const [quantity, setQuantity] = useState('');
-  const [importPrice, setImportPrice] = useState('');
-  const [shippingFee, setShippingFee] = useState('');
+  const [price, setPrice] = useState('');
+  const [refundFee, setRefundFee] = useState('');
+  const [reason, setReason] = useState('');
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
 
   const handleQuantityChange = (e) => setQuantity(e.target.value);
-  const handleImportPriceChange = (e) => setImportPrice(e.target.value);
-  const handleShippingFee = (e) => setShippingFee(e.target.value);
+  const handlePriceChange = (e) => setPrice(e.target.value);
+  const handleRefundFeeChange = (e) => setRefundFee(e.target.value);
+  const handleReasonChange = (e) => setReason(e.target.value);
 
   const handleCreate = () => {
     const data = {
+        reason: reason,
+        returnFee: parseFloat(quantity) * parseFloat(price),
       itemID: selectedItem.ITEM_ID,
       supplierID: selectedSupplier.SUPPLIER_ID,
-      importQuantity: quantity,
-      importPrice: parseFloat(importPrice),
-      totalFee: parseFloat(quantity) * parseFloat(importPrice) + parseFloat(shippingFee || 0)
+      returnQuantity: quantity,
+      returnPrice: parseFloat(price)
     };
 
-    axiosInstance.post("/importBill/create", data)
+    axiosInstance.post("/returnBill/create", data)
       .then(response => {
-        alert('Import created successfully:', response.data);
+        alert('Return created successfully:', response.data);
       })
       .catch(error => {
-        console.error('Error creating import:', error);
+        console.error('Error creating return:', error);
       });
   };
 
   return (
-    <div className="ImportContainer">
+    <div className="ReturnContainer">
       <div className="ContainerRow">
       <Supplier selectedSupplier={selectedSupplier} setSelectedSupplier={setSelectedSupplier} />
       <ItemList selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
@@ -49,43 +52,45 @@ const Import = () => {
       </div>
 
       <div className="input-field">
-        <span>Import Price</span>
+        <span>Price</span>
         <input 
           type="number"
-          value={importPrice}
-          onChange={handleImportPriceChange}
-          placeholder="Enter import price"
+          value={price}
+          onChange={handlePriceChange}
+          placeholder="Enter price per unit"
         />
       </div>
+
+      
 
       <div className="input-field">
-        <span>Shipping Fee</span>
-        <input 
-          type="number"
-          value={shippingFee}
-          onChange={handleShippingFee}
-          placeholder="Enter shipping fee"
+        <span>Reason</span>
+        <textarea 
+          value={reason}
+          onChange={handleReasonChange}
+          placeholder="Enter reason for return"
         />
       </div>
       </div>
 
-      <div className="total-fee">
-        <span>Total Fee: </span>
+      <div className="total-refund">
+        <span>Total Refund: </span>
         <span>
-          {quantity && importPrice ? (quantity * importPrice + parseFloat(shippingFee || 0)) : 0}
+          {quantity && price ? (quantity * price - parseFloat(refundFee || 0)) : 0}
         </span>
       </div>
 
       <button 
         className="create-btn" 
         onClick={handleCreate}
-        disabled={!selectedSupplier || !selectedItem || !quantity || !importPrice}
+        disabled={!selectedSupplier || !selectedItem || !quantity || !price || !reason}
       >
         Create
       </button>
     </div>
   );
 };
+export default Return;
 
 const Supplier = ({ selectedSupplier, setSelectedSupplier }) => {
   const [suppliers, setSuppliers] = useState([]);
@@ -128,10 +133,7 @@ const Supplier = ({ selectedSupplier, setSelectedSupplier }) => {
           </ul>
         )}
       </div>
-      
-
-    <div className="SelectContent">
-      {/* Hiển thị thông tin nhà cung cấp đã chọn */}
+      <div className="SelectContent">
       {selectedSupplier && (
         <div className="selected-supplier">
           <h3>Selected Supplier:</h3>
@@ -146,7 +148,7 @@ const Supplier = ({ selectedSupplier, setSelectedSupplier }) => {
   );
 };
 
-const ItemList = ({selectedItem, setSelectedItem }) => {
+const ItemList = ({ selectedItem, setSelectedItem }) => {
   const [items, setItems] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -177,33 +179,30 @@ const ItemList = ({selectedItem, setSelectedItem }) => {
         {isDropdownOpen && (
           <ul className="dropdown-list">
             {items.map(item => (
-            <li 
-                key={item.id || item.ITEM_ID} // Đảm bảo key là duy nhất
+              <li 
+                key={item.id || item.ITEM_ID}
                 onClick={() => handleSelectItem(item)}
-            >
-                {item.name || item.ITEM_ID} 
-            </li>
+              >
+                {item.name || item.ITEM_ID}
+              </li>
             ))}
-
           </ul>
         )}
       </div>
       <div className="SelectContent">
-      {/* Hiển thị thông tin nhà cung cấp đã chọn */}
       {selectedItem && (
-  <div className="selected-supplier">
-    <h3>Selected Item:</h3>
-    <p><strong>ID:</strong> {selectedItem.ITEM_ID}</p> {/* Displaying ITEM_ID */}
-    <p><strong>Selling Price:</strong> {selectedItem.SELLING_PRICE}</p> {/* Displaying SELLING_PRICE */}
-    <p><strong>Size:</strong> {selectedItem.SIZE}</p> {/* Displaying SIZE */}
-    <p><strong>Color:</strong> {selectedItem.COLOR}</p> {/* Displaying COLOR */}
-    <p><strong>Stock:</strong> {selectedItem.STOCK}</p> {/* Displaying STOCK */}
-  </div>
-)}
-
+        <div className="selected-item">
+          <h3>Selected Item:</h3>
+          <p><strong>ID:</strong> {selectedItem.ITEM_ID}</p>
+          <p><strong>Selling Price:</strong> {selectedItem.SELLING_PRICE}</p>
+          <p><strong>Size:</strong> {selectedItem.SIZE}</p>
+          <p><strong>Color:</strong> {selectedItem.COLOR}</p>
+          <p><strong>Stock:</strong> {selectedItem.STOCK}</p>
+        </div>
+      )}
       </div>
     </div>
   );
 };
 
-export default Import;
+

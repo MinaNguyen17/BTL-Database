@@ -3,24 +3,25 @@
 -- ===========================================
 
 -- Tạo database
-:r .\create_database.sql
-GO
+-- :r .\create_database.sql
+-- GO
 
 -- Tạo các bảng
-:r .\create_tables.sql
+:r "D:\Code\Nodejs\BTL-Database\SQL-Query\SQL\create_tables.sql"
 GO
 
 -- Tạo trigger
-:r .\create_trigger.sql
+:r "D:\Code\Nodejs\BTL-Database\SQL-Query\SQL\trigger.sql"
 GO
 
 -- Tạo stored procedure và function
-:r .\create_procedure_function.sql
+:r "D:\Code\Nodejs\BTL-Database\SQL-Query\SQL\create_procedures_functions.sql"
 GO
 
 -- Chèn dữ liệu vào các bảng
-:r .\insert_data.sql
+:r "D:\Code\Nodejs\BTL-Database\SQL-Query\SQL\insert_data.sql"
 GO
+
 
 -- ===========================================
 -- Nếu cần xóa các đối tượng, bỏ comment dưới đây

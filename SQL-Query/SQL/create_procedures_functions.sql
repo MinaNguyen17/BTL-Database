@@ -49,9 +49,18 @@ CREATE PROCEDURE AddProduct
     @DESCRIPTION TEXT
 AS
 BEGIN
-    INSERT INTO PRODUCT(PRODUCT_NAME, BRAND, STYLE_TAG, SEASON, CATEGORY, DESCRIPTION)
-    VALUES(@PRODUCT_NAME, @BRAND, @STYLE_TAG, @SEASON, @CATEGORY, @DESCRIPTION)
+    -- Insert the product
+    INSERT INTO PRODUCT (PRODUCT_NAME, BRAND, STYLE_TAG, SEASON, CATEGORY, DESCRIPTION)
+    VALUES (@PRODUCT_NAME, @BRAND, @STYLE_TAG, @SEASON, @CATEGORY, @DESCRIPTION);
+
+    -- Return the created product
+    SELECT * 
+    FROM PRODUCT
+    WHERE PRODUCT_ID = SCOPE_IDENTITY();
 END
+GO
+
+-- DROP PROCEDURE AddProduct
 GO
 
 CREATE PROCEDURE UpdateProduct
@@ -1063,11 +1072,6 @@ BEGIN
     VALUES(@SUPPLIER_EMAIL, @SUPPLIER_EMAIL, @SUPPLIER_PHONE, @ADDRESS)
 END;
 GO
-EXEC dbo.AddSupplier 'Routine', 'contact@routine.vn', '0901234567', '77 Nguyen Trai, District 1, Ho Chi Minh City';
-EXEC dbo.AddSupplier 'Hnoss',  'info@hnoss.vn', '0912345678', '88 Dong Khoi, District 1, Ho Chi Minh City';
-EXEC dbo.AddSupplier 'Coolmate', 'support@coolmate.me', '0923456789', '100 Cach Mang Thang 8, District 3, Ho Chi Minh City';
-SELECT * FROM SUPPLIER;
-GO
 
 
 CREATE OR ALTER PROCEDURE  dbo.DeleteSupplier
@@ -1610,6 +1614,8 @@ BEGIN
 END;
 
 
+-- DROP PROCEDURE CreateOrderAndIncomeReceipt
+
 GO
 CREATE PROCEDURE ReturnOrderAndCreateExpenseReceipt
     @OrderID INT,
@@ -1677,8 +1683,3 @@ BEGIN
     END CATCH
 END;
 GO
-
-
-
-
-
