@@ -11,6 +11,6 @@ router.post("/update/:id", auth.authenticateToken, ImportBillController.updateIm
 router.post(
 	"/updateStock/:id",
 	auth.authenticateToken,
-	ImportBillController.updateImportBill
+	ImportBillController.updateStockOnImport
 );
 module.exports = router;

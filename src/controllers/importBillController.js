@@ -66,9 +66,9 @@ async function updateStockOnImport(req, res) {
 	const { id } = req.params;
 	try {
 		await ImportBillService.updateStockOnImport(id);
-		res.status(200).json({ message: "ImportBill đã được xóa thành công." });
+		res.status(200).json({ message: "ImportBill đã được cập nhật thành công." });
 	} catch (error) {
-		res.status(500).json({ message: "Lỗi khi xóa ImportBill.", error });
+		res.status(500).json({ message: "Lỗi khi cập nhật ImportBill.", error });
 	}
 }
 
