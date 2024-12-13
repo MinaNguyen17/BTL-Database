@@ -15,6 +15,7 @@ import ProtectedRoute from './components/route/ProtectedRoute';
 import CreateAccount from './pages/Acc/createAccount';
 import Import from './pages/inventory/import';
 import ImportBill from './pages/inventory/importBill';
+import EmployeeView from './pages/employee-view/EmployeeView';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/order" element={<OrderSummary />} />
               <Route path="/productview" element={<ProductViewEmployee />} />
+              <Route path="/employeeview" element={<EmployeeView />} />
               <Route path="/product-details" element={<ProductPage />} />
               <Route path="/productadd1" element={<ProductAdd />} />
               <Route path="/productadd2" element={<ProductAdd2 />} />
