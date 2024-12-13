@@ -269,14 +269,13 @@ INSERT INTO EXPENSE_TYPE ([Name]) VALUES
 GO
 SELECT * FROM EXPENSE_TYPE;
 
--- delete from EXPENSE_RECEIPT
-INSERT INTO EXPENSE_RECEIPT ([Name], [Date], Amount, Payee_Name, Expense_Type_ID) VALUES
-('Store Rent for December', '2024-12-01', 25000000, 'Landlord', 2),
-('Electricity Bill', '2024-12-02', 1000000, 'Electricity Provider', 4),
-('Wifi Bill', '2024-12-03', 350000, 'FPT', 4),
-('Facebook Ads Campaign', '2024-12-02', 5000000, 'Ad Agency', 5);
+-- -- delete from EXPENSE_RECEIPT
+-- INSERT INTO EXPENSE_RECEIPT ([Name], [Date], Amount, Payee_Name, Expense_Type_ID) VALUES
+-- ('Store Rent for December', '2024-12-01', 25000000, 'Landlord', 2),
+-- ('Electricity Bill', '2024-12-02', 1000000, 'Electricity Provider', 4),
+-- ('Wifi Bill', '2024-12-03', 350000, 'FPT', 4),
+-- ('Facebook Ads Campaign', '2024-12-02', 5000000, 'Ad Agency', 5);
 
-SELECT * FROM EXPENSE_RECEIPT R JOIN EXPENSE_TYPE T ON R.Expense_Type_ID = T.Expense_Type_ID
 
 INSERT INTO INCOME_TYPE ([Name]) VALUES
 ('Sales Revenue'),
@@ -284,49 +283,7 @@ INSERT INTO INCOME_TYPE ([Name]) VALUES
 ('Additional Services Revenue'),
 ('Compensation');
 
--- Insert 5 sample records into INCOME_RECEIPT (Income related to the fashion store)
--- DELETE FROM INCOME_RECEIPT
-INSERT INTO INCOME_RECEIPT ([Name], [Date], Amount, Payer_Name, Income_Type_ID) VALUES
-('Lateness penalty', '2024-12-01', 100000, 'Tran Van Binh', 4),
-('Damage compensation', '2024-12-06', 500000, 'Pham Thi My', 4),
-('Express shipping fee', '2024-12-02', 80000, 'Ho Ba Kien', 3),
-('Tips', '2024-11-07', 150000, 'Pham Thanh An', 3);
 
--- TÍNH LƯƠNG THÁNG
-EXEC InsertTotalSalaryReceipt @Month = 12, @Year = 2024;
-SELECT * FROM EXPENSE_RECEIPT
-
--- DỮ LIỆU ADD EXPENSE/ INCOME
-SELECT * FROM Accounting_Employee
-SELECT * FROM INCOME_RECEIPT
-SELECT * FROM EXPENSE_RECEIPT
-
-INSERT INTO ADD_EXPENSE (Expense_ID, ID_Card_Num) VALUES
-('1','031202765489'),
-('2','083303246897'),
-('3','082201874356'),
-('4','073203567890');
-
-INSERT INTO ADD_INCOME (Income_ID, ID_Card_Num) VALUES
-('1','031202765489'),
-('2','083303246897'),
-('3','082201874356'),
-('4','073203567890');
-
--- SELECT E.ID_Card_Num, I.NAME, T.NAME
--- FROM EMPLOYEE E, ADD_INCOME, INCOME_RECEIPT I, INCOME_TYPE T
--- WHERE E.ID_CARD_NUM = ADD_INCOME.ID_CARD_NUM AND ADD_INCOME.Income_ID = I.Income_ID
--- AND I.INCOME_TYPE_ID = T.INCOME_TYPE_ID;
-
-EXEC CreateDailyProfitAndLossReport @Day = 01, @Month = 12, @Year = 2024
-EXEC CreateDailyProfitAndLossReport @Day = 02, @Month = 12, @Year = 2024
-EXEC CreateDailyProfitAndLossReport @Day = 03, @Month = 12, @Year = 2024
-EXEC CreateDailyProfitAndLossReport @Day = 04, @Month = 12, @Year = 2024
-
-EXEC CreateMonthlyProfitAndLossReport @Month = 12, @Year = 2024
-EXEC CreateYearlyProfitAndLossReport @Year = 2024
-
-SELECT * FROM PROFIT_AND_LOSS_STATEMENT
 -------
 
 -- Dữ liệu cho bảng CUSTOMER_GROUP
@@ -726,6 +683,7 @@ VALUES
 ('Completed', 12000000),
 ('Completed', 1500000);
 
+
 --dữ liệu import
 INSERT INTO IMPORT (IMPORT_ID, ITEM_ID, SUPPLIER_ID, IMPORT_QUANTITY, IMPORT_PRICE)
 VALUES
@@ -735,6 +693,16 @@ VALUES
 (3, 4, 4, 120, 300000),
 (3, 5, 5, 80, 450000),
 (3, 6, 6, 50, 380000);
+
+-- delete from EXPENSE_RECEIPT
+INSERT INTO EXPENSE_RECEIPT ([Name], [Date], Amount, Payee_Name, Expense_Type_ID) VALUES
+('Store Rent for December', '2024-12-01', 25000000, 'Landlord', 2),
+('Electricity Bill', '2024-12-02', 1000000, 'Electricity Provider', 4),
+('Wifi Bill', '2024-12-03', 350000, 'FPT', 4),
+('Facebook Ads Campaign', '2024-12-02', 5000000, 'Ad Agency', 5),
+('Purchase Item', '2024-12-04', 10000000, 'Routine', 1),
+('Purchase Item', '2024-12-05', 12000000, 'Routine', 1),
+('Purchase Item', '2024-12-04', 1500000, 'Routine', 1);
 
 --dữ liệu return bill
 INSERT INTO RETURN_BILL (REASON, REFUND_FEE)
@@ -751,6 +719,18 @@ VALUES
 (2, 2, 2, 3, 250000), 
 (3, 3, 3, 10, 100000), 
 (4, 4, 4, 2, 125000); 
+
+-- Insert 5 sample records into INCOME_RECEIPT (Income related to the fashion store)
+-- DELETE FROM INCOME_RECEIPT
+INSERT INTO INCOME_RECEIPT ([Name], [Date], Amount, Payer_Name, Income_Type_ID) VALUES
+('Lateness penalty', '2024-12-01', 100000, 'Tran Van Binh', 4),
+('Damage compensation', '2024-12-06', 500000, 'Pham Thi My', 4),
+('Express shipping fee', '2024-12-02', 80000, 'Ho Ba Kien', 3),
+('Tips', '2024-11-07', 500000, 'Pham Thanh An', 3),
+('Get Refund', '2024-12-11', 150000, 'Coolmate', 4),
+('Get Refund', '2024-12-11', 700000, 'Coolmate', 4),
+('Get Refund', '2024-12-11', 100000, 'Coolmate', 4),
+('Get Refund', '2024-12-11', 250000, 'Coolmate', 4);
 
 
 --dữ liệu reconcilation_form
@@ -773,3 +753,47 @@ VALUES
 (1,'061303543210'),
 (2,'011201987654'),
 (3,'011201987654');
+
+INSERT INTO ADD_EXPENSE (Expense_ID, ID_Card_Num) VALUES
+('1','031202765489'),
+('2','083303246897'),
+('3','082201874356'),
+('4','073203567890'),
+('5','073203567890'),
+('6','073203567890'),
+('7','073203567890');
+
+INSERT INTO ADD_INCOME (Income_ID, ID_Card_Num) VALUES
+('1','031202765489'),
+('2','083303246897'),
+('3','082201874356'),
+('4','073203567890'),
+('5','031202765489'),
+('6','083303246897'),
+('7','082201874356'),
+('8','073203567890');
+
+SELECT * FROM EXPENSE_RECEIPT R JOIN EXPENSE_TYPE T ON R.Expense_Type_ID = T.Expense_Type_ID
+-- TÍNH LƯƠNG THÁNG
+EXEC InsertTotalSalaryReceipt @Month = 12, @Year = 2024;
+SELECT * FROM EXPENSE_RECEIPT
+
+-- DỮ LIỆU ADD EXPENSE/ INCOME
+SELECT * FROM Accounting_Employee
+SELECT * FROM INCOME_RECEIPT
+SELECT * FROM EXPENSE_RECEIPT
+
+-- SELECT E.ID_Card_Num, I.NAME, T.NAME
+-- FROM EMPLOYEE E, ADD_INCOME, INCOME_RECEIPT I, INCOME_TYPE T
+-- WHERE E.ID_CARD_NUM = ADD_INCOME.ID_CARD_NUM AND ADD_INCOME.Income_ID = I.Income_ID
+-- AND I.INCOME_TYPE_ID = T.INCOME_TYPE_ID;
+
+EXEC CreateDailyProfitAndLossReport @Day = 01, @Month = 12, @Year = 2024
+EXEC CreateDailyProfitAndLossReport @Day = 02, @Month = 12, @Year = 2024
+EXEC CreateDailyProfitAndLossReport @Day = 03, @Month = 12, @Year = 2024
+EXEC CreateDailyProfitAndLossReport @Day = 04, @Month = 12, @Year = 2024
+
+EXEC CreateMonthlyProfitAndLossReport @Month = 12, @Year = 2024
+EXEC CreateYearlyProfitAndLossReport @Year = 2024
+
+SELECT * FROM PROFIT_AND_LOSS_STATEMENT
