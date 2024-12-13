@@ -16,6 +16,8 @@ import CreateAccount from './pages/Acc/createAccount';
 import Import from './pages/inventory/import';
 import ImportBill from './pages/inventory/importBill';
 import EmployeeView from './pages/employee-view/EmployeeView';
+import ProductView from './pages/productview';
+import ProductEdit from './pages/productedit';
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/order" element={<OrderSummary />} />
               <Route path="/productview" element={<ProductViewEmployee />} />
+              <Route path="/productview/:productId" element={<ProductView />} />
+              <Route path="/productedit" element={<ProductEdit />} />
               <Route path="/employeeview" element={<EmployeeView />} />
               <Route path="/product-details" element={<ProductPage />} />
               <Route path="/productadd1" element={<ProductAdd />} />
