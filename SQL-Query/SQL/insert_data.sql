@@ -353,39 +353,39 @@ VALUES
 -- Kiểm tra dữ liệu bảng CUSTOMER
 SELECT * FROM CUSTOMER;
 
--- Dữ liệu cho bảng REVENUE_REPORT_BY_ITEM
-INSERT INTO REVENUE_REPORT_BY_ITEM (Report_Type, Total_Revenue, [Day], [Month], [Year])
-VALUES 
-('Daily', 15000.50, 1, 12, 2024),
-('Daily', 10500.75, 7, 12, 2024),
-('Daily', 20000.00, 15, 12, 2024),
-('Monthly', 500000.00, NULL, 12, 2024),
-('Monthly', 150000.25, NULL, 6, 2024),
-('Monthly', 10000000.50, NULL, 10, 2024),
-('Yearly', 750000000.00, NULL, NULL, 2023),
-('Yearly', 100000000.00, NULL, NULL, 2024),
-('Yearly', 500000000.00, NULL, NULL, 2022),
-('Monthly', 120000.75, NULL, 8, 2024);
+-- -- Dữ liệu cho bảng REVENUE_REPORT_BY_ITEM
+-- INSERT INTO REVENUE_REPORT_BY_ITEM (Report_Type, Total_Revenue, [Day], [Month], [Year])
+-- VALUES 
+-- ('Daily', 15000.50, 1, 12, 2024),
+-- ('Daily', 10500.75, 7, 12, 2024),
+-- ('Daily', 20000.00, 15, 12, 2024),
+-- ('Monthly', 500000.00, NULL, 12, 2024),
+-- ('Monthly', 150000.25, NULL, 6, 2024),
+-- ('Monthly', 10000000.50, NULL, 10, 2024),
+-- ('Yearly', 750000000.00, NULL, NULL, 2023),
+-- ('Yearly', 100000000.00, NULL, NULL, 2024),
+-- ('Yearly', 500000000.00, NULL, NULL, 2022),
+-- ('Monthly', 120000.75, NULL, 8, 2024);
 
 -- Kiểm tra dữ liệu bảng REVENUE_REPORT_BY_ITEM
-SELECT * FROM REVENUE_REPORT_BY_ITEM;
+-- SELECT * FROM REVENUE_REPORT_BY_ITEM;
 
--- Dữ liệu cho bảng INVENTORY_REPORT
-INSERT INTO INVENTORY_REPORT (Report_Type, Inventory_Value, [Day], [Month], [Year])
-VALUES 
-('Daily', 250, 1, 12, 2024),
-('Daily', 175, 7, 12, 2024),
-('Daily', 75, 15, 12, 2024),
-('Monthly', 3000, NULL, 3, 2024),
-('Monthly', 5000, NULL, 5, 2024),
-('Monthly', 2600, NULL, 7, 2024),
-('Yearly', 12400, NULL, NULL, 2022),
-('Yearly', 12000, NULL, NULL, 2023),
-('Yearly', 19700, NULL, NULL, 2024),
-('Monthly', 1500, NULL, 11, 2024);
+-- -- Dữ liệu cho bảng INVENTORY_REPORT
+-- INSERT INTO INVENTORY_REPORT (Report_Type, Inventory_Value, [Day], [Month], [Year])
+-- VALUES 
+-- ('Daily', 250, 1, 12, 2024),
+-- ('Daily', 175, 7, 12, 2024),
+-- ('Daily', 75, 15, 12, 2024),
+-- ('Monthly', 3000, NULL, 3, 2024),
+-- ('Monthly', 5000, NULL, 5, 2024),
+-- ('Monthly', 2600, NULL, 7, 2024),
+-- ('Yearly', 12400, NULL, NULL, 2022),
+-- ('Yearly', 12000, NULL, NULL, 2023),
+-- ('Yearly', 19700, NULL, NULL, 2024),
+-- ('Monthly', 1500, NULL, 11, 2024);
 
 -- Kiểm tra dữ liệu bảng INVENTORY_REPORT
-SELECT * FROM INVENTORY_REPORT;
+-- SELECT * FROM INVENTORY_REPORT;
 
 -- Dữ liệu cho bảng RECEIVER_INFO
 -- Dữ liệu cho bảng RECEIVER_INFO

@@ -4,7 +4,7 @@ const config = {
 	user: "btl-db",
 	password: "database@10",
 	server: "btl-db.database.windows.net",
-	database: "db",
+	database: "db2",
 	options: {
 		encrypt: true, // Bắt buộc với Azure
 		enableArithAbort: true,

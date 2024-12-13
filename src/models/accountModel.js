@@ -30,15 +30,15 @@ const addAccount = async (idCardNum, role) => {
 	}
 };
 
-async function updateAccount(id, role, status) {
-	const pool = await getDBConnection();
-	await pool
-		.request()
-		.input("Account_ID", sql.Int, id)
-		.input("Role", sql.Char(20), role)
-		.input("Status", sql.VarChar(20), status)
-		.execute("dbo.updateAccount"); // Gọi stored procedure để xóa Account
-}
+// async function updateAccount(id, role, status) {
+// 	const pool = await getDBConnection();
+// 	await pool
+// 		.request()
+// 		.input("Account_ID", sql.Int, id)
+// 		.input("Role", sql.Char(20), role)
+// 		.input("Status", sql.VarChar(20), status)
+// 		.execute("dbo.updateAccount"); // Gọi stored procedure để xóa Account
+// }
 
 async function changePassword(username, password) {
 	const pool = await getDBConnection();
@@ -46,7 +46,7 @@ async function changePassword(username, password) {
 		.request()
 		.input("Username", sql.VarChar(100), username)
 		.input("NewPassword", sql.VarChar(255), password)
-		.execute("dbo.ChangePassword"); // Gọi stored procedure để sửa Account
+		.execute("dbo.UpdateAccount"); // Gọi stored procedure để sửa Account
 }
 
 async function getAllAccounts() {
@@ -78,6 +78,6 @@ module.exports = {
 	getAccountById,
 	addAccount,
 	changePassword,
-	updateAccount,
+	// updateAccount,
 	getAccountByUsername,
 };

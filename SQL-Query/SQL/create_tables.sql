@@ -339,27 +339,27 @@ CREATE TABLE PLACE (
     CONSTRAINT FK_Place_Order FOREIGN KEY (Order_ID) REFERENCES [ORDER](Order_ID)
 );
 
--- Bảng REVENUE_REPORT_BY_ITEM
-CREATE TABLE REVENUE_REPORT_BY_ITEM (
-    Item_Revenue_Report_ID INT PRIMARY KEY IDENTITY(1,1),
-    Report_Type NVARCHAR(50) NOT NULL,
-    Total_Revenue DECIMAL(18,3) NOT NULL,
-    -- Created_Date DATE DEFAULT GETDATE()
-    [Day] INT CHECK ([Day] BETWEEN 1 AND 31), -- Ngày trong tháng (1 đến 31)
-    [Month] INT CHECK ([Month] BETWEEN 1 AND 12), -- Tháng (1 đến 12)
-    [Year] INT
-);
+-- -- Bảng REVENUE_REPORT_BY_ITEM
+-- CREATE TABLE REVENUE_REPORT_BY_ITEM (
+--     Item_Revenue_Report_ID INT PRIMARY KEY IDENTITY(1,1),
+--     Report_Type NVARCHAR(50) NOT NULL,
+--     Total_Revenue DECIMAL(18,3) NOT NULL,
+--     -- Created_Date DATE DEFAULT GETDATE()
+--     [Day] INT CHECK ([Day] BETWEEN 1 AND 31), -- Ngày trong tháng (1 đến 31)
+--     [Month] INT CHECK ([Month] BETWEEN 1 AND 12), -- Tháng (1 đến 12)
+--     [Year] INT
+-- );
 
--- Bảng INVENTORY_REPORT
-CREATE TABLE INVENTORY_REPORT (
-    Inventory_Report_ID INT PRIMARY KEY IDENTITY(1,1),
-    Report_Type NVARCHAR(50) NOT NULL,
-    Inventory_Value INT NOT NULL CHECK (Inventory_Value >= 0),
-    -- Created_Date DATE DEFAULT GETDATE()
-    [Day] INT CHECK ([Day] BETWEEN 1 AND 31), -- Ngày trong tháng (1 đến 31)
-    [Month] INT CHECK ([Month] BETWEEN 1 AND 12), -- Tháng (1 đến 12)
-    [Year] INT
-);
+-- -- Bảng INVENTORY_REPORT
+-- CREATE TABLE INVENTORY_REPORT (
+--     Inventory_Report_ID INT PRIMARY KEY IDENTITY(1,1),
+--     Report_Type NVARCHAR(50) NOT NULL,
+--     Inventory_Value INT NOT NULL CHECK (Inventory_Value >= 0),
+--     -- Created_Date DATE DEFAULT GETDATE()
+--     [Day] INT CHECK ([Day] BETWEEN 1 AND 31), -- Ngày trong tháng (1 đến 31)
+--     [Month] INT CHECK ([Month] BETWEEN 1 AND 12), -- Tháng (1 đến 12)
+--     [Year] INT
+-- );
 
 -- -- Bảng Summarize
 -- CREATE TABLE Summarize (

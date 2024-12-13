@@ -15,12 +15,7 @@ router.get(
 	auth.authenticateToken,
 	EmployeeController.viewEmployeeSalary
 );
-router.get(
-	"/:employeeId",
-	auth.authenticateToken,
-	auth.isAdmin,
-	EmployeeController.getEmployeeById
-);
+router.get("/:employeeId", auth.authenticateToken, EmployeeController.getEmployeeById);
 router.post("/", auth.authenticateToken, auth.isAdmin, EmployeeController.addEmployee);
 router.put("/", auth.authenticateToken, auth.isAdmin, EmployeeController.updateEmployee);
 module.exports = router;

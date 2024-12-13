@@ -82,16 +82,16 @@ async function changePassword(req, res) {
 	}
 }
 
-async function updateAccount(req, res) {
-	const { id } = req.params;
-	const { role, status } = req.body;
-	try {
-		await AccountService.updateAccount(id, role, status);
-		res.status(200).json({ message: "Account đã được cập nhật thành công." });
-	} catch (error) {
-		res.status(500).json({ message: "Lỗi khi cập nhật Account.", error });
-	}
-}
+// async function updateAccount(req, res) {
+// 	const { id } = req.params;
+// 	const { role, status } = req.body;
+// 	try {
+// 		await AccountService.updateAccount(id, role, status);
+// 		res.status(200).json({ message: "Account đã được cập nhật thành công." });
+// 	} catch (error) {
+// 		res.status(500).json({ message: "Lỗi khi cập nhật Account.", error });
+// 	}
+// }
 
 const SECRET_KEY = process.env.SECRET_KEY;
 async function login(req, res) {
@@ -140,6 +140,5 @@ module.exports = {
 	getAccountById,
 	addAccount,
 	changePassword,
-	updateAccount,
 	login,
 };
