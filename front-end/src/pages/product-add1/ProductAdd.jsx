@@ -1,22 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductImageUpload from '../../components/product/ProductImageUpload';
 import ProductBasicInfo from './ProductBasicInfo';
 import ProductVariantSelector from './ProductVariantSelector';
 import ProductDescriptionForm from '../../components/product/ProductDescriptionForm';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const ProductAdd = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Initialize state with default or location state values
   const [productData, setProductData] = useState({
     name: '',
-    price: '',
     brand: '',
-    season: '',
-    colors: ['White', 'Black', 'Green'],
-    sizes: ['M', 'L'],
-    about: '',
     category: '',
-    styleTags: ['Clothes', 'Minimslism', 'Gothic', 'Ancessories', 'Ocean', 'Vanilla blue'],
-    images: []
+    season: '',
+    styleTags: [],
+    colors: [],
+    sizes: [],
+    about: '',
+    images: [],
+    price: '', // Ensure price is in initial state
+    versions: []
   });
+
+  // Use effect to populate data from navigation state
+  useEffect(() => {
+    if (location.state && location.state.productData) {
+      // Merge existing state with new state, prioritizing new data
+      setProductData(prevData => ({
+        ...prevData,
+        ...location.state.productData
+      }));
+    }
+  }, [location.state]);
 
   const handleImageUpload = (images) => {
     setProductData(prev => ({
@@ -27,7 +44,7 @@ const ProductAdd = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(productData);
+    navigate('/productadd2', { state: { productData } });
   };
 
   return (

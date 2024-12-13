@@ -30,7 +30,7 @@ async function getProductById(req, res) {
 async function addProduct(req, res) {
 	const { name, brand, style_tag, season, category, description } = req.body;
 	try {
-		await ProductService.addProduct(
+		const newProduct = await ProductService.addProduct(
 			name,
 			brand,
 			style_tag,
@@ -38,7 +38,10 @@ async function addProduct(req, res) {
 			category,
 			description
 		);
-		res.status(201).json({ message: "Product đã được thêm thành công." });
+		res.status(201).json({
+			message: "Product đã được thêm thành công.",
+			product: newProduct,
+		});
 	} catch (error) {
 		res.status(500).json({ message: "Lỗi khi thêm Product.", error });
 	}

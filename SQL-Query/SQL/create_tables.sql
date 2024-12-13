@@ -307,10 +307,10 @@ CREATE TABLE RECEIVER_INFO (
     
     Fname NVARCHAR(20) NOT NULL,
     Lname NVARCHAR(40) NOT NULL,
-    Phone NVARCHAR(15) CHECK (LEN(Phone) <= 10),
+    Phone NVARCHAR(15),  -- Điều chỉnh lại, không cần CHECK LEN(Phone) <= 10 nếu số điện thoại dài hơn
 
     PRIMARY KEY (ID_Card_Num, Customer_ID, Housenum, Street, District, City),
-    CONSTRAINT FK_Receiver_Info_Customer FOREIGN KEY (ID_Card_Num) REFERENCES CUSTOMER(ID_Card_Num) ON DELETE CASCADE,
+    CONSTRAINT FK_Receiver_Info_Customer FOREIGN KEY (ID_Card_Num) REFERENCES CUSTOMER(ID_Card_Num) ON DELETE CASCADE
 );
 
 -- Bảng OF_GROUP
@@ -324,19 +324,19 @@ CREATE TABLE OF_GROUP (
 
 -- Bảng PLACE
 CREATE TABLE PLACE (
-    Order_ID INT NOT NULL UNIQUE,
-    ID_Card_Num CHAR(12) NOT NULL UNIQUE,
-
-    Customer_ID INT NOT NULL UNIQUE,
+    Order_ID INT NOT NULL,
+    ID_Card_Num CHAR(12) NOT NULL,
+    Customer_ID INT NOT NULL,
     Housenum NVARCHAR(50),
     Street NVARCHAR(100),
     District NVARCHAR(100),
     City NVARCHAR(100),
-
+    
     PRIMARY KEY (Order_ID, ID_Card_Num),
-    CONSTRAINT FK_Place_Receiver_Info FOREIGN KEY (ID_Card_Num, Customer_ID, Housenum, Street, District, City) REFERENCES RECEIVER_INFO(ID_Card_Num, Customer_ID, Housenum, Street, District, City),
+    CONSTRAINT FK_Place_Receiver_Info FOREIGN KEY (ID_Card_Num, Customer_ID, Housenum, Street, District, City) 
+        REFERENCES RECEIVER_INFO(ID_Card_Num, Customer_ID, Housenum, Street, District, City),
     CONSTRAINT FK_Place_Customer FOREIGN KEY (ID_Card_Num) REFERENCES CUSTOMER(ID_Card_Num) ON DELETE CASCADE,
-    CONSTRAINT FK_Place_Order FOREIGN KEY (Order_ID) REFERENCES [ORDER](Order_ID),
+    CONSTRAINT FK_Place_Order FOREIGN KEY (Order_ID) REFERENCES [ORDER](Order_ID)
 );
 
 -- Bảng REVENUE_REPORT_BY_ITEM
@@ -361,26 +361,26 @@ CREATE TABLE INVENTORY_REPORT (
     [Year] INT
 );
 
--- Bảng Summarize
-CREATE TABLE Summarize (
-    Item_Revenue_Report_ID INT NOT NULL UNIQUE,
-    Order_ID INT NOT NULL UNIQUE,
-    Quantity INT NOT NULL CHECK (Quantity >= 0),
+-- -- Bảng Summarize
+-- CREATE TABLE Summarize (
+--     Item_Revenue_Report_ID INT NOT NULL UNIQUE,
+--     Order_ID INT NOT NULL UNIQUE,
+--     Quantity INT NOT NULL CHECK (Quantity >= 0),
 
-    PRIMARY KEY (Item_Revenue_Report_ID, Order_ID),
-    CONSTRAINT FK_Summarize_Revenue_Report_By_Item FOREIGN KEY (Item_Revenue_Report_ID) REFERENCES REVENUE_REPORT_BY_ITEM(Item_Revenue_Report_ID),
-    CONSTRAINT FK_Summarize_Order FOREIGN KEY (Order_ID) REFERENCES [ORDER](Order_ID)
-);
--- Bảng Contain
-CREATE TABLE Contain (
-    Inventory_Report_ID INT NOT NULL,
-    Item_ID INT NOT NULL,
-    Quantity INT NOT NULL CHECK (Quantity >= 0),
+--     PRIMARY KEY (Item_Revenue_Report_ID, Order_ID),
+--     CONSTRAINT FK_Summarize_Revenue_Report_By_Item FOREIGN KEY (Item_Revenue_Report_ID) REFERENCES REVENUE_REPORT_BY_ITEM(Item_Revenue_Report_ID),
+--     CONSTRAINT FK_Summarize_Order FOREIGN KEY (Order_ID) REFERENCES [ORDER](Order_ID)
+-- );
+-- -- Bảng Contain
+-- CREATE TABLE Contain (
+--     Inventory_Report_ID INT NOT NULL,
+--     Item_ID INT NOT NULL,
+--     Quantity INT NOT NULL CHECK (Quantity >= 0),
 
-    PRIMARY KEY (Inventory_Report_ID, Item_ID),
-    CONSTRAINT FK_Contain_Inventory_Report FOREIGN KEY (Inventory_Report_ID) REFERENCES INVENTORY_REPORT(Inventory_Report_ID),
-    CONSTRAINT FK_Contain_Item FOREIGN KEY (Item_ID) REFERENCES ITEM(Item_ID)
-);
+--     PRIMARY KEY (Inventory_Report_ID, Item_ID),
+--     CONSTRAINT FK_Contain_Inventory_Report FOREIGN KEY (Inventory_Report_ID) REFERENCES INVENTORY_REPORT(Inventory_Report_ID),
+--     CONSTRAINT FK_Contain_Item FOREIGN KEY (Item_ID) REFERENCES ITEM(Item_ID)
+-- );
 
 -- Bảng IMPORT_BILL
 CREATE TABLE IMPORT_BILL (
@@ -530,12 +530,12 @@ GO
 
 -- CREATE HANDLE
 CREATE TABLE HANDLE (
-    Order_ID INT PRIMARY KEY,
+    Return_Order_ID INT PRIMARY KEY,
     ID_Card_Num CHAR(12)
 )
 
 ALTER TABLE HANDLE
-ADD CONSTRAINT fk_handle_vs_order FOREIGN KEY (Order_ID) REFERENCES [ORDER](Order_ID)
+ADD CONSTRAINT fk_handle_vs_return_order FOREIGN KEY (Return_Order_ID) REFERENCES RETURN_ORDER(Return_Order_ID)
 
 ALTER TABLE HANDLE
 ADD CONSTRAINT fk_handle_vs_customer_service_employee FOREIGN KEY (ID_Card_Num) REFERENCES CUSTOMERSERVICE_EMPLOYEE(ID_Card_Num)

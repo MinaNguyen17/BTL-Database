@@ -2,16 +2,22 @@ const { getDBConnection } = require("../config/database.js");
 const sql = require("mssql");
 
 async function addProduct(name, brand, style_tag, season, category, description) {
-	const pool = await getDBConnection();
-	await pool
-		.request()
-		.input("PRODUCT_NAME", sql.VarChar(30), name)
-		.input("BRAND", sql.VarChar(30), brand)
-		.input("STYLE_TAG", sql.VarChar(30), style_tag)
-		.input("SEASON", sql.VarChar(30), season)
-		.input("CATEGORY", sql.VarChar(30), category)
-		.input("DESCRIPTION", sql.Text, description)
-		.execute("dbo.AddProduct"); // Gọi stored procedure để thêm Product
+	try {
+		const pool = await getDBConnection(); // Ensure to import or define `getDBConnection`
+		const result = await pool
+			.request()
+			.input("PRODUCT_NAME", sql.VarChar(30), name)
+			.input("BRAND", sql.VarChar(30), brand)
+			.input("STYLE_TAG", sql.VarChar(30), style_tag)
+			.input("SEASON", sql.VarChar(30), season)
+			.input("CATEGORY", sql.VarChar(30), category)
+			.input("DESCRIPTION", sql.Text, description)
+			.execute("AddProduct");
+
+		return result.recordset[0]; // Return the newly created product
+	} catch (err) {
+		throw new Error(`Database Error: ${err.message}`);
+	}
 }
 
 async function deleteProduct(id) {
