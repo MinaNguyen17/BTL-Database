@@ -181,6 +181,7 @@ const ProductView = () => {
             totalItems={filteredProducts.length} 
             onPageChange={handlePageChange} 
             currentPage={currentPage}
+            isLoading={isLoading}
           />
         </div>
       </div>

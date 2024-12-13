@@ -1,5 +1,25 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const ProductTableSkeleton = ({ itemsPerPage }) => {
+  return (
+    <>
+      {[...Array(itemsPerPage)].map((_, index) => (
+        <tr 
+          key={index} 
+          className={`${index % 2 === 0 ? 'bg-[#FAFCF3]' : 'bg-white'}`}
+        >
+          {[...Array(7)].map((_, colIndex) => (
+            <td key={colIndex} className="p-4">
+              <Skeleton className="h-4 w-full" />
+            </td>
+          ))}
+        </tr>
+      ))}
+    </>
+  );
+};
 
 const ProductTable = ({ 
   products, 
@@ -7,7 +27,8 @@ const ProductTable = ({
   currentPage, 
   itemsPerPage, 
   totalItems, 
-  onPageChange 
+  onPageChange,
+  isLoading 
 }) => {
   // Calculate total pages
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -62,29 +83,37 @@ const ProductTable = ({
           </tr>
         </thead>
         <tbody>
-          {products.map((product, index) => (
-            <tr 
-              key={index} 
-              className={`
-                ${index % 2 === 0 ? 'bg-[#FAFCF3]' : 'bg-white'}
-                ${product.isEditing ? 'pointer-events-none opacity-50' : ''}
-              `}
-            >
-              <td className="p-4">{product.PRODUCT_ID}</td>
-              <td className="p-4">{product.PRODUCT_NAME}</td>
-              <td className="p-4">{product.BRAND}</td>
-              <td className="p-4">{product.STYLE_TAG}</td>
-              <td className="p-4">{product.SEASON}</td>
-              <td className="p-4">{product.CATEGORY}</td>
-              <td className="p-4">{product.DESCRIPTION}</td>
-            </tr>
-          ))}
+          {isLoading ? (
+            <ProductTableSkeleton itemsPerPage={itemsPerPage} />
+          ) : (
+            products.map((product, index) => (
+              <tr 
+                key={index} 
+                className={`
+                  ${index % 2 === 0 ? 'bg-[#FAFCF3]' : 'bg-white'}
+                  ${product.isEditing ? 'pointer-events-none opacity-50' : ''}
+                `}
+              >
+                <td className="p-4">{product.PRODUCT_ID}</td>
+                <td className="p-4">{product.PRODUCT_NAME}</td>
+                <td className="p-4">{product.BRAND}</td>
+                <td className="p-4">{product.STYLE_TAG}</td>
+                <td className="p-4">{product.SEASON}</td>
+                <td className="p-4">{product.CATEGORY}</td>
+                <td className="p-4">{product.DESCRIPTION}</td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
       <div className="flex justify-between items-center p-4 border-t">
         <span className="text-sm text-gray-500">
-          Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-          {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} entries
+          {!isLoading && (
+            <>
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+              {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} entries
+            </>
+          )}
         </span>
         <div className="flex gap-2">
           <Button 
