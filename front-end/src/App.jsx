@@ -21,7 +21,7 @@ import ReturnBill from './pages/inventory/returnBill';
 import Inventory from './pages/inventory/inventory';
 
 import EmployeeView from './pages/employee-view/EmployeeView';
-\
+
 
 function App() {
   return (

@@ -16,7 +16,7 @@ const navItems = [
     { icon: RiFileListLine, label: 'Order Summary', active: false, href:'/order' },
     { icon: RiFileListLine, label: 'Message', active: false, href:'/message' },
     { icon: RiExchangeLine, label: 'Transaction', active: false, href:'/transaction' },
-    { icon: RiArchiveLine, label: 'Inventory', active: false, href:'#' },
+    { icon: RiArchiveLine, label: 'Inventory', active: false, href:'/inventory' },
     { icon: RiArchiveLine, label: 'Employee View', active: false, href: '/employeeview' },
     { icon: RiArchiveLine, label: 'Product Details', active: false, href: '/product-details' },
     { icon: RiArchiveLine, label: 'Product View', active: false, href: '/productview' },
