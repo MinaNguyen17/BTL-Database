@@ -13,7 +13,8 @@ import EmpShift from './pages/Acc/shift';
 import AddShift from './pages/Acc/addshift';
 import ProtectedRoute from './components/route/ProtectedRoute';
 import CreateAccount from './pages/Acc/createAccount';
-
+import Import from './pages/inventory/import';
+import ImportBill from './pages/inventory/importBill';
 
 function App() {
   return (
@@ -36,7 +37,11 @@ function App() {
               <Route path="/create-account" element={<CreateAccount />} />
               <Route path="/shift" element={<EmpShift/>}/>
               <Route path="/add-shift" element={<AddShift/>}/>
+              <Route path="/import" element={<Import/>} />
+              <Route path="/importbill" element={<ImportBill/>} />
+
               <Route path='*' element={<Navigate to="/order" />} />
+              
             </Route>
           </Route>
         </Routes>
