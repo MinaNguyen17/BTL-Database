@@ -1,0 +1,183 @@
+.ReturnContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #7c6864;
+  }
+  
+  .ReturnContainer > div {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
+  }
+  .ReturnContainer > div input {
+    padding: 10px;
+    width: 80%;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+ 
+  .ReturnContainer > div textarea {
+    padding: 10px;
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  .ReturnContainer textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+  .ReturnContainer button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: none;
+    background-color: #56705e;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .ReturnContainer button:hover {
+    background-color: #4a5d50;
+  }
+  
+  .ReturnContainer button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  
+  button:active {
+    background-color: #3e4c3b;
+  }
+  
+  .supplier-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: space-between;
+    width: 30%;
+    height: 100%;
+    border-radius: 8px;
+    background-color: #fdfdfd; /* Màu trắng */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .item-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: space-between;
+    width: 30%;
+    height: 100%;
+    border-radius: 8px;
+    background-color: #fdfdfd; /* Màu trắng */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .dropdown-container {
+    position: relative;
+    width: 100%;
+    height: 40px;
+  }
+  
+  .dropdown-btn {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    cursor: pointer;
+    background-color: #fff;
+    color: #333;
+  }
+  
+  .dropdown-btn:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .dropdown-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #56705e; /* Màu nền khi hover */
+    color: white; /* Màu chữ khi hover */
+  }
+  
+  .SelectContent {
+    min-height: 200px;
+  }
+  
+  .selected-supplier {
+    margin-top: 20px;
+  }
+  
+  .selected-supplier h3 {
+    margin-bottom: 10px;
+  }
+  
+  .selected-supplier p {
+    margin: 5px 0;
+  }
+  
+  .input-field {
+    display: flex;
+    flex-direction: row;
+    /* text-align: center; */
+    align-items: center;
+    width: calc(33.333% - 20px); /* Đảm bảo mỗi input-field chiếm 1/3 hàng */
+    gap: 8px;
+  }
+  
+  .input-field span {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .input-field input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .total-refund {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    font-size: 18px;
+    font-weight: bold;
+    color: #56705e;
+  }
+  
