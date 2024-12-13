@@ -1,5 +1,4 @@
 ----------------------------------------INSERT VALUE--------------------------------------------
-USE db;
 -- 24 EMPLOYEE
 
 
@@ -345,16 +344,11 @@ SELECT * FROM CUSTOMER_GROUP;
 -- Dữ liệu cho bảng CUSTOMER
 INSERT INTO CUSTOMER (ID_Card_Num, Group_Name)
 VALUES 
-('079304008477', 'Member'),
-('079203478901', 'Silver'),
-('012201320456', 'Gold'),
-('036302145769', 'Platinum'),
-('011201987654', 'Diamond'),
-('061303543210', 'Silver'),
-('079201345678', 'Gold'),
-('048203987654', 'Platinum'),
-('073203567890', 'Diamond'),
-('031202765489', 'Member');
+('043201098765', 'Member'),
+('071201876543', 'Silver'),
+('053201574839', 'Gold'),
+('022201578903', 'Platinum'),
+('051202345678', 'Diamond');
 
 -- Kiểm tra dữ liệu bảng CUSTOMER
 SELECT * FROM CUSTOMER;
@@ -394,52 +388,18 @@ VALUES
 SELECT * FROM INVENTORY_REPORT;
 
 -- Dữ liệu cho bảng RECEIVER_INFO
+-- Dữ liệu cho bảng RECEIVER_INFO
 INSERT INTO RECEIVER_INFO (ID_Card_Num, Customer_ID, Housenum, Street, District, City, Lname, Fname, Phone)
 VALUES
-('079304008477', 1, '12B', 'Nguyen Trai', 'Thanh Xuan', 'Ha Noi', 'Nguyen Van', 'Hoa', '0123456789'),
-('079203478901', 2, '45C', 'Le Duan', 'Dong Da', 'Ha Noi', 'Tran Van', 'Binh', '0987654321'),
-('012201320456', 3, '78A', 'Tran Phu', 'Ha Dong', 'Ha Noi', 'Nguyen Van', 'Tam', '0912345678'),
-('036302145769', 4, '32D', 'Pham Van Dong', 'Cau Giay', 'Ha Noi', 'Pham Minh', 'Long', '0945678912'),
-('011201987654', 5, '89E', 'Hoang Hoa Tham', 'Ba Dinh', 'Ha Noi', 'Le Hoang', 'Linh', '0934567890'),
-('061303543210', 6, '123A', 'Kim Ma', 'Ba Dinh', 'Ha Noi', 'Nguyen Thi', 'Trang', '0923456781'),
-('079201345678', 7, '456B', 'Ho Tung Mau', 'Nam Tu Liem', 'Ha Noi', 'Tran Van', 'Hoa', '0912345679'),
-('048203987654', 8, '789C', 'Trung Kinh', 'Cau Giay', 'Ha Noi', 'Pham Thi', 'My', '0901234567'),
-('073203567890', 9, '321D', 'Le Hong Phong', 'Ha Dong', 'Ha Noi', 'Do Van', 'Hung', '0987654322'),
-('031202765489', 10, '654E', 'Giai Phong', 'Hoang Mai', 'Ha Noi', 'Nguyen Thi', 'Lan', '0945678923');
+('043201098765', 1, '12B', 'Nguyen Trai', 'Thanh Xuan', 'Ha Noi', 'Pham Thi', 'Hue', '0123456789'),
+('071201876543', 2, '45C', 'Le Duan', 'Dong Da', 'Ha Noi', 'Nguyen Van', 'Hieu', '0987654321'),
+('053201574839', 3, '78A', 'Tran Phu', 'Ha Dong', 'Ha Noi', 'Tran Minh', 'Quang', '0912345678'),
+('022201578903', 4, '32D', 'Pham Van Dong', 'Cau Giay', 'Ha Noi', 'Le Thi', 'Kim', '0945678912'),
+('051202345678', 5, '89E', 'Hoang Hoa Tham', 'Ba Dinh', 'Ha Noi', 'Pham Van', 'Cuong', '0934567890');
 
 -- Kiểm tra dữ liệu bảng RECEIVER_INFO
 SELECT * FROM RECEIVER_INFO;
-
--- Dữ liệu cho bảng Of_Group
-INSERT INTO Of_Group (Voucher_ID, Group_Name)
-VALUES 
-(1, 'Member'),
-(2, 'Silver'),
-(3, 'Member'),
-(4, 'Platinum'),
-(5, 'Diamond'),
-(6, 'Member'),
-(7, 'Silver'),
-(8, 'Silver'),
-(9, 'Platinum'),
-(10, 'Diamond');
-
--- Kiểm tra dữ liệu bảng Of_Group
-SELECT * FROM Of_Group;
-
--- -- Dữ liệu cho bảng Place
--- INSERT INTO Place (Order_ID, ID_Card_Num, Customer_ID, HouseNum, Street, District, City)
--- VALUES 
--- (101, '079304008477', 1, '12A', 'Nguyen Trai', 'Thanh Xuan', 'Ha Noi'),
--- (102, '079203478901', 2, '45B', 'Le Duan', 'Dong Da', 'Ha Noi'),
--- (103, '012201320456', 3, '78C', 'Tran Phu', 'Ha Dong', 'Ha Noi'),
--- (104, '036302145769', 4, '32D', 'Pham Van Dong', 'Cau Giay', 'Ha Noi'),
--- (105, '011201987654', 5, '89E', 'Hoang Hoa Tham', 'Ba Dinh', 'Ha Noi'),
--- (106, '061303543210', 6, '123A', 'Kim Ma', 'Ba Dinh', 'Ha Noi'),
--- (107, '079201345678', 7, '456B', 'Ho Tung Mau', 'Nam Tu Liem', 'Ha Noi'),
--- (108, '048203987654', 8, '789C', 'Trung Kinh', 'Cau Giay', 'Ha Noi'),
--- (109, '073203567890', 9, '321D', 'Le Hong Phong', 'Ha Dong', 'Ha Noi'),
--- (110, '031202765489', 10, '654E', 'Giai Phong', 'Hoang Mai', 'Ha Noi');
+SELECT * FROM PLACE
 
 -- -- Kiểm tra dữ liệu bảng Place
 -- SELECT * FROM Place;
@@ -486,7 +446,7 @@ EXEC InsertVoucher
     @VoucherName = 'Special Offer', 
     @VoucherStatus = 'Activated', 
     @DiscountPercentage = 20, 
-    @MaxDiscountAmount = 30000,
+    @MaxDiscountAmount = 300000,
     @VoucherStartDate = '2024-12-01',  -- Ngày bắt đầu voucher
     @VoucherEndDate = '2024-12-31';    -- Ngày kết thúc voucher
 
@@ -495,7 +455,7 @@ EXEC InsertVoucher
     @VoucherName = 'Holiday Deal', 
     @VoucherStatus = 'Not activated', 
     @DiscountPercentage = 15, 
-    @MaxDiscountAmount = 15000,
+    @MaxDiscountAmount = 150000,
     @VoucherStartDate = '2024-12-10',  -- Ngày bắt đầu voucher
     @VoucherEndDate = '2025-01-10';    -- Ngày kết thúc voucher
 
@@ -504,7 +464,7 @@ EXEC InsertVoucher
     @VoucherName = 'Flash Sale', 
     @VoucherStatus = 'Expired', 
     @DiscountPercentage = 25, 
-    @MaxDiscountAmount = 25000,
+    @MaxDiscountAmount = 250000,
     @VoucherStartDate = '2024-11-15',  -- Ngày bắt đầu voucher
     @VoucherEndDate = '2024-11-30';    -- Ngày kết thúc voucher
 
@@ -513,7 +473,7 @@ EXEC InsertVoucher
     @VoucherName = 'Black Friday', 
     @VoucherStatus = 'Expired', 
     @DiscountPercentage = 30, 
-    @MaxDiscountAmount = 50000,
+    @MaxDiscountAmount = 500000,
     @VoucherStartDate = '2024-11-28',  -- Ngày bắt đầu voucher
     @VoucherEndDate = '2024-11-29';    -- Ngày kết thúc voucher
 
@@ -522,7 +482,7 @@ EXEC InsertVoucher
     @VoucherName = 'New Year Gift', 
     @VoucherStatus = 'Not activated', 
     @DiscountPercentage = 10, 
-    @MaxDiscountAmount = 10000,
+    @MaxDiscountAmount = 100000,
     @VoucherStartDate = '2024-12-20',  -- Ngày bắt đầu voucher
     @VoucherEndDate = '2025-01-10';    -- Ngày kết thúc voucher
 
@@ -530,7 +490,7 @@ EXEC InsertVoucher
     @VoucherName = 'SALE 12.12', 
     @VoucherStatus = 'Activated', 
     @DiscountPercentage = 15, 
-    @MaxDiscountAmount = 15000,
+    @MaxDiscountAmount = 150000,
     @VoucherStartDate = '2024-12-12',  -- Ngày bắt đầu voucher
     @VoucherEndDate = '2025-12-13';    -- Ngày kết thúc voucher
 
@@ -538,55 +498,71 @@ EXEC InsertVoucher
     @VoucherName = 'SALE 12.12-2', 
     @VoucherStatus = 'Activated', 
     @DiscountPercentage = 15, 
-    @MaxDiscountAmount = 15000,
+    @MaxDiscountAmount = 150000,
     @VoucherStartDate = '2024-12-12',  -- Ngày bắt đầu voucher
     @VoucherEndDate = '2025-12-13';    -- Ngày kết thúc voucher
 
 
 GO
+
+-- Dữ liệu cho bảng Of_Group
+INSERT INTO Of_Group (Voucher_ID, Group_Name)
+VALUES 
+(1, 'Member'),
+(2, 'Silver'),
+(3, 'Member'),
+(4, 'Platinum'),
+(5, 'Diamond'),
+(6, 'Diamond'),
+(7, 'Silver');
+
+-- Kiểm tra dữ liệu bảng Of_Group
+SELECT * FROM Of_Group;
 SELECT * FROM VOUCHER
 SELECT * FROM VOUCHER_VALID_PERIOD
 -- DELETE FROM VOUCHER_VALID_PERIOD
 -- DELETE FROM VOUCHER
 
+
+-- Thêm nhiều dữ liệu vào ORDER và INCOME_RECEIPT bằng thủ tục CreateOrderAndIncomeReceipt
 -- Thêm nhiều dữ liệu vào ORDER và INCOME_RECEIPT bằng thủ tục CreateOrderAndIncomeReceipt
 EXEC CreateOrderAndIncomeReceipt 
     @CustomerNotes = N'', 
-    @TotalItemAmount = 150000, 
+    @TotalItemAmount = 4980000, 
     @ShippingFee = 50000, 
     @PaymentMethod = 'Card', 
     @IncomeName = N'Payment for Order 1', 
-    @PayerName = N'Customer', 
+    @PayerName = N'Pham Thi Hue', 
     @IncomeTypeID = 1,
     @VoucherCode = 'V0001';  -- Áp dụng voucher code
 
 EXEC CreateOrderAndIncomeReceipt 
     @CustomerNotes = N'', 
-    @TotalItemAmount = 200000, 
+    @TotalItemAmount = 2500000, 
     @ShippingFee = 15000, 
     @PaymentMethod = 'Cash', 
     @IncomeName = N'Payment for Order 2', 
-    @PayerName = N'Customer B', 
+    @PayerName = N'Nguyen Van Hieu', 
     @IncomeTypeID = 1,
     @VoucherCode = 'V0007';  -- Áp dụng voucher code
 
 EXEC CreateOrderAndIncomeReceipt 
     @CustomerNotes = N'', 
-    @TotalItemAmount = 120000, 
-    @ShippingFee = 8000, 
+    @TotalItemAmount = 3500000, 
+    @ShippingFee = 80000, 
     @PaymentMethod = 'Card', 
     @IncomeName = N'Payment for Order 3', 
-    @PayerName = N'Customer', 
+    @PayerName = N'Tran Minh Quang', 
     @IncomeTypeID = 1,
     @VoucherCode = NULL;  -- Không áp dụng voucher (discount = 0)
 
 EXEC CreateOrderAndIncomeReceipt 
     @CustomerNotes = N'', 
-    @TotalItemAmount = 150000, 
-    @ShippingFee = 10000, 
+    @TotalItemAmount = 5000000, 
+    @ShippingFee = 100000, 
     @PaymentMethod = 'Card', 
     @IncomeName = N'Payment for Order 4', 
-    @PayerName = N'Customer', 
+    @PayerName = N'Le Thi Kim', 
     @IncomeTypeID = 1,
     @VoucherCode = NULL;  -- Áp dụng voucher code
 
@@ -596,49 +572,50 @@ EXEC CreateOrderAndIncomeReceipt
     @ShippingFee = 15000, 
     @PaymentMethod = 'Cash', 
     @IncomeName = N'Payment for Order 5', 
-    @PayerName = N'Customer B', 
+    @PayerName = N'Pham Van Cuong', 
     @IncomeTypeID = 1,
     @VoucherCode = 'V0006';  -- Áp dụng voucher code
 
-EXEC CreateOrderAndIncomeReceipt 
-    @CustomerNotes = N'', 
-    @TotalItemAmount = 120000, 
-    @ShippingFee = 8000, 
-    @PaymentMethod = 'Card', 
-    @IncomeName = N'Payment for Order 6', 
-    @PayerName = N'Customer', 
-    @IncomeTypeID = 1,
-    @VoucherCode = NULL;  -- Không áp dụng voucher (discount = 0)
+
+-- Dữ liệu cho bảng PLACE
+INSERT INTO PLACE (Order_ID, ID_Card_Num, Customer_ID, Housenum, Street, District, City)
+VALUES 
+(1, '043201098765', 1, '12B', 'Nguyen Trai', 'Thanh Xuan', 'Ha Noi'),
+(2, '071201876543', 2, '45C', 'Le Duan', 'Dong Da', 'Ha Noi'),
+(3, '053201574839', 3, '78A', 'Tran Phu', 'Ha Dong', 'Ha Noi'),
+(4, '022201578903', 4, '32D', 'Pham Van Dong', 'Cau Giay', 'Ha Noi'),
+(5, '051202345678', 5, '89E', 'Hoang Hoa Tham', 'Ba Dinh', 'Ha Noi');
+
 -- Thêm nhiều dữ liệu vào RETURN_ORDER và EXPENSE_RECEIPT bằng thủ tục ReturnOrderAndCreateExpenseReceipt
 EXEC ReturnOrderAndCreateExpenseReceipt 
     @OrderID = 1, 
     @Reason = N'Damaged item', 
     @ReturnDescription = N'Item arrived broken', 
     @ExpenseName = N'Refund for Order 1', 
-    @PayeeName = N'Customer', 
-    @ExpenseTypeID = 7;
+    @PayeeName = N'Pham Thi Hue', 
+    @ExpenseTypeID = 6;
 
 EXEC ReturnOrderAndCreateExpenseReceipt 
     @OrderID = 2, 
     @Reason = N'Wrong item', 
     @ReturnDescription = N'Received a different product', 
     @ExpenseName = N'Refund for Order 2', 
-    @PayeeName = N'Customer', 
-    @ExpenseTypeID = 7;
+    @PayeeName = N'Nguyen Van Hieu', 
+    @ExpenseTypeID = 6;
 
 EXEC ReturnOrderAndCreateExpenseReceipt 
     @OrderID = 3, 
     @Reason = N'Late delivery', 
     @ReturnDescription = N'', 
     @ExpenseName = N'Refund for Order 3', 
-    @PayeeName = N'Customer', 
-    @ExpenseTypeID = 7;
+    @PayeeName = N'Tran Minh Quang', 
+    @ExpenseTypeID = 6;
 
-SELECT * FROM [ORDER]
-SELECT * FROM RETURN_ORDER
-SELECT * FROM INCOME_RECEIPT
-SELECT * FROM EXPENSE_RECEIPT
-SELECT * FROM APPLY_VOUCHER
+-- SELECT * FROM [ORDER]
+-- SELECT * FROM RETURN_ORDER
+-- SELECT * FROM INCOME_RECEIPT
+-- SELECT * FROM EXPENSE_RECEIPT
+-- SELECT * FROM APPLY_VOUCHER
 -- DELETE FROM APPLY_VOUCHER
 -- DELETE FROM RETURN_ORDER
 -- DELETE FROM [ORDER]
@@ -652,39 +629,8 @@ VALUES
 ('DHL', GETDATE(), DATEADD(DAY, 10, GETDATE()), 2),
 ('DHL', GETDATE(), DATEADD(DAY, 5, GETDATE()), 3),
 ('DHL', GETDATE(), DATEADD(DAY, 8, GETDATE()), 4),
-('DHL', GETDATE(), DATEADD(DAY, 10, GETDATE()), 5),
-('DHL', GETDATE(), DATEADD(DAY, 12, GETDATE()), 6);
-
+('DHL', GETDATE(), DATEADD(DAY, 10, GETDATE()), 5);
 SELECT * FROM DELIVERY_INFO
-
-GO
-INSERT INTO VOUCHER_VALID_PERIOD (Voucher_ID, Voucher_Start_Date, Voucher_End_Date)
-VALUES
-(1, '2024-12-01', '2024-12-31'),
-(2, '2024-12-01', '2024-12-28'),
-(3, '2024-12-01', '2024-12-31'),
-(4, '2024-12-01', '2024-12-30'),
-(5, '2024-12-01', '2024-12-31');
-GO
-
-SELECT * FROM VOUCHER_VALID_PERIOD
-
-
-INSERT INTO APPLY_VOUCHER (Voucher_ID, Order_ID)
-VALUES 
-(1, 1), -- Voucher ID 1 được áp dụng cho Order ID 2
-(2, 2),
-(3, 3),
-(4, 4),
-(5, 5);
-
--- INSERT INTO INCLUDE_ITEM (Order_ID, Item_ID, Count)
--- VALUES
--- (1, 101, 2), -- Order 1 bao gồm 2 Item có ID 101
--- (1, 102, 1),
--- (2, 103, 5),
--- (3, 101, 3),
--- (4, 104, 4);
 
 INSERT INTO INCHARGE_OF (Order_ID, ID_Card_Num)
 VALUES
@@ -743,6 +689,17 @@ VALUES
 (350000, 'XL', 'Gray', 120, 4),
 (500000, '32', 'Blue', 80, 5),
 (400000, 'L', 'White', 50, 6);
+
+-- INCLUDE_ITEM
+INSERT INTO INCLUDE_ITEM (Order_ID, Item_ID, Count)
+VALUES
+(1, 1, 10), -- Order 1 bao gồm 2 Item có ID 101
+(1, 2, 10),
+(2, 3, 10),
+(3, 4, 10),
+(4, 5, 10),
+(5, 5, 10);
+
 
 --Dữ liệu product_set
 INSERT INTO PRODUCT_SET (NAME, STYLE)
@@ -806,7 +763,13 @@ VALUES
 
 INSERT INTO RECONCILE (CHECK_ID, ITEM_ID, ID_CARD_NUM, ACTUAL_QUANTITY)
 VALUES
-(1, 1, '130044556677', 5),
-(2, 2, '140055667788', 10),
-(3, 3, '150066778899', 15),
-(4, 4, '160077889900', 20);
+(1, 1, '071201876543', 5),
+(2, 2, '053201574839', 10),
+(3, 3, '022201578903', 15),
+(4, 4, '051202345678', 20);
+
+INSERT INTO HANDLE (Return_Order_ID, ID_Card_Num)
+VALUES
+(1,'061303543210'),
+(2,'011201987654'),
+(3,'011201987654');
