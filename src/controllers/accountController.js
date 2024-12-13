@@ -129,7 +129,11 @@ async function login(req, res) {
 		);
 
 		// Trả về token cho client
-		res.json({ message: "Login successful", token });
+		res.json({
+			message: "Login successful",
+			token,
+			ID_Card_Num: account.ID_Card_Num,
+		});
 	} catch (error) {
 		res.status(500).json({ message: "Internal server error", error: error.message });
 	}
