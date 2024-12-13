@@ -15,6 +15,9 @@ import ProtectedRoute from './components/route/ProtectedRoute';
 import CreateAccount from './pages/Acc/createAccount';
 import Import from './pages/inventory/import';
 import ImportBill from './pages/inventory/importBill';
+import Return from './pages/inventory/return';
+import ReturnBill from './pages/inventory/returnBill';
+import Inventory from './pages/inventory/inventory';
 
 function App() {
   return (
@@ -39,6 +42,11 @@ function App() {
               <Route path="/add-shift" element={<AddShift/>}/>
               <Route path="/import" element={<Import/>} />
               <Route path="/importbill" element={<ImportBill/>} />
+              <Route path="/return" element={<Return/>} />
+              <Route path="/returnbill" element={<ReturnBill/>}/>
+              <Route path="/inventory" element={<Inventory/>}/>
+
+
 
               <Route path='*' element={<Navigate to="/order" />} />
               
