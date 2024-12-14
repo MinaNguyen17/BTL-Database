@@ -59,7 +59,17 @@ const EmployeeService = {
       console.error('Error updating employee:', error);
       throw error;
     }
-  }
+  },
+  // Get salary information for a specific user
+  getSalary: async (idCardNum) => {
+    try {
+      const response = await axiosInstance.get('/employee/salary/079305009352');
+      return response.data.salaries || [];
+    } catch (error) {
+      console.error(`Error fetching salary for ID ${idCardNum}:`, error);
+      throw error;
+    }
+  },
 };
 
 export default EmployeeService;
