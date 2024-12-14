@@ -2,7 +2,7 @@
   .inventory-container {
     width: 100%; /* Container chiếm toàn bộ chiều ngang */
     background-color: white;
-    justify-items: end;
+    justify-items: center;
     margin-top: 30px;
     width: 1000px; /* Đặt giới hạn chiều rộng tối đa */
     height: 800px;
