@@ -21,5 +21,5 @@ router.post("/remove", auth.authenticateToken, ShiftController.removeEmployeeFro
 router.post("/add", auth.authenticateToken, ShiftController.registerEmployeeToShift);
 router.get("/:shiftId", auth.authenticateToken, ShiftController.getShiftById);
 router.post("/", auth.authenticateToken, ShiftController.addShift);
-router.put("/", auth.authenticateToken, ShiftController.updateShift);
+router.put("/", auth.authenticateToken, auth.isAdmin, ShiftController.updateShift);
 module.exports = router;
