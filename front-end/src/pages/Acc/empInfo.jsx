@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "./empInfo.css"
-import  EmployeeService  from "@/services/employeeService";
-import {accountService} from "@/services/accountService";
+import { accountService } from "@/services/accountService";
+import EmployeeService from "@/services/employeeService";
 import { toast } from "sonner";
 
 const EmployeeInfo = () => {
@@ -13,43 +13,51 @@ const EmployeeInfo = () => {
     lname: '',
     position: '',
     password: '********',
-    avatar: 'src/assets/empAvatar/default.jpg', // Default avatar
+    avatar: '/src/assets/empAvatar/default.png', 
   });
   const [payroll, setPayroll] = useState([]);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        // const idCardNum = localStorage.getItem('ID_Card_Num');
         const idCardNum = localStorage.getItem('UserID');
-        console.log('User ID:', idCardNum);
-
         if (!idCardNum) {
           toast.error('No user ID found. Please log in.');
           return;
         }
 
-        // const userData = await accountService.getAccountById(idCardNum);
-        
-        // setUser({
-        //   idCardNum: userData.ID_Card_Num || '',
-        //   fname: userData.Fname || '',
-        //   lname: userData.Lname || '',
-        //   position: userData.Position || '',
-        //   password: '********',
-        //   avatar: userData.avatar || 'src/assets/empAvatar/default.jpg'
-        // });
+        console.log('Fetching user data for ID:', idCardNum);
 
-        // Fetch salary data
+        // Fetch user data
+        const userData = await accountService.getAccountById(idCardNum);
         
-        const salaryData = await EmployeeService.getSalary(idCardNum.toString());
-        console.log('Salary Data:', salaryData);
+        console.log('Fetched user data:', userData);
+
+        setUser({
+          idCardNum: userData.ID_Card_Num || idCardNum,
+          fname: userData.Fname || '',
+          lname: userData.Lname || '',
+          position: userData.Position || '',
+          password: '********',
+          avatar: userData.avatar || '/src/assets/empAvatar/default.png'
+        });
+
+        // Fetch salary data for the current year
+        const salaryData = await EmployeeService.getSalary(idCardNum);
+        
+        console.log('Fetched salary data:', salaryData);
+
         // Transform salary data for display
-        const formattedPayroll = salaryData.map(salary => ({
-          month: new Date(salary.Year, salary.Month - 1).toLocaleString('default', { month: 'long' }),
-          salary: salary.Amount,
-          year: salary.Year
-        }));
+        const formattedPayroll = salaryData.salaries.map(salary => ({
+          month: new Date(salary.year, salary.month - 1).toLocaleString('default', { month: 'long' }),
+          salary: salary.amount,
+          year: salary.year
+        })).sort((a, b) => {
+          // Sort by year and month
+          const dateA = new Date(a.year, new Date(a.month + ' 1, 2000').getMonth());
+          const dateB = new Date(b.year, new Date(b.month + ' 1, 2000').getMonth());
+          return dateA - dateB;
+        });
 
         setPayroll(formattedPayroll);
       } catch (error) {
@@ -74,8 +82,7 @@ const EmployeeInfo = () => {
       try {
         // Implement password change logic
         await accountService.changePassword({
-          ID_Card_Num: user.idCardNum,
-          newPassword: user.password
+          password: user.password
         });
         toast.success('Password updated successfully');
       } catch (error) {
@@ -92,9 +99,13 @@ const EmployeeInfo = () => {
         
         <div className="account-image">
           <img
-            src={user.avatar || 'src/assets/empAvatar/default.jpg'}
+            src={user.avatar}
             alt="User Avatar"
             className="account-avatar"
+            onError={(e) => {
+              e.target.onerror = null; 
+              e.target.src = '/src/assets/empAvatar/default.png';
+            }}
           />
         </div>
         <div className="account-info">
@@ -162,15 +173,13 @@ const EmployeeInfo = () => {
           <thead>
             <tr>
               <th>Month</th>
-              <th>Year</th>
               <th>Salary</th>
             </tr>
           </thead>
           <tbody>
             {payroll.map((entry, index) => (
               <tr key={index}>
-                <td>{entry.month}</td>
-                <td>{entry.year}</td>
+                <td>{entry.month} {entry.year}</td>
                 <td>${entry.salary.toLocaleString()}</td>
               </tr>
             ))}
