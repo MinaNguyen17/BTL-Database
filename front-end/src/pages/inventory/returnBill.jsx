@@ -34,7 +34,7 @@ const ReturnBill = () => {
             returnBills.map((bill) => (
               <tr key={bill.RETURN_ID}>
                 <td>{bill.RETURN_ID}</td>
-                <td>{bill.REFUND_FEE.toLocaleString()} VND</td>
+                <td>{bill.REFUND_FEE.toLocaleString()} $</td>
                 <td>{bill.REASON}</td>
               </tr>
             ))

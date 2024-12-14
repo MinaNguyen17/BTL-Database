@@ -74,7 +74,7 @@ const ImportBill = () => {
               <tr key={bill.IMPORT_ID}>
                 <td>{bill.IMPORT_ID}</td>
                 <td>{bill.IMPORT_STATE}</td>
-                <td>{bill.TOTAL_FEE.toLocaleString()} VND</td>
+                <td>{bill.TOTAL_FEE.toLocaleString()} $</td>
                 <td>
                   {bill.IMPORT_STATE === "Pending" ? (
                     <button
