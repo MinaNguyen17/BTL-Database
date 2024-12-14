@@ -1,17 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "./empInfo.css"
+import { accountService } from "@/services/accountService";
+import EmployeeService from "@/services/employeeService";
+import { toast } from "sonner";
 
 const EmployeeInfo = () => {
     
   const [isEditing, setIsEditing] = useState(false);
   const [user, setUser] = useState({
-    idCardNum: '123456789',
-    fname: 'Go',
-    lname: 'Min SiSi',
-    position: 'Software Engineer',
+    idCardNum: '',
+    fname: '',
+    lname: '',
+    position: '',
     password: '********',
-    avatar: 'src/assets/empAvatar/gominsi.jpg', // Default avatar
+    avatar: '/src/assets/empAvatar/default.png', 
   });
+  const [payroll, setPayroll] = useState([]);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const idCardNum = localStorage.getItem('UserID');
+        if (!idCardNum) {
+          toast.error('No user ID found. Please log in.');
+          return;
+        }
+
+        console.log('Fetching user data for ID:', idCardNum);
+
+        // Fetch user data
+        const userData = await accountService.getAccountById(idCardNum);
+        
+        console.log('Fetched user data:', userData);
+
+        setUser({
+          idCardNum: userData.ID_Card_Num || idCardNum,
+          fname: userData.Fname || '',
+          lname: userData.Lname || '',
+          position: userData.Position || '',
+          password: '********',
+          avatar: userData.avatar || '/src/assets/empAvatar/default.png'
+        });
+
+        // Fetch salary data for the current year
+        const salaryData = await EmployeeService.getSalary(idCardNum);
+        
+        console.log('Fetched salary data:', salaryData);
+
+        // Transform salary data for display
+        const formattedPayroll = salaryData.salaries.map(salary => ({
+          month: new Date(salary.year, salary.month - 1).toLocaleString('default', { month: 'long' }),
+          salary: salary.amount,
+          year: salary.year
+        })).sort((a, b) => {
+          // Sort by year and month
+          const dateA = new Date(a.year, new Date(a.month + ' 1, 2000').getMonth());
+          const dateB = new Date(b.year, new Date(b.month + ' 1, 2000').getMonth());
+          return dateA - dateB;
+        });
+
+        setPayroll(formattedPayroll);
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+        toast.error('Failed to fetch user information');
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -20,14 +76,20 @@ const EmployeeInfo = () => {
       [name]: value,
     }));
   };
-  const [payroll, setPayroll] = useState([
-    { month: 'January', salary: 5000 },
-    { month: 'February', salary: 5000 },
-    { month: 'March', salary: 5000 },
-    { month: 'April', salary: 5000 },
-  ]);
 
-  const toggleEdit = () => {
+  const toggleEdit = async () => {
+    if (isEditing) {
+      try {
+        // Implement password change logic
+        await accountService.changePassword({
+          password: user.password
+        });
+        toast.success('Password updated successfully');
+      } catch (error) {
+        console.error('Password change error:', error);
+        toast.error('Failed to update password');
+      }
+    }
     setIsEditing((prev) => !prev);
   };
 
@@ -37,13 +99,17 @@ const EmployeeInfo = () => {
         
         <div className="account-image">
           <img
-            src={user.avatar || 'src/assets/empAvatar/gominsi.jpg'}
+            src={user.avatar}
             alt="User Avatar"
             className="account-avatar"
+            onError={(e) => {
+              e.target.onerror = null; 
+              e.target.src = '/src/assets/empAvatar/default.png';
+            }}
           />
         </div>
         <div className="account-info">
-        <h2>Employee's Infomation</h2>
+        <h2>Employee's Information</h2>
           <label className="account-label">ID Card Number:</label>
           <input
             type="text"
@@ -113,7 +179,7 @@ const EmployeeInfo = () => {
           <tbody>
             {payroll.map((entry, index) => (
               <tr key={index}>
-                <td>{entry.month}</td>
+                <td>{entry.month} {entry.year}</td>
                 <td>${entry.salary.toLocaleString()}</td>
               </tr>
             ))}
@@ -124,90 +190,4 @@ const EmployeeInfo = () => {
   );
 };
 
-
 export default EmployeeInfo;
-
-// AccountView.css
-/*
-.account-view {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  background-color: #f9f9f9;
-  font-family: Arial, sans-serif;
-}
-
-.account-section {
-  display: flex;
-  width: 100%;
-  max-width: 800px;
-  margin-bottom: 20px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.account-image {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.account-avatar {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.account-info {
-  flex: 2;
-  padding-left: 20px;
-}
-
-.account-name {
-  font-size: 1.8rem;
-  margin-bottom: 10px;
-}
-
-.account-email,
-.account-phone,
-.account-address {
-  font-size: 1rem;
-  margin: 5px 0;
-  color: #555;
-}
-
-.account-salary {
-  width: 100%;
-  max-width: 800px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.salary-title {
-  font-size: 1.5rem;
-  margin-bottom: 15px;
-}
-
-.salary-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.salary-table th,
-.salary-table td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: left;
-}
-
-.salary-table th {
-  background-color: #f4f4f4;
-}
-*/

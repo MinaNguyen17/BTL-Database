@@ -120,7 +120,7 @@ export const accountService = {
   // Get account by ID (admin only)
   getAccountById: async (id) => {
     try {
-      const response = await axiosInstance.get(`/account/get/${id}`);
+      const response = await axiosInstance.get(`/employee/${id}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching account with ID ${id}:`, error);
