@@ -5,7 +5,7 @@ import "./addshift.css";
 function CreateShift() {
   const [hoveredData, setHoveredData] = useState(null);
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
-  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-02")); // Start from Monday
+  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-09")); // Start from Monday
   const [timetableData, setTimetableData] = useState([]);
 
   // Fetch shift data from API
@@ -22,9 +22,9 @@ function CreateShift() {
               E_Num: shift.E_Num,
               Rate: shift.Rate,
             },
-            employees: [],
+            employees: [], // Employees sẽ được lấy khi hover
             label: `Shift ${shift.Shift_Type}`,
-            color: "blue",
+            color: "blue", // Màu mặc định cho các block
           }));
           setTimetableData(fetchedShifts);
         }
@@ -32,9 +32,9 @@ function CreateShift() {
         console.error("Failed to fetch shifts:", err.message);
       }
     };
-  
     fetchShifts();
   }, []);
+  
   
 
   const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
@@ -67,6 +67,17 @@ function CreateShift() {
   const [newShift, setNewShift] = useState({
     ID: "", // Shift_ID
   });
+  const fetchShiftDetails = async (shiftId) => {
+    try {
+      const response = await axiosInstance.get(`/shift/${shiftId}`);
+      if (response.data) {
+        return response.data; // Trả về dữ liệu chi tiết của shift
+      }
+    } catch (err) {
+      console.error("Failed to fetch shift details:", err.message);
+      return null;
+    }
+  };
   
 
   // Handle form input changes
@@ -136,10 +147,17 @@ function CreateShift() {
     setCurrentWeekStart(newStartDate);
   };
 
-  const handleMouseEnter = (e, data) => {
-    setHoveredData(data);
-    setHoverPosition({ x: e.clientX + 15, y: e.clientY + 15 });
+  const handleMouseEnter = async (e, data) => {
+    const shiftDetails = await fetchShiftDetails(data.shift.Shift_ID); // Lấy chi tiết shift
+    if (shiftDetails) {
+      setHoveredData({
+        shift: shiftDetails.shift,
+        employees: shiftDetails.employees,
+      });
+      setHoverPosition({ x: e.clientX + 15, y: e.clientY + 15 });
+    }
   };
+  
 
   const handleMouseLeave = () => {
     setHoveredData(null);
@@ -166,38 +184,40 @@ function CreateShift() {
           </div>
 
           <div className="content">
-            {daysOfWeek.map((day, dayIndex) => {
-              const currentDate = currentWeekDates[dayIndex].toISOString().split("T")[0];
-              return timetableData
-                .filter((item) => item.shift.Date.split("T")[0] === currentDate)
-                .map((data, index) => {
-                  const { startTime, endTime } = getShiftTimes(data.shift.Shift_Type);
-                  return (
-                    <div
-                      key={index}
-                      className={`cell accent-${data.color}-gradient`}
-                      style={{
-                        gridRow: `${calculateGridRow(startTime)} / span ${calculateRowSpan(startTime, endTime)}`,
-                        gridColumn: dayIndex + 1,
-                      }}
-                      onMouseEnter={(e) => handleMouseEnter(e, data)}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      <span>{data.label}</span>
-                    </div>
-                  );
-                });
-            })}
+  {daysOfWeek.map((day, dayIndex) => {
+    const currentDate = currentWeekDates[dayIndex].toISOString().split("T")[0];
+    return timetableData
+      .filter((item) => item.shift.Date.split("T")[0] === currentDate)
+      .map((data, index) => {
+        const { startTime, endTime } = getShiftTimes(data.shift.Shift_Type);
+        return (
+          <div
+            key={index}
+            className={`cell accent-${data.color}-gradient`}
+            style={{
+              gridRow: `${calculateGridRow(startTime)} / span ${calculateRowSpan(startTime, endTime)}`,
+              gridColumn: dayIndex + 1,
+            }}
+            onMouseEnter={(e) => handleMouseEnter(e, data)}
+            onMouseLeave={handleMouseLeave}
+          >
+            <span>{data.label}</span>
           </div>
+        );
+      });
+  })}
+</div>
+
 
           {hoveredData && (
   <div
     className="hover-box"
     style={{ top: `${hoverPosition.y}px`, left: `${hoverPosition.x}px` }}
   >
-    <p><strong>Shift Type: {hoveredData.shift.Shift_Type}</strong></p>
-    <p><strong>Shift ID: {hoveredData.shift.Shift_ID}</strong></p> {/* Hiển thị Shift_ID */}
-    <p>Employees:</p>
+    <p><strong>Shift Type:</strong> {hoveredData.shift.Shift_Type}</p>
+    <p><strong>Shift ID:</strong> {hoveredData.shift.Shift_ID}</p>
+    <p><strong>Date:</strong> {new Date(hoveredData.shift.Date).toLocaleDateString()}</p>
+    <p><strong>Employees:</strong></p>
     <ul>
       {hoveredData.employees.map((employee) => (
         <li key={employee.Employee_ID}>

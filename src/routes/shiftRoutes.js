@@ -20,6 +20,6 @@ router.post(
 router.post("/remove", auth.authenticateToken, ShiftController.removeEmployeeFromShift);
 router.post("/add", auth.authenticateToken, ShiftController.registerEmployeeToShift);
 router.get("/:shiftId", auth.authenticateToken, ShiftController.getShiftById);
-router.post("/", auth.authenticateToken, ShiftController.addShift);
+router.post("/", auth.authenticateToken,auth.isAdmin, ShiftController.addShift);
 router.put("/", auth.authenticateToken, ShiftController.updateShift);
 module.exports = router;

@@ -5,7 +5,7 @@ import "./shift.css";
 function EmpShift() {
   const [hoveredData, setHoveredData] = useState(null);
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
-  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-02")); // Bắt đầu từ ngày thứ hai
+  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-09")); // Bắt đầu từ ngày thứ hai
   const [shiftStatus, setShiftStatus] = useState({}); // Track the checked-in status of each shift
   const [timetableData, setTimetableData] = useState([]);
 
@@ -203,20 +203,14 @@ function EmpShift() {
   })}
 </div>
 
+
           {hoveredData && (
             <div
               className="hover-box"
               style={{ top: `${hoverPosition.y}px`, left: `${hoverPosition.x}px` }}
             >
               <p><strong>Shift Type: {hoveredData.shift.Shift_Type}</strong></p>
-              <p>Employees:</p>
-              <ul>
-                {hoveredData.employees.map((employee) => (
-                  <li key={employee.Employee_ID}>
-                    {employee.Fname} {employee.Lname} - {employee.Position}
-                  </li>
-                ))}
-              </ul>
+              <p><strong>Shift ID:</strong> {hoveredData.shift.Shift_ID}</p>
             </div>
           )}
         </div>

@@ -13,35 +13,32 @@ function EmpShift() {
   ]);
 
   
-  useEffect(() => {
-    const fetchShifts = async () => {
-      try {
-        const response = await axiosInstance.get("/shift/all");
-        if (response.data) {
-          const fetchedShifts = response.data.map((shift) => ({
-            shift: {
-              Shift_ID: shift.Shift_ID,
-              Shift_Type: shift.Shift_Type,
-              Date: shift.Date,
-              E_Num: shift.E_Num,
-              Rate: shift.Rate,
-            },
-            employees: [],
-            label: `Shift ${shift.Shift_Type}`,
-            color: "blue",
-          }));
-          setTimetableData(fetchedShifts);
-        }
-      } catch (err) {
-        console.error("Failed to fetch shifts:", err.message);
-        setError("Failed to load shifts. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchShifts();
-  }, []);
+ // Fetch shift data from API
+   useEffect(() => {
+     const fetchShifts = async () => {
+       try {
+         const response = await axiosInstance.get("/shift/all");
+         if (response.data) {
+           const fetchedShifts = response.data.map((shift) => ({
+             shift: {
+               Shift_ID: shift.Shift_ID,
+               Shift_Type: shift.Shift_Type,
+               Date: shift.Date,
+               E_Num: shift.E_Num,
+               Rate: shift.Rate,
+             },
+             employees: [], // Employees sẽ được lấy khi hover
+             label: `Shift ${shift.Shift_Type}`,
+             color: "blue", // Màu mặc định cho các block
+           }));
+           setTimetableData(fetchedShifts);
+         }
+       } catch (err) {
+         console.error("Failed to fetch shifts:", err.message);
+       }
+     };
+     fetchShifts();
+   }, []);
 
   
 
@@ -142,7 +139,17 @@ function EmpShift() {
       alert("Failed to add shift. Please try again.");
     }
   };
-  
+  const fetchShiftDetails = async (shiftId) => {
+      try {
+        const response = await axiosInstance.get(`/shift/${shiftId}`);
+        if (response.data) {
+          return response.data; // Trả về dữ liệu chi tiết của shift
+        }
+      } catch (err) {
+        console.error("Failed to fetch shift details:", err.message);
+        return null;
+      }
+    };
 
   const getCurrentShift = (currentDate) => {
     const currentDateObj = new Date(currentDate);
@@ -170,9 +177,15 @@ function EmpShift() {
     setCurrentWeekStart(newStartDate);
   };
 
-  const handleMouseEnter = (e, data) => {
-    setHoveredData(data);
-    setHoverPosition({ x: e.clientX + 15, y: e.clientY + 15 });
+  const handleMouseEnter = async (e, data) => {
+    const shiftDetails = await fetchShiftDetails(data.shift.Shift_ID); // Lấy chi tiết shift
+    if (shiftDetails) {
+      setHoveredData({
+        shift: shiftDetails.shift,
+        employees: shiftDetails.employees,
+      });
+      setHoverPosition({ x: e.clientX + 15, y: e.clientY + 15 });
+    }
   };
 
   const handleMouseLeave = () => {
@@ -200,46 +213,48 @@ function EmpShift() {
           </div>
 
           <div className="content">
-            {daysOfWeek.map((day, dayIndex) => {
-              const currentDate = currentWeekDates[dayIndex].toISOString().split("T")[0];
-              return timetableData
-                .filter((item) => item.shift.Date.split("T")[0] === currentDate)
-                .map((data, index) => {
-                  const { startTime, endTime } = getShiftTimes(data.shift.Shift_Type);
-                  return (
-                    <div
-                      key={index}
-                      className={`cell accent-${data.color}-gradient`}
-                      style={{
-                        gridRow: `${calculateGridRow(startTime)} / span ${calculateRowSpan(startTime, endTime)}`,
-                        gridColumn: dayIndex + 1,
-                      }}
-                      onMouseEnter={(e) => handleMouseEnter(e, data)}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      <span>{data.label}</span>
-                    </div>
-                  );
-                });
-            })}
+  {daysOfWeek.map((day, dayIndex) => {
+    const currentDate = currentWeekDates[dayIndex].toISOString().split("T")[0];
+    return timetableData
+      .filter((item) => item.shift.Date.split("T")[0] === currentDate)
+      .map((data, index) => {
+        const { startTime, endTime } = getShiftTimes(data.shift.Shift_Type);
+        return (
+          <div
+            key={index}
+            className={`cell accent-${data.color}-gradient`}
+            style={{
+              gridRow: `${calculateGridRow(startTime)} / span ${calculateRowSpan(startTime, endTime)}`,
+              gridColumn: dayIndex + 1,
+            }}
+            onMouseEnter={(e) => handleMouseEnter(e, data)}
+            onMouseLeave={handleMouseLeave}
+          >
+            <span>{data.label}</span>
           </div>
+        );
+      });
+  })}
+</div>
 
-          {hoveredData && (
-            <div
-              className="hover-box"
-              style={{ top: `${hoverPosition.y}px`, left: `${hoverPosition.x}px` }}
-            >
-              <p><strong>Shift Type: {hoveredData.shift.Shift_Type}</strong></p>
-              <p>Employees:</p>
-              <ul>
-                {hoveredData.employees.map((employee) => (
-                  <li key={employee.Employee_ID}>
-                    {employee.Fname} {employee.Lname} - {employee.Position}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+{hoveredData && (
+  <div
+    className="hover-box"
+    style={{ top: `${hoverPosition.y}px`, left: `${hoverPosition.x}px` }}
+  >
+    <p><strong>Shift Type:</strong> {hoveredData.shift.Shift_Type}</p>
+    <p><strong>Shift ID:</strong> {hoveredData.shift.Shift_ID}</p>
+    <p><strong>Date:</strong> {new Date(hoveredData.shift.Date).toLocaleDateString()}</p>
+    <p><strong>Employees:</strong></p>
+    <ul>
+      {hoveredData.employees.map((employee) => (
+        <li key={employee.Employee_ID}>
+          {employee.Fname} {employee.Lname} - {employee.Position}
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
         </div>
 
         <div className="week-navigation">

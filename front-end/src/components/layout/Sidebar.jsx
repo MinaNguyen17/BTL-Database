@@ -24,6 +24,7 @@ const navItems = [
     { icon: RiArchiveLine, label: 'Product Add 2', active: false, href: '/productadd2' },
     { icon: RiArchiveLine, label: 'Shift', active: false, href: '/shift' },
     { icon: RiArchiveLine, label: 'Add Shift', active: false, href: '/add-shift' },
+    { icon: RiArchiveLine, label: 'Dk Shift', active: false, href: '/dkca' },
 ];
 
 function Sidebar() {
