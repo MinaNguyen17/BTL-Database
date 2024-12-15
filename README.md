@@ -26,7 +26,7 @@ This system is designed to manage a chain of fashion stores efficiently. It stre
 - Record import/export transactions.
 
 ## Getting Started
-To run the HCMUT Student Smart Printing Service (HCMUT_SSPS) locally, follow these steps:
+To run the Fashion Store Management System locally, follow these steps:
 
 ### Prerequisites
 - Install [Node.js](https://nodejs.org/) if you haven't already.
