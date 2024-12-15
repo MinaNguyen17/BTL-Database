@@ -36,7 +36,7 @@ To run the HCMUT Student Smart Printing Service (HCMUT_SSPS) locally, follow the
 ``` bash
 git clone https://github.com/MinaNguyen17/BTL-Database.git
 ```
-Setup file `.env` in backend:
+- Setup file `.env` in backend:
 ```bash
 SECRET_KEY = <your_key>
 PORT = <port>
@@ -46,7 +46,7 @@ PORT = <port>
 npm install
 npm start
 ```
-Setup file `.env` in frontend:
+- Setup file `.env` in frontend:
 ```bash
 VITE_BASE_URL = '<link to backend>'
 ```
