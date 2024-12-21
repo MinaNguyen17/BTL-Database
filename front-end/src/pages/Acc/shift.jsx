@@ -5,7 +5,7 @@ import "./shift.css";
 function EmpShift() {
   const [hoveredData, setHoveredData] = useState(null);
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
-  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-09")); // Bắt đầu từ ngày thứ hai
+  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-16")); // Bắt đầu từ ngày thứ hai
   const [shiftStatus, setShiftStatus] = useState({}); // Track the checked-in status of each shift
   const [timetableData, setTimetableData] = useState([]);
 

@@ -5,7 +5,7 @@ import "./addshift.css";
 function CreateShift() {
   const [hoveredData, setHoveredData] = useState(null);
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
-  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-09")); // Start from Monday
+  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-16")); // Start from Monday
   const [timetableData, setTimetableData] = useState([]);
 
   // Fetch shift data from API

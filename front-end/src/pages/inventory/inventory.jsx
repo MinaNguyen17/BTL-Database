@@ -44,10 +44,10 @@ const Inventory = () => {
       
       {/* Buttons to toggle visibility of components */}
       <div className="inventory-buttons">
-        <button onClick={toggleImport}>Toggle Import</button>
-        <button onClick={toggleReturn}>Toggle Return</button>
-        <button onClick={toggleImportBill}>Toggle Import Bill</button>
-        <button onClick={toggleReturnBill}>Toggle Return Bill</button>
+        <button onClick={toggleImport}>Import</button>
+        <button onClick={toggleReturn}>Return</button>
+        <button onClick={toggleImportBill}>Import Bill</button>
+        <button onClick={toggleReturnBill}>Return Bill</button>
       </div>
 
       {/* Inventory components */}

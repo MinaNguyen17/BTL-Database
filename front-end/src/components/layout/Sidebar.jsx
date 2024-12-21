@@ -17,14 +17,14 @@ const navItems = [
     { icon: RiFileListLine, label: 'Message', active: false, href:'/message' },
     { icon: RiExchangeLine, label: 'Transaction', active: false, href:'/transaction' },
     { icon: RiArchiveLine, label: 'Inventory', active: false, href:'/inventory' },
-    { icon: RiArchiveLine, label: 'Employee View', active: false, href: '/employeeview' },
-    { icon: RiArchiveLine, label: 'Product Details', active: false, href: '/product-details' },
-    { icon: RiArchiveLine, label: 'Product View', active: false, href: '/productview' },
-    { icon: RiArchiveLine, label: 'Product Add 1', active: false, href: '/productadd1' },
-    { icon: RiArchiveLine, label: 'Product Add 2', active: false, href: '/productadd2' },
-    { icon: RiArchiveLine, label: 'Shift', active: false, href: '/shift' },
-    { icon: RiArchiveLine, label: 'Add Shift', active: false, href: '/add-shift' },
-    { icon: RiArchiveLine, label: 'Dk Shift', active: false, href: '/dkca' },
+    { icon: RiArchiveLine, label: 'Employee', active: false, href: '/employeeview' },
+    { icon: RiArchiveLine, label: 'Product', active: false, href: '/product-details' },
+    // { icon: RiArchiveLine, label: 'Product View', active: false, href: '/productview' },
+    // { icon: RiArchiveLine, label: 'Product Add 1', active: false, href: '/productadd1' },
+    // { icon: RiArchiveLine, label: 'Product Add 2', active: false, href: '/productadd2' },
+     { icon: RiArchiveLine, label: 'Shift', active: false, href: '/shift' },
+    // { icon: RiArchiveLine, label: 'Shift', active: false, href: '/add-shift' },
+    // { icon: RiArchiveLine, label: 'Dk Shift', active: false, href: '/dkca' },
 ];
 
 function Sidebar() {

@@ -5,7 +5,7 @@ import "./addshift.css";
 function EmpShift() {
   const [hoveredData, setHoveredData] = useState(null);
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
-  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-09")); // Start from Monday
+  const [currentWeekStart, setCurrentWeekStart] = useState(new Date("2024-12-16")); // Start from Monday
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [timetableData, setTimetableData] = useState([
@@ -123,6 +123,57 @@ function EmpShift() {
   
         // Cập nhật state với dữ liệu mới
         setTimetableData((prev) => [...prev, newShiftEntry]);
+  
+        // Reset form về trạng thái ban đầu
+        setNewShift({ label: "", date: "", E_Num: 0, Rate: 1 });
+  
+        // Thông báo thành công
+        alert("Shift has been successfully added.");
+      } else {
+        // Xử lý trường hợp phản hồi không mong muốn
+        throw new Error("Unexpected response from the server.");
+      }
+    } catch (error) {
+      // Bắt lỗi và hiển thị thông báo
+      console.error("Error creating shift:", error.message);
+      alert("Failed to add shift. Please try again.");
+    }
+  };
+  const [upShift, setupShift] = useState({
+      ID: "", // Shift_ID
+      E_Num: 0,  // Number of employees
+      Rate: 1,   // Shift rate
+    });
+    
+  
+    // Handle form input changes
+    const handleInputChangeU = (e) => {
+      const { name, value } = e.target;
+      setupShift((prevState) => ({
+        ...prevState,
+        [name]: value, // Gán giá trị từ trường nhập liệu
+      }));
+    };
+  const handleSubmitChange = async (e) => {
+    e.preventDefault(); // Ngăn chặn hành vi mặc định của form
+  
+    try {
+      // Chuẩn bị dữ liệu gửi đi
+      const shiftData = {
+        Shift_ID: upShift.id,
+        E_Num: parseInt(upShift.E_Num, 10),
+        Rate: parseFloat(upShift.Rate),
+      };
+      console.log(shiftData);
+  
+      // Gửi yêu cầu POST tới API
+      const response = await axiosInstance.post("/shift", shiftData);
+  
+      // Kiểm tra phản hồi từ API
+      if (response?.data?.shift) {
+        const addedShift = response.data.shift;
+  
+        
   
         // Reset form về trạng thái ban đầu
         setNewShift({ label: "", date: "", E_Num: 0, Rate: 1 });
@@ -309,7 +360,44 @@ function EmpShift() {
           />
         </div>
 
-        <button type="submit">Add Shift</button>
+        <button type="submit">Update Shift</button>
+      </form>
+      <form onSubmit={handleSubmitChange} className="shift-form">
+        <div>
+          <label>Shift ID(1, 2, 3):</label>
+          <input
+            type="number"
+            name="id"
+            value={upShift.ID}
+            onChange={handleInputChangeU}
+            required
+          />
+        </div>
+
+      
+        <div>
+          <label>Employees:</label>
+          <input
+            type="number"
+            name="E_Num"
+            value={newShift.E_Num}
+            onChange={handleInputChangeU}
+            required
+          />
+        </div>
+
+        <div>
+          <label>Rate:</label>
+          <input
+            type="number"
+            name="Rate"
+            value={newShift.Rate}
+            onChange={handleInputChangeU}
+            required
+          />
+        </div>
+
+        <button type="submit">Update</button>
       </form>
     </div>
   );
