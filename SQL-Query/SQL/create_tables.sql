@@ -339,48 +339,6 @@ CREATE TABLE PLACE (
     CONSTRAINT FK_Place_Order FOREIGN KEY (Order_ID) REFERENCES [ORDER](Order_ID)
 );
 
--- -- Bảng REVENUE_REPORT_BY_ITEM
--- CREATE TABLE REVENUE_REPORT_BY_ITEM (
---     Item_Revenue_Report_ID INT PRIMARY KEY IDENTITY(1,1),
---     Report_Type NVARCHAR(50) NOT NULL,
---     Total_Revenue DECIMAL(18,3) NOT NULL,
---     -- Created_Date DATE DEFAULT GETDATE()
---     [Day] INT CHECK ([Day] BETWEEN 1 AND 31), -- Ngày trong tháng (1 đến 31)
---     [Month] INT CHECK ([Month] BETWEEN 1 AND 12), -- Tháng (1 đến 12)
---     [Year] INT
--- );
-
--- -- Bảng INVENTORY_REPORT
--- CREATE TABLE INVENTORY_REPORT (
---     Inventory_Report_ID INT PRIMARY KEY IDENTITY(1,1),
---     Report_Type NVARCHAR(50) NOT NULL,
---     Inventory_Value INT NOT NULL CHECK (Inventory_Value >= 0),
---     -- Created_Date DATE DEFAULT GETDATE()
---     [Day] INT CHECK ([Day] BETWEEN 1 AND 31), -- Ngày trong tháng (1 đến 31)
---     [Month] INT CHECK ([Month] BETWEEN 1 AND 12), -- Tháng (1 đến 12)
---     [Year] INT
--- );
-
--- -- Bảng Summarize
--- CREATE TABLE Summarize (
---     Item_Revenue_Report_ID INT NOT NULL UNIQUE,
---     Order_ID INT NOT NULL UNIQUE,
---     Quantity INT NOT NULL CHECK (Quantity >= 0),
-
---     PRIMARY KEY (Item_Revenue_Report_ID, Order_ID),
---     CONSTRAINT FK_Summarize_Revenue_Report_By_Item FOREIGN KEY (Item_Revenue_Report_ID) REFERENCES REVENUE_REPORT_BY_ITEM(Item_Revenue_Report_ID),
---     CONSTRAINT FK_Summarize_Order FOREIGN KEY (Order_ID) REFERENCES [ORDER](Order_ID)
--- );
--- -- Bảng Contain
--- CREATE TABLE Contain (
---     Inventory_Report_ID INT NOT NULL,
---     Item_ID INT NOT NULL,
---     Quantity INT NOT NULL CHECK (Quantity >= 0),
-
---     PRIMARY KEY (Inventory_Report_ID, Item_ID),
---     CONSTRAINT FK_Contain_Inventory_Report FOREIGN KEY (Inventory_Report_ID) REFERENCES INVENTORY_REPORT(Inventory_Report_ID),
---     CONSTRAINT FK_Contain_Item FOREIGN KEY (Item_ID) REFERENCES ITEM(Item_ID)
--- );
 
 -- Bảng IMPORT_BILL
 CREATE TABLE IMPORT_BILL (
